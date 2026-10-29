@@ -1,6 +1,6 @@
 import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowRight, GraduationCap, Home, Languages, LogOut } from "lucide-react";
+import { GraduationCap, Home, Languages, LogOut } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { useProfile, useSession } from "@/hooks/useSession";
 import { NotificationBell } from "@/components/NotificationBell";
+import { BackButton } from "@/components/BackButton";
+import { InstallButton } from "@/components/InstallButton";
 
 type NavItem = { to: string; label: string };
 
@@ -32,7 +34,6 @@ export function AppShell({
   const navigate = useNavigate();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const canGoBack = router.history.length > 1;
 
   async function signOut() {
     await queryClient.cancelQueries();
@@ -52,18 +53,8 @@ export function AppShell({
             {t("app.name")}
           </Link>
           <div className="flex items-center gap-1">
-            {canGoBack && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => router.history.back()}
-                aria-label={tr("رجوع")}
-                className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-              >
-                <ArrowRight className="size-4 rtl:rotate-0 ltr:rotate-180" />
-                <span className="hidden sm:inline">{tr("رجوع")}</span>
-              </Button>
-            )}
+            <BackButton className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
+            <InstallButton className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
             {homeTo && (
               <Button
                 variant="ghost"

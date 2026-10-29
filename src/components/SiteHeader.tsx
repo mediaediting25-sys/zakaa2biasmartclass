@@ -3,6 +3,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { GraduationCap, Languages, LogOut } from "lucide-react";
 
 import { NotificationBell } from "@/components/NotificationBell";
+import { BackButton } from "@/components/BackButton";
+import { InstallButton } from "@/components/InstallButton";
+import { useLocation } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { homeForRole, useProfile, useRole, useSession } from "@/hooks/useSession";
@@ -15,6 +18,7 @@ export function SiteHeader() {
   const { data: profile } = useProfile(user);
   const roleLabel: Record<string, string> = { teacher: tr("معلم"), student: tr("طالب"), parent: tr("ولي أمر"), admin: tr("مدير") };
   const navigate = useNavigate();
+  const pathname = useLocation({ select: (l) => l.pathname });
   const queryClient = useQueryClient();
 
   async function signOut() {
@@ -35,6 +39,8 @@ export function SiteHeader() {
         </Link>
 
         <div className="flex items-center gap-2">
+          {pathname !== "/" && <BackButton />}
+          <InstallButton />
           <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
             <Link to="/pricing">{tr("الباقات والأسعار")}</Link>
           </Button>

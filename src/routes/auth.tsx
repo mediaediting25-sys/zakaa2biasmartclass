@@ -4,6 +4,7 @@ import { GraduationCap } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/BackButton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
@@ -117,7 +118,8 @@ function AuthPage() {
   }
 
   return (
-    <div className="grid min-h-screen place-items-center gradient-hero px-4 py-10">
+    <div className="relative grid min-h-screen place-items-center gradient-hero px-4 py-10">
+      <BackButton className="absolute top-4 start-4" />
       <div className="w-full max-w-md">
         <div className="mb-6 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold">
