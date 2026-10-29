@@ -1,6 +1,6 @@
 import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowRight, GraduationCap, Home, Languages, LogOut } from "lucide-react";
+import { GraduationCap, Home, Languages, LogOut } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -34,7 +34,6 @@ export function AppShell({
   const navigate = useNavigate();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const canGoBack = router.history.length > 1;
 
   async function signOut() {
     await queryClient.cancelQueries();
