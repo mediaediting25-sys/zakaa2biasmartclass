@@ -13,11 +13,11 @@ import { useRole, useSession } from "@/hooks/useSession";
 import { useI18n } from "@/lib/i18n";
 import { SUBJECTS, subjectLabel } from "@/lib/subjects";
 
-type Search = { subject?: string };
+type Search = { subject?: string | undefined };
 
 export const Route = createFileRoute("/teachers")({
   validateSearch: (s: Record<string, unknown>): Search => ({
-    subject: typeof s.subject === "string" && s.subject ? s.subject : undefined,
+    subject: typeof s["subject"] === "string" && s["subject"] ? s["subject"] : undefined,
   }),
   head: () => ({
     meta: [
@@ -160,7 +160,7 @@ function TeachersPage() {
   );
 }
 
-function RequestForm({ listing, role, defaultSubject, onDone }: { listing: Listing; role?: string; defaultSubject?: string; onDone: () => void }) {
+function RequestForm({ listing, role, defaultSubject, onDone }: { listing: Listing; role?: string | undefined; defaultSubject?: string | undefined; onDone: () => void }) {
   const { locale } = useI18n();
   const ar = locale === "ar";
   const { user } = useSession();

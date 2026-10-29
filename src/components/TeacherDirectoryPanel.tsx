@@ -70,7 +70,7 @@ export function TeacherDirectoryPanel({ userId, courses }: { userId: string; cou
     mutationFn: async ({ id, approve }: { id: string; approve: boolean }) => {
       const courseId = pick[id];
       if (approve && !courseId) throw new Error(ar ? "اختر المقرر الذي سيُضاف إليه الطالب" : "Choose a course first");
-      const { error } = await supabase.rpc("decide_join_request", { _request_id: id, _approve: approve, _course_id: courseId ?? null });
+      const { error } = await supabase.rpc("decide_join_request", { _request_id: id, _approve: approve, _course_id: courseId ?? (null as unknown as string) });
       if (error) throw error;
     },
     onSuccess: (_d, v) => {
