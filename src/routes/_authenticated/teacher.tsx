@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { useSession } from "@/hooks/useSession";
 import { createCourse, listMyCourses } from "@/lib/api";
 import { getTeacherDashboard } from "@/lib/teacher-dashboard.functions";
+import { TeacherDirectoryPanel } from "@/components/TeacherDirectoryPanel";
 
 export const Route = createFileRoute("/_authenticated/teacher")({
   head: () => ({
@@ -198,6 +199,8 @@ function TeacherHome() {
           </div>
         )}
       </section>
+
+      {user && <TeacherDirectoryPanel userId={user.id} courses={courses.data ?? []} />}
     </AppShell>
   );
 }

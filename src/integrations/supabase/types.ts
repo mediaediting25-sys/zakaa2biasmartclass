@@ -575,6 +575,56 @@ export type Database = {
           },
         ]
       }
+      join_requests: {
+        Row: {
+          course_id: string | null
+          created_at: string
+          decided_at: string | null
+          id: string
+          message: string | null
+          requested_by: string
+          status: string
+          student_id: string
+          student_name: string | null
+          subject: string | null
+          teacher_id: string
+        }
+        Insert: {
+          course_id?: string | null
+          created_at?: string
+          decided_at?: string | null
+          id?: string
+          message?: string | null
+          requested_by: string
+          status?: string
+          student_id: string
+          student_name?: string | null
+          subject?: string | null
+          teacher_id: string
+        }
+        Update: {
+          course_id?: string | null
+          created_at?: string
+          decided_at?: string | null
+          id?: string
+          message?: string | null
+          requested_by?: string
+          status?: string
+          student_id?: string
+          student_name?: string | null
+          subject?: string | null
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "join_requests_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lessons: {
         Row: {
           confidence: number | null
@@ -1167,6 +1217,39 @@ export type Database = {
         }
         Relationships: []
       }
+      teacher_listings: {
+        Row: {
+          bio: string | null
+          created_at: string
+          display_name: string
+          grade_levels: string | null
+          is_listed: boolean
+          subjects: string[]
+          teacher_id: string
+          updated_at: string
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          display_name: string
+          grade_levels?: string | null
+          is_listed?: boolean
+          subjects?: string[]
+          teacher_id: string
+          updated_at?: string
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          display_name?: string
+          grade_levels?: string | null
+          is_listed?: boolean
+          subjects?: string[]
+          teacher_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       units: {
         Row: {
           confidence: number | null
@@ -1260,6 +1343,10 @@ export type Database = {
         Returns: undefined
       }
       course_is_published: { Args: { _course_id: string }; Returns: boolean }
+      decide_join_request: {
+        Args: { _approve: boolean; _course_id: string; _request_id: string }
+        Returns: undefined
+      }
       get_my_link_code: { Args: { _regenerate?: boolean }; Returns: string }
       has_role: {
         Args: {

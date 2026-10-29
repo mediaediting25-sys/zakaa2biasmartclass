@@ -41,6 +41,9 @@ export function SiteHeader() {
         <div className="flex items-center gap-2">
           {pathname !== "/" && <BackButton />}
           <InstallButton />
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/teachers">{tr("المدرسون")}</Link>
+          </Button>
           <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
             <Link to="/pricing">{tr("الباقات والأسعار")}</Link>
           </Button>
