@@ -109,12 +109,14 @@
 }
 
 @layer base {
+  html {
+    overflow-x: hidden;
+  }
   * {
     border-color: var(--color-border);
   }
 
   body {
-    overflow-x: clip;
     background-color: var(--color-background);
     background-image: var(--app-overlay), url("./assets/app-bg.jpg");
     background-size: cover;
