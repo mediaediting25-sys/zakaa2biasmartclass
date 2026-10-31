@@ -15,6 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { I18nProvider } from "@/lib/i18n";
 import { Toaster } from "@/components/ui/sonner";
 import { IntroSplash } from "@/components/IntroSplash";
+import { InstallPromptProvider } from "@/components/InstallPromptProvider";
 import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
@@ -141,10 +142,12 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <I18nProvider>
+        <InstallPromptProvider>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
         <Toaster position="top-center" />
         <IntroSplash />
+        </InstallPromptProvider>
       </I18nProvider>
     </QueryClientProvider>
   );
