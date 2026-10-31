@@ -1,6 +1,14 @@
 import type { Locale } from "./i18n";
 
 const english: Record<string, string> = {
+  "ثبّت التطبيق": "Install app",
+  "أضف سمارت كلاس على موبايلك": "Add SmartClass to your phone",
+  "ليس الآن": "Not now",
+  "جارٍ فتح التثبيت…": "Opening installation…",
+  "تعذّر فتح نافذة التثبيت. استخدم قائمة المتصفح للإضافة.": "Installation could not open. Use your browser menu to add the app.",
+  "افتح الرابط في Safari على آيفون أو Chrome على أندرويد، ثم أضفه للشاشة الرئيسية.": "Open this link in Safari on iPhone or Chrome on Android, then add it to your home screen.",
+  "اضغط المشاركة ثم «إضافة إلى الشاشة الرئيسية» ثم «إضافة». لو الخيار مش ظاهر، افتح الرابط في Safari.": "Tap Share, then Add to Home Screen, then Add. If the option is missing, open the link in Safari.",
+  "من قائمة المتصفح (⋮) اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية». لو الخيار مش موجود، افتح الرابط في Chrome؛ بعض المتصفحات تضيف اختصارًا فقط.": "From your browser menu (⋮), choose Install app or Add to Home Screen. If unavailable, open the link in Chrome; some browsers only create a shortcut.",
   "رجوع": "Back",
   "الرئيسية": "Home",
   "الإشعارات": "Notifications",

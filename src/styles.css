@@ -109,6 +109,9 @@
 }
 
 @layer base {
+  html {
+    overflow-x: hidden;
+  }
   * {
     border-color: var(--color-border);
   }
@@ -192,4 +195,15 @@
 
 @media (prefers-reduced-motion: reduce) {
   .btn-motion, .btn-motion::after { transition: none; animation: none !important; }
+}
+
+[role="dialog"].install-prompt {
+  left: 50vw;
+  top: 50dvh;
+  width: calc(100vw - 2rem);
+  max-width: 24rem;
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  translate: -50% -50%;
+  transform: none;
 }
