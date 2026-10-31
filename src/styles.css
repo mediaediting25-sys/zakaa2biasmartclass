@@ -154,6 +154,16 @@
 }
 
 @layer components {
+  .install-prompt {
+    left: 50%;
+    top: 50%;
+    width: calc(100vw - 2rem);
+    max-width: 24rem;
+    max-height: calc(100dvh - 2rem);
+    overflow-y: auto;
+    translate: -50% -50%;
+    transform: none;
+  }
   .bg-card { backdrop-filter: blur(16px); }
   input, textarea, select { background-color: var(--muted); }
   .app-header { backdrop-filter: blur(18px); }

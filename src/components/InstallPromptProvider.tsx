@@ -77,7 +77,7 @@ export function InstallPromptProvider({ children }: { children: ReactNode }) {
     <InstallContext.Provider value={{ installed, openInstall: () => { setFailed(false); setOpen(true); } }}>
       {children}
       <Dialog open={open && !installed} onOpenChange={(next) => { if (!next) close(); }}>
-        <DialogContent dir={dir} className="w-[calc(100%-2rem)] max-w-sm rounded-lg bg-card text-card-foreground">
+        <DialogContent dir={dir} className="install-prompt rounded-lg bg-card text-card-foreground">
           <div className="flex items-center gap-3">
             <img src="/icon-192.png" alt="" className="size-14 rounded-lg" />
             <DialogTitle className="text-start leading-relaxed">{tr("أضف سمارت كلاس على موبايلك")}</DialogTitle>
