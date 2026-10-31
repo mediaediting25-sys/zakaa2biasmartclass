@@ -195,8 +195,8 @@
 }
 
 [role="dialog"].install-prompt {
-  left: 50%;
-  top: 50%;
+  left: 50vw;
+  top: 50dvh;
   width: calc(100vw - 2rem);
   max-width: 24rem;
   max-height: calc(100dvh - 2rem);
