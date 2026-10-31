@@ -154,7 +154,7 @@
 }
 
 @layer components {
-  .install-prompt {
+  [role="dialog"].install-prompt {
     left: 50%;
     top: 50%;
     width: calc(100vw - 2rem);
