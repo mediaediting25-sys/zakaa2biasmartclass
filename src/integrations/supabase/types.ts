@@ -424,6 +424,50 @@ export type Database = {
           },
         ]
       }
+      course_plans: {
+        Row: {
+          course_id: string
+          created_at: string
+          end_date: string
+          period: string
+          review_per_unit: boolean
+          schedule: Json
+          sessions_per_period: number
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          end_date: string
+          period?: string
+          review_per_unit?: boolean
+          schedule?: Json
+          sessions_per_period?: number
+          start_date: string
+          updated_at?: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          end_date?: string
+          period?: string
+          review_per_unit?: boolean
+          schedule?: Json
+          sessions_per_period?: number
+          start_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_plans_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: true
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       courses: {
         Row: {
           content_language: string
@@ -621,6 +665,54 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lesson_presentations: {
+        Row: {
+          course_id: string
+          created_at: string
+          created_by: string
+          id: string
+          language: string
+          lesson_id: string
+          slides: Json
+          title: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          language?: string
+          lesson_id: string
+          slides?: Json
+          title: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          language?: string
+          lesson_id?: string
+          slides?: Json
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_presentations_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_presentations_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
             referencedColumns: ["id"]
           },
         ]
