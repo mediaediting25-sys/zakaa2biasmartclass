@@ -332,7 +332,7 @@ function structurallyValid(q: GenQ) {
 export async function generateLessonQuestions(
   admin: Admin,
   lessonId: string,
-  opts: { count: number; examPatterns?: string | null },
+  opts: { count: number; examPatterns?: string | null; homework?: boolean },
 ) {
   const { data: lesson } = await admin
     .from("lessons")
@@ -401,6 +401,7 @@ Quality rules:
 ${opts.examPatterns ? `\nEXAM PATTERNS (style guidance only, do not copy text):\n${opts.examPatterns}\n` : ""}
 ${examples?.length ? `\nTEACHER-APPROVED EXAMPLES (match this quality/style):\n${JSON.stringify(examples)}\n` : ""}
 ${rejected?.length ? `\nAVOID these problems the teacher rejected before:\n${rejected.map((r) => `- ${r.reason}`).join("\n")}\n` : ""}
+${opts.homework ? `\nHOMEWORK MODE: This is an interactive homework set. Stay strictly inside this lesson's content and objectives. Do NOT copy the book's own exercises or questions word-for-word; write NEW questions in the same context with different wording, examples and situations from the source. Vary formats (multiple_choice, true_false, fill_blank, short_answer) and cover every objective.\n` : ""}
 Generate ${opts.count} questions.\n\nSOURCE:\n${source}`,
   });
   const gen = z.object({ questions: z.array(z.unknown()), warnings: z.array(z.string()) }).parse(raw);
@@ -438,13 +439,13 @@ supported = the question and answer are fully supported by the source; answer_co
     .from("activities")
     .select("id")
     .eq("lesson_id", lessonId)
-    .eq("kind", "practice")
+    .eq("kind", opts.homework ? "homework" : "practice")
     .limit(1)
     .maybeSingle();
   if (!activity) {
     const ins = await admin
       .from("activities")
-      .insert({ course_id: lesson.course_id, lesson_id: lessonId, title: `تدريب: ${lesson.title}`, kind: "practice", status: "draft" })
+      .insert({ course_id: lesson.course_id, lesson_id: lessonId, title: `${opts.homework ? "واجب" : "تدريب"}: ${lesson.title}`, kind: opts.homework ? "homework" : "practice", status: "draft" })
       .select("id")
       .single();
     if (ins.error) throw ins.error;
