@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { getStudentActivity, submitAttempt } from "@/lib/student.functions";
 
@@ -73,7 +74,8 @@ function Player() {
               <Card key={q.id} className="p-5">
                 <p className="mb-3 font-medium">{i + 1}. {q.stem}</p>
                 <div className="grid gap-2">
-                  {q.options.map((o) => (
+                  {(q.kind === "fill_blank" || q.kind === "short_answer") && <Input aria-label={tr("إجابتك")} placeholder={tr("إجابتك")} value={choices[q.id] ?? ""} disabled={!!result || submit.isPending} onChange={e => setChoices(c => ({ ...c, [q.id]: e.target.value }))} />}
+                  {(q.kind === "fill_blank" || q.kind === "short_answer" ? [] : q.options).map((o) => (
                     <Button
                       key={o}
                       type="button"

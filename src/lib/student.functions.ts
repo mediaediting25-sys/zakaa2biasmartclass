@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { answerMatches } from "./lesson-tools";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -95,7 +96,7 @@ export const submitAttempt = createServerFn({ method: "POST" })
 
     const { data: qs, error } = await supabaseAdmin
       .from("questions")
-      .select("id, correct_answer, points, objective_id, explanation")
+      .select("id, kind, correct_answer, points, objective_id, explanation")
       .eq("activity_id", activity.id)
       .eq("status", "published");
     if (error) throw new Error(error.message);
@@ -107,9 +108,7 @@ export const submitAttempt = createServerFn({ method: "POST" })
       const pts = Number(q.points ?? 1);
       max += pts;
       const choice = chosen.get(q.id) ?? null;
-      const ca = q.correct_answer as any;
-      const correct = ca != null && typeof ca === "object" && "value" in ca ? String(ca.value) : ca == null ? null : String(ca);
-      const ok = choice != null && correct === choice;
+      const ok = answerMatches(q.kind, q.correct_answer, choice);
       if (ok) score += pts;
       return { q, choice, ok, pts };
     });
