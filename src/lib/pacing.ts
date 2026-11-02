@@ -9,7 +9,7 @@ const iso = (t: number) => new Date(t).toISOString().slice(0, 10);
 export function sessionDates(start: string, end: string, perPeriod: number, period: "week" | "month") {
   const s = Date.parse(start + "T00:00:00Z");
   const e = Date.parse(end + "T00:00:00Z");
-  if (!(e >= s) || perPeriod < 1) return [];
+  if (!(e >= s) || !Number.isInteger(perPeriod) || perPeriod < 1 || perPeriod > (period === "week" ? 7 : 30)) return [];
   const len = period === "week" ? 7 : 30;
   const out: string[] = [];
   for (let block = s; block <= e; block += len * DAY) {
@@ -52,7 +52,7 @@ export function buildPlan(input: {
     // Each item owns sessions [floor(k*S/N), floor((k+1)*S/N)); when S<N several share one.
     const from = Math.floor((k * S) / N);
     const to = Math.max(from + 1, Math.floor(((k + 1) * S) / N));
-    for (let i = from; i < to; i++) sessions[i]!.items.push(it);
+    for (let i = from; i < to; i++) sessions[i]?.items.push(it);
   });
   return sessions;
 }
