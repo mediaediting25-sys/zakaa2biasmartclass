@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { questionIssues } from "./lesson-tools";
 
 async function assertTeacher(supabase: any, courseId: string) {
   const { data, error } = await supabase.rpc("is_course_teacher", { _course_id: courseId });
@@ -65,6 +66,18 @@ export const generateQuestions = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { generateLessonQuestions } = await import("@/server/ai/pipelines.server");
     return generateLessonQuestions(supabaseAdmin, data.lessonId, { count: data.count });
+  });
+
+export const generateHomework = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ lessonId: z.string().uuid(), count: z.number().int().min(4).max(15) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: lesson } = await context.supabase.from("lessons").select("course_id").eq("id", data.lessonId).maybeSingle();
+    if (!lesson) throw new Error("الدرس غير موجود");
+    await assertTeacher(context.supabase, lesson.course_id);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { generateLessonQuestions } = await import("@/server/ai/pipelines.server");
+    return generateLessonQuestions(supabaseAdmin, data.lessonId, { count: data.count, homework: true });
   });
 
 /**
@@ -135,15 +148,7 @@ export function answerValue(a: unknown): string | null {
 }
 
 /** Why an approved question can't be published (empty list = OK). */
-export function questionGateIssues(q: { options: unknown; correct_answer: unknown; source_page: number | null; source_quote: string | null }) {
-  const issues: string[] = [];
-  const opts = Array.isArray(q.options) ? (q.options as string[]) : [];
-  const ans = answerValue(q.correct_answer);
-  if (opts.length < 2) issues.push("خيارات ناقصة");
-  if (!ans || !opts.includes(ans)) issues.push("الإجابة الصحيحة غير موجودة ضمن الخيارات");
-  if (!q.source_page || !q.source_quote?.trim()) issues.push("بلا صفحة أو اقتباس من الكتاب");
-  return issues;
-}
+export const questionGateIssues = questionIssues;
 
 /** Hierarchical publish gate: approved+grounded question → activity → lesson → unit → course. */
 export const publishCourse = createServerFn({ method: "POST" })
@@ -153,7 +158,7 @@ export const publishCourse = createServerFn({ method: "POST" })
     const sb = context.supabase;
     await assertTeacher(sb, data.courseId);
     const [qs, acts, lessons] = await Promise.all([
-      sb.from("questions").select("id, stem, activity_id, options, correct_answer, source_page, source_quote, status").eq("course_id", data.courseId).in("status", ["approved", "published"]),
+      sb.from("questions").select("id, stem, kind, activity_id, options, correct_answer, source_page, source_quote, status").eq("course_id", data.courseId).in("status", ["approved", "published"]),
       sb.from("activities").select("id, lesson_id").eq("course_id", data.courseId),
       sb.from("lessons").select("id, unit_id").eq("course_id", data.courseId),
     ]);

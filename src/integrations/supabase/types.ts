@@ -678,6 +678,7 @@ export type Database = {
           language: string
           lesson_id: string
           slides: Json
+          status: Database["public"]["Enums"]["content_status"]
           title: string
         }
         Insert: {
@@ -688,6 +689,7 @@ export type Database = {
           language?: string
           lesson_id: string
           slides?: Json
+          status?: Database["public"]["Enums"]["content_status"]
           title: string
         }
         Update: {
@@ -698,6 +700,7 @@ export type Database = {
           language?: string
           lesson_id?: string
           slides?: Json
+          status?: Database["public"]["Enums"]["content_status"]
           title?: string
         }
         Relationships: [

@@ -326,7 +326,7 @@ function structurallyValid(q: GenQ) {
     return q.options.length >= 3 && q.options.filter((o) => o === q.correct_answer).length === 1;
   if (q.kind === "true_false")
     return q.options.length === 2 && q.options.includes(q.correct_answer);
-  return true;
+  return q.options.length === 0 && q.correct_answer.trim().length > 0;
 }
 
 export async function generateLessonQuestions(
@@ -336,7 +336,7 @@ export async function generateLessonQuestions(
 ) {
   const { data: lesson } = await admin
     .from("lessons")
-    .select("id, title, summary, course_id, courses(content_language, subject, grade_level)")
+    .select("id, title, summary, source_document_id, source_page, course_id, courses(content_language, subject, grade_level)")
     .eq("id", lessonId)
     .single();
   if (!lesson) throw new Error("Lesson not found");
@@ -354,7 +354,14 @@ export async function generateLessonQuestions(
     _count: 10,
   } as never);
   if (mErr) throw mErr;
-  const chunks = (hits ?? []) as { page_number: number; content: string; document_id: string; similarity: number }[];
+  let chunks = (hits ?? []) as { page_number: number; content: string; document_id: string; similarity: number }[];
+  if (opts.homework) {
+    if (!lesson.source_document_id || !lesson.source_page) throw new Error("لا توجد صفحات مصدر لهذا الدرس");
+    const { data: next } = await admin.from("lessons").select("source_page").eq("source_document_id", lesson.source_document_id).gt("source_page", lesson.source_page).order("source_page").limit(1).maybeSingle();
+    const { data: lessonPages, error: lpError } = await admin.from("source_pages").select("page_number, text_content, document_id").eq("document_id", lesson.source_document_id).gte("page_number", lesson.source_page).lt("page_number", next?.source_page ?? lesson.source_page + 12).order("page_number").limit(12);
+    if (lpError) throw lpError;
+    chunks = (lessonPages ?? []).filter(p => p.text_content?.trim()).map(p => ({ page_number: p.page_number, document_id: p.document_id, content: p.text_content ?? "", similarity: 1 }));
+  }
   if (!chunks.length) throw new Error("لا توجد نصوص مفهرسة لهذا المقرر — analyze a document first.");
 
   const pageIds = [...new Set(chunks.map((c) => c.document_id))];
@@ -396,6 +403,7 @@ Quality rules:
 - true_false: options must be the two words for true/false in the content language.
 - fill_blank: use "____" in the stem; accepted_answers lists all acceptable spellings.
 - Mix difficulty (about 40% easy, 40% medium, 20% challenge). No trick questions, no "all of the above".
+- fill_blank and short_answer: options must be empty; include a concise correct_answer and accepted_answers.
 - Explanation cites why, using only the source.${GROUNDING_RULES}`,
     user: `LESSON: ${lesson.title}\nSUMMARY: ${lesson.summary ?? ""}\nOBJECTIVES:\n${(objectives ?? []).map((o) => `- [${o.skill}] ${o.description}`).join("\n")}
 ${opts.examPatterns ? `\nEXAM PATTERNS (style guidance only, do not copy text):\n${opts.examPatterns}\n` : ""}
@@ -454,19 +462,20 @@ supported = the question and answer are fully supported by the source; answer_co
   const { count: existing } = await admin.from("questions").select("id", { count: "exact", head: true }).eq("activity_id", activity.id);
   const skillToObj = new Map((objectives ?? []).map((o) => [(o.skill ?? "").trim(), o.id]));
 
+  const activityId = activity.id;
   let created = 0;
   const rows = candidates.flatMap((q, i) => {
     const v = byIdx.get(i);
     const passed = !!v && v.supported && v.answer_correct && v.distractors_wrong && v.single_best_answer;
-    if (v && (!v.supported || !v.answer_correct)) {
-      warnings.push(`استبعد المدقق سؤالًا: ${v.issues || q.stem.slice(0, 60)}`);
+    if (!passed) {
+      warnings.push(`استبعد المدقق سؤالًا: ${v?.issues || q.stem.slice(0, 60)}`);
       return [];
     }
     const confidence = Number((Math.min(q.confidence, q.support) * (passed ? 1 : 0.6)).toFixed(2));
     created++;
     return [{
       course_id: lesson.course_id,
-      activity_id: activity!.id,
+      activity_id: activityId,
       objective_id: skillToObj.get(q.skill.trim()) ?? objectives?.[0]?.id ?? null,
       kind: q.kind,
       stem: q.stem,
