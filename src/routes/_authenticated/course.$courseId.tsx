@@ -18,7 +18,8 @@ import {
   setItemStatus,
   uploadCourseDocument,
 } from "@/lib/api";
-import { generateExamStyleQuestions, generateQuestions, processDocument, publishCourse } from "@/lib/teacher.functions";
+import { generateExamStyleQuestions, generateHomework, generateQuestions, processDocument, publishCourse } from "@/lib/teacher.functions";
+import { LessonPresentationTools, PacingPanel, usePresentations } from "@/components/LessonTools";
 import { grantRetake, listCourseReports, setTeacherComment } from "@/lib/reports.functions";
 
 export const Route = createFileRoute("/_authenticated/course/$courseId")({
@@ -104,6 +105,17 @@ const statusLabel: Record<string, string> = {
     mutationFn: (lessonId: string) => genExamQ({ data: { lessonId, count: 5 } }),
     onSuccess: (r) => {
       toast.success(tr("تم توليد {0} سؤال بأسلوب الامتحانات للمراجعة", r.created));
+      refresh();
+    },
+    onError: (e: Error) => toast.error(message(e.message)),
+  });
+
+  const genHwFn = useServerFn(generateHomework);
+  const pres = usePresentations(courseId);
+  const genHw = useMutation({
+    mutationFn: (lessonId: string) => genHwFn({ data: { lessonId, count: 8 } }),
+    onSuccess: (r) => {
+      toast.success(tr("تم توليد واجب من {0} سؤال للمراجعة", r.created));
       refresh();
     },
     onError: (e: Error) => toast.error(message(e.message)),
@@ -204,6 +216,8 @@ const statusLabel: Record<string, string> = {
         </ul>
       </section>
 
+      <PacingPanel courseId={courseId} />
+
       {c?.units.map((u) => (
         <section key={u.id} className="mb-6">
           <h2 className="mb-3 font-display text-xl font-bold">{u.title}</h2>
@@ -226,6 +240,9 @@ const statusLabel: Record<string, string> = {
                         <Button size="sm" variant="outline" onClick={() => genExam.mutate(l.id)} disabled={gen.isPending || genExam.isPending}>
                           <Sparkles className="size-4" /> {tr("بأسلوب الامتحانات")}
                         </Button>
+                        <Button size="sm" variant="outline" onClick={() => genHw.mutate(l.id)} disabled={genHw.isPending}>
+                          <Sparkles className="size-4" /> {genHw.isPending ? tr("جارٍ التوليد…") : tr("توليد واجب")}
+                        </Button>
                       </div>
                     </div>
                     {l.summary && <p className="mb-2 text-sm text-muted-foreground">{l.summary}</p>}
@@ -234,6 +251,7 @@ const statusLabel: Record<string, string> = {
                         «{l.source_quote}»
                       </blockquote>
                     )}
+                    <LessonPresentationTools courseId={courseId} lessonId={l.id} presentations={pres.data ?? []} />
                     <ul className="space-y-3">
                       {qs.map((q) => {
                         const opts = Array.isArray(q.options) ? (q.options as string[]) : [];
