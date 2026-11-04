@@ -172,8 +172,8 @@ function Landing() {
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           {[
             { t: ar ? "للمعلم" : "For teachers", items: ar
-              ? ["إنشاء مقررات ورفع ملفات المنهج والامتحانات (حتى 200 ميغابايت)", "مسودة ذكية للوحدات والدروس والأهداف والأسئلة مع رقم الصفحة", "مراجعة واعتماد كل عنصر قبل النشر", "تقارير لكل طالب: الإجابات والدرجة والتعليق", "السماح بإعادة الحل لطالب محدد", "ملف في دليل المدرسين لاستقبال طلبات الانضمام"]
-              : ["Create courses and upload syllabus/exam PDFs (up to 200MB)", "AI draft of units, lessons, objectives and questions with page sources", "Review and approve everything before publishing", "Per-student reports: answers, score, comments", "Grant a retake to a specific student", "Directory profile to receive join requests"] },
+              ? ["إنشاء مقررات ورفع ملفات المنهج والامتحانات (حتى 500 ميغابايت)", "مسودة ذكية للوحدات والدروس والأهداف والأسئلة مع رقم الصفحة", "مراجعة واعتماد كل عنصر قبل النشر", "تقارير لكل طالب: الإجابات والدرجة والتعليق", "السماح بإعادة الحل لطالب محدد", "ملف في دليل المدرسين لاستقبال طلبات الانضمام"]
+              : ["Create courses and upload syllabus/exam PDFs (up to 500MB)", "AI draft of units, lessons, objectives and questions with page sources", "Review and approve everything before publishing", "Per-student reports: answers, score, comments", "Grant a retake to a specific student", "Directory profile to receive join requests"] },
             { t: ar ? "للطالب" : "For students", items: ar
               ? ["يرى مواد مدرسيه فقط", "حل الأنشطة المنشورة وتسجيل الإجابات", "نسبة إتقان لكل هدف من إجاباته الحقيقية", "تعليقات المعلم والإشعارات", "البحث عن مدرس حسب المادة وطلب الانضمام"]
               : ["Sees only their own teachers' courses", "Solve published activities", "Mastery per objective from real answers", "Teacher comments and notifications", "Find a teacher by subject and request to join"] },

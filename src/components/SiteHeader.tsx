@@ -30,15 +30,15 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-sidebar backdrop-blur">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4">
-        <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold">
+      <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-2 px-3 sm:h-16 sm:gap-4 sm:px-4">
+        <Link to="/" className="flex min-w-0 shrink-0 items-center gap-2 font-display text-lg font-bold">
           <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground">
             <GraduationCap className="size-5" />
           </span>
-          <span>{t("app.name")}</span>
+          <span className="hidden truncate sm:inline">{t("app.name")}</span>
         </Link>
 
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-0.5 overflow-x-auto sm:gap-2">
           {pathname !== "/" && <BackButton />}
           <InstallButton />
           <Button asChild variant="ghost" size="sm">
@@ -49,7 +49,7 @@ export function SiteHeader() {
           </Button>
           <Button variant="ghost" size="sm" onClick={toggleLocale}>
             <Languages className="size-4" />
-            {t("nav.language")}
+            <span className="hidden sm:inline">{t("nav.language")}</span>
           </Button>
 
           {!loading && user ? (

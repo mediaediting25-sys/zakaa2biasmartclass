@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export const COURSE_BUCKET = "course-documents";
-export const MAX_UPLOAD_BYTES = 200 * 1024 * 1024;
+export const MAX_UPLOAD_BYTES = 500 * 1024 * 1024;
 
 export type CourseRow = {
   id: string;
@@ -81,7 +81,7 @@ export async function uploadCourseDocument(input: {
   const { courseId, userId, file, category } = input;
   if (file.size > MAX_UPLOAD_BYTES) {
     throw new Error(
-      `حجم الملف (${(file.size / 1024 / 1024).toFixed(1)} ميغابايت) يتجاوز الحد المسموح وهو 200 ميغابايت. / File exceeds the 200MB limit.`,
+      `حجم الملف (${(file.size / 1024 / 1024).toFixed(1)} ميغابايت) يتجاوز الحد المسموح وهو 500 ميغابايت. / File exceeds the 500MB limit.`,
     );
   }
 

@@ -45,14 +45,14 @@ export function AppShell({
   return (
     <div className="min-h-screen">
       <header className="app-header border-b border-border bg-sidebar text-sidebar-foreground">
-        <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4">
-          <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold">
+        <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-2 px-3 sm:h-16 sm:gap-4 sm:px-4">
+          <Link to="/" className="flex min-w-0 shrink-0 items-center gap-2 font-display text-lg font-bold">
             <span className="grid size-9 place-items-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground">
               <GraduationCap className="size-5" />
             </span>
-            {t("app.name")}
+            <span className="hidden truncate sm:inline">{t("app.name")}</span>
           </Link>
-          <div className="flex items-center gap-1">
+          <div className="flex min-w-0 items-center gap-0.5 overflow-x-auto sm:gap-1">
             <BackButton className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
             <InstallButton className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
             {homeTo && (
@@ -78,7 +78,7 @@ export function AppShell({
               className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
             >
               <Languages className="size-4" />
-              {t("nav.language")}
+              <span className="hidden sm:inline">{t("nav.language")}</span>
             </Button>
             <Button
               variant="ghost"
@@ -107,10 +107,10 @@ export function AppShell({
         )}
       </header>
 
-      <main className="mx-auto w-full max-w-6xl px-4 py-8">
-        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="font-display text-2xl font-bold sm:text-3xl">{title}</h1>
+      <main className="mx-auto w-full max-w-6xl px-3 py-5 sm:px-4 sm:py-8">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+          <div className="min-w-0">
+            <h1 className="break-words font-display text-xl font-bold sm:text-3xl">{title}</h1>
             {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
           </div>
           {actions}
