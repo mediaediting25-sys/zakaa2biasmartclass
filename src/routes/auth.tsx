@@ -16,6 +16,7 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://zakaa2biasmartclass.lovable.app/auth" },
       { name: "twitter:card", content: "summary_large_image" },
       { title: "تسجيل الدخول — سمارت كلاس | Sign in to SmartClass" },
       {
@@ -28,6 +29,7 @@ export const Route = createFileRoute("/auth")({
         content: "حساب واحد للمعلم والطالب وولي الأمر داخل سمارت كلاس.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://zakaa2biasmartclass.lovable.app/auth" }],
   }),
   component: AuthPage,
 });

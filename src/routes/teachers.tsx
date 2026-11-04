@@ -26,8 +26,10 @@ export const Route = createFileRoute("/teachers")({
       { property: "og:title", content: "المدرسون المتاحون — سمارت كلاس" },
       { property: "og:description", content: "اختر مادتك واطلب الانضمام لمجموعة المدرس المناسب." },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://zakaa2biasmartclass.lovable.app/teachers" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://zakaa2biasmartclass.lovable.app/teachers" }],
   }),
   component: TeachersPage,
 });

@@ -12,3 +12,5 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://zakaa2biasmartclass.lovable.app/sitemap.xml

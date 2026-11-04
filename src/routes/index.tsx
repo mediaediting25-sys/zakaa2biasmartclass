@@ -54,8 +54,9 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://zakaa2biasmartclass.lovable.app/" },
       { name: "twitter:card", content: "summary_large_image" },
-      { title: "سمارت كلاس — منهج ذكي من ملفاتك | SmartClass AI" },
+      { title: "سمارت كلاس | منصة تعليمية تحول المنهج لاختبارات تفاعلية" },
       {
         name: "description",
         content:
@@ -67,9 +68,37 @@ export const Route = createFileRoute("/")({
         content: "حوّل ملفات المنهج إلى دروس وأسئلة يعتمدها المعلم، وتابع إتقان كل طالب.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://zakaa2biasmartclass.lovable.app/" }],
+    scripts: [{ type: "application/ld+json", children: JSON.stringify({"@context": "https://schema.org", "@graph": [{"@type": "SoftwareApplication", "name": "سمارت كلاس — SmartClass AI", "applicationCategory": "EducationalApplication", "operatingSystem": "Web, Android, iOS", "url": "https://zakaa2biasmartclass.lovable.app", "inLanguage": ["ar", "en"], "offers": {"@type": "AggregateOffer", "priceCurrency": "EGP", "lowPrice": "0", "highPrice": "1490"}}, {"@type": "EducationalOrganization", "name": "ذكاؤبيا سمارت كلاس", "url": "https://zakaa2biasmartclass.lovable.app", "logo": "https://zakaa2biasmartclass.lovable.app/icon-512.png"}, {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "ما هي منصة سمارت كلاس؟", "acceptedAnswer": {"@type": "Answer", "text": "منصة تعليمية بالذكاء الاصطناعي تحوّل ملفات المنهج إلى دروس وأهداف وأسئلة تفاعلية يراجعها المعلم ويعتمدها قبل وصولها للطلاب."}}, {"@type": "Question", "name": "هل يمكن تجربة المنصة مجانًا؟", "acceptedAnswer": {"@type": "Answer", "text": "نعم، تبدأ بباقة تجربة مجانية، ثم تختار الباقة المناسبة لعدد طلابك."}}, {"@type": "Question", "name": "كيف يضيف المعلم طلابه؟", "acceptedAnswer": {"@type": "Answer", "text": "يشارك المعلم كود الانضمام الخاص بالمقرر مع طلابه، أو يقبل طلبات الانضمام التي تصله من دليل المدرسين."}}, {"@type": "Question", "name": "هل يرى الطالب مواد مدرسين آخرين؟", "acceptedAnswer": {"@type": "Answer", "text": "لا، الطالب يرى فقط المواد المعتمدة من المدرس الذي انضم إليه."}}, {"@type": "Question", "name": "ما حجم ملف المنهج الذي يمكن رفعه؟", "acceptedAnswer": {"@type": "Answer", "text": "يمكن رفع ملف PDF حتى 500 ميغابايت."}}, {"@type": "Question", "name": "هل يتابع ولي الأمر تقدم أبنائه؟", "acceptedAnswer": {"@type": "Answer", "text": "نعم، يرى ولي الأمر تقارير الإتقان والدرجات لأبنائه المرتبطين بحسابه فقط."}}]}]}) }],
   }),
   component: Landing,
 });
+
+const FAQ = [
+    { q: "ما هي منصة سمارت كلاس؟", a: "منصة تعليمية بالذكاء الاصطناعي تحوّل ملفات المنهج إلى دروس وأهداف وأسئلة تفاعلية يراجعها المعلم ويعتمدها قبل وصولها للطلاب." },
+    { q: "هل يمكن تجربة المنصة مجانًا؟", a: "نعم، تبدأ بباقة تجربة مجانية، ثم تختار الباقة المناسبة لعدد طلابك." },
+    { q: "كيف يضيف المعلم طلابه؟", a: "يشارك المعلم كود الانضمام الخاص بالمقرر مع طلابه، أو يقبل طلبات الانضمام التي تصله من دليل المدرسين." },
+    { q: "هل يرى الطالب مواد مدرسين آخرين؟", a: "لا، الطالب يرى فقط المواد المعتمدة من المدرس الذي انضم إليه." },
+    { q: "ما حجم ملف المنهج الذي يمكن رفعه؟", a: "يمكن رفع ملف PDF حتى 500 ميغابايت." },
+    { q: "هل يتابع ولي الأمر تقدم أبنائه؟", a: "نعم، يرى ولي الأمر تقارير الإتقان والدرجات لأبنائه المرتبطين بحسابه فقط." },
+];
+
+function FaqSection() {
+  const { tr } = useI18n();
+  return (
+    <section className="mx-auto w-full max-w-4xl px-4 py-12" aria-labelledby="faq-title">
+      <h2 id="faq-title" className="mb-6 text-center font-display text-2xl font-bold sm:text-3xl">{tr("الأسئلة الشائعة")}</h2>
+      <div className="space-y-3">
+        {FAQ.map((f) => (
+          <details key={f.q} className="surface group p-4">
+            <summary className="cursor-pointer list-none font-semibold">{tr(f.q)}</summary>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{tr(f.a)}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+  );
+}
 
 function Landing() {
   const { locale } = useI18n();
@@ -236,6 +265,7 @@ function Landing() {
       </section>
 
       <FeaturedTeachers ar={ar} />
+      <FaqSection />
 
       <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
         {ar ? "سمارت كلاس — تعليم مبني على الأدلة" : "SmartClass — evidence-based teaching"}
