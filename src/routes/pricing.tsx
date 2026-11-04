@@ -10,6 +10,7 @@ export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://zakaa2biasmartclass.lovable.app/pricing" },
       { name: "twitter:card", content: "summary_large_image" },
       { title: "الباقات والأسعار — سمارت كلاس | Pricing — SmartClass AI" },
       {
@@ -23,6 +24,7 @@ export const Route = createFileRoute("/pricing")({
         content: "ابدأ مجانًا واختر الباقة التي تناسب عدد طلابك ومذكراتك.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://zakaa2biasmartclass.lovable.app/pricing" }],
   }),
   component: PricingPage,
 });
