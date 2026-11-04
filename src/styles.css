@@ -207,3 +207,13 @@
   translate: -50% -50%;
   transform: none;
 }
+
+@media (max-width: 640px) {
+  html { -webkit-text-size-adjust: 100%; }
+  img, video, canvas, svg, iframe { max-width: 100%; }
+  table { display: block; max-width: 100%; overflow-x: auto; }
+  input, select, textarea { font-size: 16px; }
+  button, a[role="button"] { min-height: 2.25rem; }
+  pre, code { white-space: pre-wrap; word-break: break-word; }
+  h1, h2, h3, p, li { overflow-wrap: anywhere; }
+}
