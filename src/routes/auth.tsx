@@ -13,6 +13,9 @@ import { homeForRole, type AppRole } from "@/hooks/useSession";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>): { mode?: "signup" | "signin" } => ({
+    mode: search.mode === "signup" || search.mode === "signin" ? search.mode : undefined,
+  }),
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
@@ -49,8 +52,9 @@ function AuthPage() {
   const { t, locale, toggleLocale, message } = useI18n();
   const ar = locale === "ar";
   const navigate = useNavigate();
+  const { mode: requestedMode } = Route.useSearch();
 
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const mode = requestedMode ?? "signin";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -222,13 +226,14 @@ function AuthPage() {
                 {t("auth.google")}
               </Button>
 
-              <button
+              <Button
                 type="button"
-                className="mt-5 w-full text-sm text-primary underline-offset-4 hover:underline"
-                onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+                variant="link"
+                className="mt-5 h-auto w-full whitespace-normal text-sm"
+                onClick={() => navigate({ to: "/auth", search: { mode: mode === "signin" ? "signup" : "signin" } })}
               >
                 {mode === "signin" ? t("auth.toSignUp") : t("auth.toSignIn")}
-              </button>
+              </Button>
             </>
           )}
         </div>
