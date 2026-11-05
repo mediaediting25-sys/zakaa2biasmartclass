@@ -13,8 +13,8 @@ import { homeForRole, type AppRole } from "@/hooks/useSession";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>): { mode?: "signup" | "signin" } => ({
-    mode: search.mode === "signup" || search.mode === "signin" ? search.mode : undefined,
+  validateSearch: (search: Record<string, unknown>): { mode?: "signup" | "signin" | undefined } => ({
+    mode: search["mode"] === "signup" || search["mode"] === "signin" ? search["mode"] : undefined,
   }),
   head: () => ({
     meta: [

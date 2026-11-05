@@ -12,3 +12,4 @@
 - Theme shared surfaces and button fills through semantic CSS tokens; this keeps contrast consistent without changing individual workflows.
 - Localize fixed UI wording through useI18n and browser-safe translation modules; preserve authored names, curriculum content, answers, and teacher comments to avoid rewriting educational data.
 - Keep installation manifest-only with one root-level InstallPromptProvider owning browser prompt events and session dismissal; installation support varies by browser and does not require offline caching.
+- Keep the auth form mode in validated URL search state so account-creation links open signup directly while ordinary sign-in links preserve login.
