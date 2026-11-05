@@ -69,7 +69,17 @@ export const Route = createFileRoute("/")({
       },
     ],
     links: [{ rel: "canonical", href: "https://zakaa2biasmartclass.lovable.app/" }],
-    scripts: [{ type: "application/ld+json", children: JSON.stringify({"@context": "https://schema.org", "@graph": [{"@type": "SoftwareApplication", "name": "سمارت كلاس — SmartClass AI", "applicationCategory": "EducationalApplication", "operatingSystem": "Web, Android, iOS", "url": "https://zakaa2biasmartclass.lovable.app", "inLanguage": ["ar", "en"], "offers": {"@type": "AggregateOffer", "priceCurrency": "EGP", "lowPrice": "0", "highPrice": "1490"}}, {"@type": "EducationalOrganization", "name": "ذكاؤبيا سمارت كلاس", "url": "https://zakaa2biasmartclass.lovable.app", "logo": "https://zakaa2biasmartclass.lovable.app/icon-512.png"}, {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "ما هي منصة سمارت كلاس؟", "acceptedAnswer": {"@type": "Answer", "text": "منصة تعليمية بالذكاء الاصطناعي تحوّل ملفات المنهج إلى دروس وأهداف وأسئلة تفاعلية يراجعها المعلم ويعتمدها قبل وصولها للطلاب."}}, {"@type": "Question", "name": "هل يمكن تجربة المنصة مجانًا؟", "acceptedAnswer": {"@type": "Answer", "text": "نعم، تبدأ بباقة تجربة مجانية، ثم تختار الباقة المناسبة لعدد طلابك."}}, {"@type": "Question", "name": "كيف يضيف المعلم طلابه؟", "acceptedAnswer": {"@type": "Answer", "text": "يشارك المعلم كود الانضمام الخاص بالمقرر مع طلابه، أو يقبل طلبات الانضمام التي تصله من دليل المدرسين."}}, {"@type": "Question", "name": "هل يرى الطالب مواد مدرسين آخرين؟", "acceptedAnswer": {"@type": "Answer", "text": "لا، الطالب يرى فقط المواد المعتمدة من المدرس الذي انضم إليه."}}, {"@type": "Question", "name": "ما حجم ملف المنهج الذي يمكن رفعه؟", "acceptedAnswer": {"@type": "Answer", "text": "يمكن رفع ملف PDF حتى 500 ميغابايت."}}, {"@type": "Question", "name": "هل يتابع ولي الأمر تقدم أبنائه؟", "acceptedAnswer": {"@type": "Answer", "text": "نعم، يرى ولي الأمر تقارير الإتقان والدرجات لأبنائه المرتبطين بحسابه فقط."}}]}]}) }],
+    scripts: [{
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@graph": [
+          { "@type": "SoftwareApplication", name: "سمارت كلاس — SmartClass AI", applicationCategory: "EducationalApplication", operatingSystem: "Web, Android, iOS", url: "https://zakaa2biasmartclass.lovable.app", inLanguage: ["ar", "en"] },
+          { "@type": "Organization", name: "ذكاؤبيا سمارت كلاس", url: "https://zakaa2biasmartclass.lovable.app", logo: "https://zakaa2biasmartclass.lovable.app/icon-512.png" },
+          { "@type": "FAQPage", mainEntity: FAQ.map(({ q, a }) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) },
+        ],
+      }),
+    }],
   }),
   component: Landing,
 });
