@@ -47,7 +47,7 @@ export function SiteHeader() {
           <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
             <Link to="/pricing">{tr("الباقات والأسعار")}</Link>
           </Button>
-          <Button variant="ghost" size="sm" onClick={toggleLocale}>
+          <Button variant="ghost" size="sm" onClick={toggleLocale} aria-label={t("nav.language")} title={t("nav.language")}>
             <Languages className="size-4" />
             <span className="hidden sm:inline">{t("nav.language")}</span>
           </Button>

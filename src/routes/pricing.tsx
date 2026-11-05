@@ -254,7 +254,7 @@ function PricingPage() {
                   ))}
                 </ul>
                 <Button asChild className="mt-6 w-full" variant={plan.popular ? "default" : "outline"}>
-                  <Link to="/auth">{plan[ar ? "ar" : "en"].cta}</Link>
+                  <Link to="/auth" search={{ mode: "signup" }}>{plan[ar ? "ar" : "en"].cta}</Link>
                 </Button>
               </article>
             );
@@ -278,7 +278,7 @@ function PricingPage() {
 
         <div className="mt-10 text-center">
           <Button asChild size="lg">
-            <Link to="/auth">{ar ? "ابدأ الآن مجانًا" : "Get started free"}</Link>
+            <Link to="/auth" search={{ mode: "signup" }}>{ar ? "ابدأ الآن مجانًا" : "Get started free"}</Link>
           </Button>
         </div>
       </main>

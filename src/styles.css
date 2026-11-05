@@ -118,7 +118,7 @@
 
   body {
     background-color: var(--color-background);
-    background-image: var(--app-overlay), url("./assets/app-bg.jpg");
+    background-image: var(--app-overlay), url("./assets/app-bg.webp");
     background-size: cover;
     background-position: center;
     background-attachment: fixed;

@@ -26,7 +26,7 @@ function FeaturedTeachers({ ar }: { ar: boolean }) {
     <section className="mx-auto w-full max-w-6xl px-4 py-12">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="font-display text-2xl font-extrabold sm:text-3xl">{ar ? "المدرسون المتاحون على المنصة" : "Available teachers"}</h2>
+            <h2 className="font-display text-2xl font-extrabold sm:text-3xl">{ar ? "دليل المدرسين المتاحين حسب المادة" : "Available teachers by subject"}</h2>
           <p className="mt-2 text-muted-foreground">{ar ? "اختر مدرسك واطلب الانضمام لمجموعته من خلالنا." : "Choose a teacher and request to join through us."}</p>
         </div>
         <Button asChild variant="outline"><Link to="/teachers">{ar ? "عرض كل المدرسين" : "All teachers"}</Link></Button>
@@ -69,7 +69,17 @@ export const Route = createFileRoute("/")({
       },
     ],
     links: [{ rel: "canonical", href: "https://zakaa2biasmartclass.lovable.app/" }],
-    scripts: [{ type: "application/ld+json", children: JSON.stringify({"@context": "https://schema.org", "@graph": [{"@type": "SoftwareApplication", "name": "سمارت كلاس — SmartClass AI", "applicationCategory": "EducationalApplication", "operatingSystem": "Web, Android, iOS", "url": "https://zakaa2biasmartclass.lovable.app", "inLanguage": ["ar", "en"], "offers": {"@type": "AggregateOffer", "priceCurrency": "EGP", "lowPrice": "0", "highPrice": "1490"}}, {"@type": "EducationalOrganization", "name": "ذكاؤبيا سمارت كلاس", "url": "https://zakaa2biasmartclass.lovable.app", "logo": "https://zakaa2biasmartclass.lovable.app/icon-512.png"}, {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "ما هي منصة سمارت كلاس؟", "acceptedAnswer": {"@type": "Answer", "text": "منصة تعليمية بالذكاء الاصطناعي تحوّل ملفات المنهج إلى دروس وأهداف وأسئلة تفاعلية يراجعها المعلم ويعتمدها قبل وصولها للطلاب."}}, {"@type": "Question", "name": "هل يمكن تجربة المنصة مجانًا؟", "acceptedAnswer": {"@type": "Answer", "text": "نعم، تبدأ بباقة تجربة مجانية، ثم تختار الباقة المناسبة لعدد طلابك."}}, {"@type": "Question", "name": "كيف يضيف المعلم طلابه؟", "acceptedAnswer": {"@type": "Answer", "text": "يشارك المعلم كود الانضمام الخاص بالمقرر مع طلابه، أو يقبل طلبات الانضمام التي تصله من دليل المدرسين."}}, {"@type": "Question", "name": "هل يرى الطالب مواد مدرسين آخرين؟", "acceptedAnswer": {"@type": "Answer", "text": "لا، الطالب يرى فقط المواد المعتمدة من المدرس الذي انضم إليه."}}, {"@type": "Question", "name": "ما حجم ملف المنهج الذي يمكن رفعه؟", "acceptedAnswer": {"@type": "Answer", "text": "يمكن رفع ملف PDF حتى 500 ميغابايت."}}, {"@type": "Question", "name": "هل يتابع ولي الأمر تقدم أبنائه؟", "acceptedAnswer": {"@type": "Answer", "text": "نعم، يرى ولي الأمر تقارير الإتقان والدرجات لأبنائه المرتبطين بحسابه فقط."}}]}]}) }],
+    scripts: [{
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@graph": [
+          { "@type": "SoftwareApplication", name: "سمارت كلاس — SmartClass AI", applicationCategory: "EducationalApplication", operatingSystem: "Web, Android, iOS", url: "https://zakaa2biasmartclass.lovable.app", inLanguage: ["ar", "en"] },
+          { "@type": "Organization", name: "ذكاؤبيا سمارت كلاس", url: "https://zakaa2biasmartclass.lovable.app", logo: "https://zakaa2biasmartclass.lovable.app/icon-512.png" },
+          { "@type": "FAQPage", mainEntity: FAQ.map(({ q, a }) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) },
+        ],
+      }),
+    }],
   }),
   component: Landing,
 });
@@ -155,7 +165,7 @@ function Landing() {
 
       <section className="gradient-hero">
         <div className="mx-auto flex min-h-[540px] w-full max-w-6xl items-center px-4 py-16 md:py-20">
-          <div className="max-w-md">
+          <div className="max-w-xl">
             <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold text-muted-foreground">
               <Sparkles className="size-3.5 text-accent" />
               {ar ? "عربي وإنجليزي — بلا ترجمة تلقائية للمحتوى" : "Arabic & English, no auto-translation"}
@@ -163,6 +173,9 @@ function Landing() {
             <h1 className="font-display text-4xl leading-tight font-extrabold sm:text-5xl">
               {ar ? "سمارت كلاس" : "SmartClass AI"}
             </h1>
+            <p className="mt-3 font-display text-xl font-bold text-primary sm:text-2xl">
+              {ar ? "منصة للمعلم تحوّل ملفات المنهج إلى دروس وأسئلة تفاعلية" : "A teacher platform that turns syllabus files into interactive lessons and questions"}
+            </p>
             <p className="mt-5 max-w-xl text-base text-muted-foreground sm:text-lg">
               {ar
                 ? "ارفع ملف المنهج والامتحانات السابقة، واحصل على وحدات ودروس وأهداف وأسئلة مقترحة تعتمدها بنفسك قبل أن يراها أي طالب."
@@ -170,7 +183,7 @@ function Landing() {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild size="lg">
-                <Link to="/auth">{ar ? "ابدأ الآن" : "Get started"}</Link>
+                <Link to="/auth" search={{ mode: "signup" }}>{ar ? "أنشئ حسابك مجانًا" : "Create a free account"}</Link>
               </Button>
               <Button asChild size="lg" variant="outline">
                 <Link to="/pricing">{ar ? "الباقات والأسعار" : "Pricing"}</Link>
@@ -197,7 +210,7 @@ function Landing() {
       </section>
 
       <section className="mx-auto w-full max-w-6xl px-4 py-12">
-        <h2 className="font-display text-2xl font-extrabold sm:text-3xl">{ar ? "ملخص المنصة: كل ما تقدمه سمارت كلاس" : "Platform overview"}</h2>
+        <h2 className="font-display text-2xl font-extrabold sm:text-3xl">{ar ? "تنظيم المنهج ومتابعة مستوى الطلاب في مكان واحد" : "Curriculum planning and student progress in one place"}</h2>
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           {[
             { t: ar ? "للمعلم" : "For teachers", items: ar
@@ -207,8 +220,8 @@ function Landing() {
               ? ["يرى مواد مدرسيه فقط", "حل الأنشطة المنشورة وتسجيل الإجابات", "نسبة إتقان لكل هدف من إجاباته الحقيقية", "تعليقات المعلم والإشعارات", "البحث عن مدرس حسب المادة وطلب الانضمام"]
               : ["Sees only their own teachers' courses", "Solve published activities", "Mastery per objective from real answers", "Teacher comments and notifications", "Find a teacher by subject and request to join"] },
             { t: ar ? "لولي الأمر" : "For parents", items: ar
-              ? ["ربط حساب الابن برمز من الابن نفسه", "متابعة التقدم والدرجات وتعليقات المعلم", "اختيار مدرسين لابنه وتقديم طلب انضمام", "تطبيق يُثبَّت على الموبايل من أي متصفح"]
-              : ["Link a child with the child's own code", "Follow progress, scores and comments", "Choose teachers for a child and send a request", "Installable app on any mobile browser"] },
+              ? ["ربط حساب الابن برمز من الابن نفسه", "متابعة التقدم والدرجات وتعليقات المعلم", "اختيار مدرسين لابنه وتقديم طلب انضمام", "إضافة التطبيق للشاشة الرئيسية حسب دعم المتصفح"]
+              : ["Link a child with the child's own code", "Follow progress, scores and comments", "Choose teachers for a child and send a request", "Add the app to the home screen where supported"] },
           ].map((col) => (
             <article key={col.t} className="surface rounded-2xl p-6">
               <h3 className="font-display text-lg font-bold text-primary">{col.t}</h3>
@@ -227,8 +240,8 @@ function Landing() {
             <h3 className="font-display text-lg font-bold">{ar ? "الطريقة الأولى: رمز المقرر" : "Option 1: Course code"}</h3>
             <ol className="mt-3 list-decimal space-y-1.5 ps-5 text-sm text-muted-foreground">
               {(ar
-                ? ["ينشئ المعلم المقرر وينشره من لوحته.", "يظهر للمقرر رمز من 6 أحرف، يرسله المعلم لطلابه (واتساب أو في الفصل).", "يكتب الطالب الرمز في لوحته ويضغط «انضمام».", "يُضاف الطالب فورًا ويظهر في جدول «طلاب المواد» عند المعلم. لا يوجد حد لعدد الطلاب في المقرر."]
-                : ["The teacher creates and publishes a course.", "The course gets a 6-letter code the teacher shares.", "The student enters the code and taps “Join”.", "The student appears instantly in the teacher's student table. No limit on students."]
+                 ? ["ينشئ المعلم المقرر وينشره من لوحته.", "يظهر للمقرر رمز من 6 أحرف، يرسله المعلم لطلابه (واتساب أو في الفصل).", "يكتب الطالب الرمز في لوحته ويضغط «انضمام».", "يُضاف الطالب ويظهر في جدول «طلاب المواد» عند المعلم. راجع صفحة الباقات لمعرفة عدد الطلاب في كل باقة."]
+                 : ["The teacher creates and publishes a course.", "The course gets a 6-letter code the teacher shares.", "The student enters the code and taps “Join”.", "The student appears in the teacher's student table. See Pricing for the student allowance in each plan."]
               ).map((s) => <li key={s}>{s}</li>)}
             </ol>
           </article>
@@ -266,6 +279,14 @@ function Landing() {
 
       <FeaturedTeachers ar={ar} />
       <FaqSection />
+
+      <section className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-5 px-4 py-10">
+        <h2 className="font-display text-2xl font-bold">{ar ? "ابدأ بمنهجك، أو اختر مدرس المادة" : "Start with your syllabus, or find a subject teacher"}</h2>
+        <div className="flex flex-wrap gap-3">
+          <Button asChild size="lg"><Link to="/auth" search={{ mode: "signup" }}>{ar ? "أنشئ حسابك مجانًا" : "Create a free account"}</Link></Button>
+          <Button asChild size="lg" variant="outline"><Link to="/teachers">{ar ? "اختر مدرسك" : "Find your teacher"}</Link></Button>
+        </div>
+      </section>
 
       <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
         {ar ? "سمارت كلاس — تعليم مبني على الأدلة" : "SmartClass — evidence-based teaching"}
