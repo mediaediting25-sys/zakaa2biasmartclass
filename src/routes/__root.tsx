@@ -84,6 +84,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "author", content: "SmartClass AI" },
+      { name: "google-site-verification", content: "z6tV9Xn4GGUh7nmdawEhmr4WlJihNLS-KrxuqF4sSMQ" },
       { name: "theme-color", content: "#0b1626" },
       { name: "application-name", content: "Zakaa2obya Smart Class" },
       { name: "apple-mobile-web-app-title", content: "Zakaa2obya Smart Class" },
