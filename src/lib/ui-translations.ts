@@ -1,6 +1,20 @@
 import type { Locale } from "./i18n";
 
 const english: Record<string, string> = {
+  "المدرسون": "Teachers",
+  "الأسئلة الشائعة": "Frequently asked questions",
+  "ما هي منصة سمارت كلاس؟": "What is SmartClass?",
+  "منصة تعليمية بالذكاء الاصطناعي تحوّل ملفات المنهج إلى دروس وأهداف وأسئلة تفاعلية يراجعها المعلم ويعتمدها قبل وصولها للطلاب.": "An AI education platform that turns syllabus files into lessons, objectives and interactive questions for teachers to review and approve before students see them.",
+  "هل يمكن تجربة المنصة مجانًا؟": "Can I try the platform for free?",
+  "نعم، تبدأ بباقة تجربة مجانية، ثم تختار الباقة المناسبة لعدد طلابك.": "Yes. Start with a free trial, then choose the plan that suits your student numbers.",
+  "كيف يضيف المعلم طلابه؟": "How does a teacher add students?",
+  "يشارك المعلم كود الانضمام الخاص بالمقرر مع طلابه، أو يقبل طلبات الانضمام التي تصله من دليل المدرسين.": "Teachers share their course join code with students or accept join requests from the teacher directory.",
+  "هل يرى الطالب مواد مدرسين آخرين؟": "Can students see other teachers' courses?",
+  "لا، الطالب يرى فقط المواد المعتمدة من المدرس الذي انضم إليه.": "No. Students only see approved material from the teacher they have joined.",
+  "ما حجم ملف المنهج الذي يمكن رفعه؟": "What syllabus file size can I upload?",
+  "يمكن رفع ملف PDF حتى 500 ميغابايت.": "You can upload a PDF up to 500 MB.",
+  "هل يتابع ولي الأمر تقدم أبنائه؟": "Can parents follow their children's progress?",
+  "نعم، يرى ولي الأمر تقارير الإتقان والدرجات لأبنائه المرتبطين بحسابه فقط.": "Yes. Parents see mastery reports and scores only for children linked to their account.",
   "ثبّت التطبيق": "Install app",
   "أضف سمارت كلاس على موبايلك": "Add SmartClass to your phone",
   "ليس الآن": "Not now",
