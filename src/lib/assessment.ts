@@ -1,12 +1,15 @@
 import { z } from "zod";
 
 export const assessmentOptions = z.object({
+  language: z.enum(["ar", "en", "both"]).default("ar"),
   count: z.number().int().min(1).max(15),
   topic: z.string().trim().max(300).default(""),
   age: z.number().int().min(4).max(22).default(12),
   grade: z.string().trim().max(80).default(""),
 });
 export type AssessmentOptions = z.infer<typeof assessmentOptions>;
+
+export function canDeleteQuestion(status: string) { return status === "rejected"; }
 
 export function normalizeQuestion(text: string) {
   return text.normalize("NFKC").toLowerCase().replace(/[\u064B-\u065F\u0670\u0640]/g, "").replace(/[أإآ]/g, "ا").replace(/[^\p{L}\p{N}\s]/gu, " ").trim().replace(/\s+/g, " ");
