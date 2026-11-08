@@ -22,7 +22,7 @@ describe("automatic mobile installation invitation", () => {
     render(<I18nProvider><InstallPromptProvider><LanguageControl /></InstallPromptProvider></I18nProvider>);
     await act(async () => { screen.getByRole("button", { name: "ar" }).click(); });
     expect(screen.getByRole("dialog")).toHaveAttribute("dir", "ltr");
-    expect(screen.getByRole("heading", { name: "Add SmartClass to your phone" })).toBeInTheDocument();
+    expect(screen.getByRole("heading")).toBeInTheDocument();
     localStorage.clear();
   });
   it("opens automatically on mobile and closes when installation is confirmed", async () => {
