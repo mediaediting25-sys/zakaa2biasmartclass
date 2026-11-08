@@ -36,6 +36,13 @@
       "when": 1794127026450,
       "tag": "0004_assessment_batches_and_teacher_photos",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794127175472,
+      "tag": "0005_preserve_multiple_presentation_batches",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,1 @@
+ALTER TABLE public.lesson_presentations DROP CONSTRAINT lesson_presentations_lesson_id_language_key;
