@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { questionIssues } from "./lesson-tools";
-import { assessmentOptions, distributeQuestionCount } from "./assessment";
+import { assessmentOptions, batchReadyForPublication, distributeQuestionCount } from "./assessment";
 
 async function assertTeacher(supabase: any, courseId: string) {
   const { data, error } = await supabase.rpc("is_course_teacher", { _course_id: courseId });
@@ -160,14 +160,16 @@ export const publishCourse = createServerFn({ method: "POST" })
     await assertTeacher(sb, data.courseId);
     const [qs, acts, lessons] = await Promise.all([
       sb.from("questions").select("id, stem, kind, activity_id, options, correct_answer, source_page, source_quote, status").eq("course_id", data.courseId).neq("status", "rejected"),
-      sb.from("activities").select("id, lesson_id").eq("course_id", data.courseId),
+      sb.from("activities").select("id, lesson_id, status, published_at").eq("course_id", data.courseId),
       sb.from("lessons").select("id, unit_id").eq("course_id", data.courseId),
     ]);
     if (qs.error || acts.error || lessons.error) throw qs.error ?? acts.error ?? lessons.error;
     const rejected: { stem: string; reasons: string[] }[] = [];
     const good = (qs.data ?? []).filter((q: any) => {
       const siblings = (qs.data ?? []).filter(other => other.activity_id === q.activity_id);
-      if (siblings.some(other => !["approved", "published"].includes(other.status) || questionGateIssues(other).length)) return false;
+      const activity = acts.data?.find(a => a.id === q.activity_id);
+      if (activity?.published_at && activity.status !== "published") return false;
+      if (!batchReadyForPublication(siblings, other => questionGateIssues(other).length > 0)) return false;
       const r = questionGateIssues(q);
       if (r.length) rejected.push({ stem: q.stem.slice(0, 60), reasons: r });
       return !r.length;
@@ -229,7 +231,7 @@ export const publishAssessment = createServerFn({ method: "POST" })
     }
     const { data: questions, error: qError } = await sb.from("questions").select("*").eq("activity_id", data.activityId).neq("status", "rejected");
     if (qError) throw qError;
-    if (!questions?.length || questions.some(q => !["approved", "published"].includes(q.status) || questionIssues(q).length)) throw new Error("اعتمد جميع الأسئلة المكتملة والموثقة قبل نشر الدفعة");
+    if (!questions || !batchReadyForPublication(questions, q => questionIssues(q).length > 0)) throw new Error("اعتمد جميع الأسئلة المكتملة والموثقة قبل نشر الدفعة");
     const { error: qe } = await sb.from("questions").update({ status: "published" }).eq("activity_id", data.activityId).in("status", ["approved", "published"]);
     if (qe) throw qe;
     if (activity.lesson_id) {

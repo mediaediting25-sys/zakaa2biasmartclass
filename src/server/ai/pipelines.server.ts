@@ -341,6 +341,7 @@ export async function generateLessonQuestions(
     .eq("id", lessonId)
     .single();
   if (!lesson) throw new Error("Lesson not found");
+  if (!lesson.source_document_id || !lesson.source_page) throw new Error("لا توجد صفحات مصدر لهذا الدرس");
   const { data: objectives } = await admin
     .from("objectives")
     .select("id, description, skill")
@@ -493,6 +494,7 @@ supported = the question and answer are fully supported by the source; answer_co
       difficulty: q.difficulty,
       confidence,
       source_page: q.page,
+      source_document_id: lesson.source_document_id,
       source_quote: q.source_quote,
       verification: { quote_support: q.support, ...(v ?? {}), model: provider.model },
       position: i,
@@ -503,5 +505,6 @@ supported = the question and answer are fully supported by the source; answer_co
     const { error } = await admin.from("questions").insert(rows);
     if (error) throw error;
   }
+  if (created < opts.count) warnings.push(`تم حفظ ${created} من ${opts.count} سؤال؛ استُبعدت الأسئلة المكررة أو غير الموثقة دون إعادة التوليد تلقائيًا.`);
   return { created, warnings };
 }

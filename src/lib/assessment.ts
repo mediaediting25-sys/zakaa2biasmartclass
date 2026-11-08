@@ -29,7 +29,7 @@ export function assessmentSection(activity: { status: string; published_at?: str
   return activity.status === "published" || activity.published_at ? "history" : "review";
 }
 
-export function batchReadyForPublication(questions: { status: string }[], hasIssues: (q: { status: string }) => boolean) {
+export function batchReadyForPublication<Q extends { status: string }>(questions: Q[], hasIssues: (q: Q) => boolean) {
   const included = questions.filter(q => q.status !== "rejected");
   return included.length > 0 && included.every(q => ["approved", "published"].includes(q.status) && !hasIssues(q));
 }
