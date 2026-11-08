@@ -139,7 +139,7 @@
   --sidebar-accent: var(--secondary);
   --sidebar-accent-foreground: var(--foreground);
   --gradient-forest: linear-gradient(145deg, oklch(0.99 0.007 205 / 94%), oklch(0.95 0.018 205 / 94%));
-  --gradient-sand: linear-gradient(135deg, var(--secondary), var(--card));
+  --gradient-sand: linear-gradient(135deg, var(--primary), oklch(0.4 0.09 215));
   --gradient-bark: linear-gradient(135deg, var(--muted), var(--secondary));
   --app-overlay: linear-gradient(90deg, oklch(0.97 0.012 205 / 58%), oklch(0.97 0.012 205 / 78%) 50%, oklch(0.97 0.012 205 / 94%));
   --shadow-soft: 0 2px 4px oklch(0.3 0.03 215 / 8%), 0 14px 32px oklch(0.3 0.03 215 / 12%);
