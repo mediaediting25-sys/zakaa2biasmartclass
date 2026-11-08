@@ -23,7 +23,11 @@ export type Database = {
           kind: string
           lesson_id: string | null
           position: number
+          published_at: string | null
           status: Database["public"]["Enums"]["content_status"]
+          target_age: number | null
+          target_grade: string | null
+          target_topic: string | null
           title: string
           updated_at: string
         }
@@ -35,7 +39,11 @@ export type Database = {
           kind?: string
           lesson_id?: string | null
           position?: number
+          published_at?: string | null
           status?: Database["public"]["Enums"]["content_status"]
+          target_age?: number | null
+          target_grade?: string | null
+          target_topic?: string | null
           title: string
           updated_at?: string
         }
@@ -47,7 +55,11 @@ export type Database = {
           kind?: string
           lesson_id?: string | null
           position?: number
+          published_at?: string | null
           status?: Database["public"]["Enums"]["content_status"]
+          target_age?: number | null
+          target_grade?: string | null
+          target_topic?: string | null
           title?: string
           updated_at?: string
         }
@@ -677,6 +689,7 @@ export type Database = {
           id: string
           language: string
           lesson_id: string
+          published_at: string | null
           slides: Json
           status: Database["public"]["Enums"]["content_status"]
           title: string
@@ -688,6 +701,7 @@ export type Database = {
           id?: string
           language?: string
           lesson_id: string
+          published_at?: string | null
           slides?: Json
           status?: Database["public"]["Enums"]["content_status"]
           title: string
@@ -699,6 +713,7 @@ export type Database = {
           id?: string
           language?: string
           lesson_id?: string
+          published_at?: string | null
           slides?: Json
           status?: Database["public"]["Enums"]["content_status"]
           title?: string
@@ -1319,6 +1334,7 @@ export type Database = {
           display_name: string
           grade_levels: string | null
           is_listed: boolean
+          photo_path: string | null
           subjects: string[]
           teacher_id: string
           updated_at: string
@@ -1329,6 +1345,7 @@ export type Database = {
           display_name: string
           grade_levels?: string | null
           is_listed?: boolean
+          photo_path?: string | null
           subjects?: string[]
           teacher_id: string
           updated_at?: string
@@ -1339,6 +1356,7 @@ export type Database = {
           display_name?: string
           grade_levels?: string | null
           is_listed?: boolean
+          photo_path?: string | null
           subjects?: string[]
           teacher_id?: string
           updated_at?: string
