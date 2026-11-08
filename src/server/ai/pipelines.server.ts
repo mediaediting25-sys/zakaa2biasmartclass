@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isRepeatedQuestion, type AssessmentOptions } from "@/lib/assessment";
 import { extractText, getDocumentProxy } from "unpdf";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -332,7 +333,7 @@ function structurallyValid(q: GenQ) {
 export async function generateLessonQuestions(
   admin: Admin,
   lessonId: string,
-  opts: { count: number; examPatterns?: string | null; homework?: boolean },
+  opts: AssessmentOptions & { examPatterns?: string | null; homework?: boolean },
 ) {
   const { data: lesson } = await admin
     .from("lessons")
@@ -355,7 +356,7 @@ export async function generateLessonQuestions(
   } as never);
   if (mErr) throw mErr;
   let chunks = (hits ?? []) as { page_number: number; content: string; document_id: string; similarity: number }[];
-  if (opts.homework) {
+  if (lesson.source_document_id && lesson.source_page) {
     if (!lesson.source_document_id || !lesson.source_page) throw new Error("لا توجد صفحات مصدر لهذا الدرس");
     const { data: next } = await admin.from("lessons").select("source_page").eq("source_document_id", lesson.source_document_id).gt("source_page", lesson.source_page).order("source_page").limit(1).maybeSingle();
     const { data: lessonPages, error: lpError } = await admin.from("source_pages").select("page_number, text_content, document_id").eq("document_id", lesson.source_document_id).gte("page_number", lesson.source_page).lt("page_number", next?.source_page ?? lesson.source_page + 12).order("page_number").limit(12);
@@ -372,6 +373,10 @@ export async function generateLessonQuestions(
     .in("page_number", [...new Set(chunks.map((c) => c.page_number))]);
   const pageMap = new Map((pageRows ?? []).map((p) => [p.page_number, p.text_content ?? ""]));
   const source = chunks.map((c) => `[p.${c.page_number}] ${c.content}`).join("\n\n");
+
+  const { data: previousQuestions, error: previousError } = await admin.from("questions").select("stem").eq("course_id", lesson.course_id);
+  if (previousError) throw previousError;
+  const previousStems = (previousQuestions ?? []).map(q => q.stem);
 
   // Few-shot from teacher-approved questions (continuous improvement without training)
   const { data: examples } = await admin
@@ -397,6 +402,7 @@ export async function generateLessonQuestions(
     schema: questionSchema as unknown as Record<string, unknown>,
     effort: "medium",
     system: `You are an expert assessment designer writing exam-quality questions for ${course?.subject ?? "a school subject"} (${course?.grade_level ?? "K-12"}). Write in language: ${course?.content_language ?? "ar"}.
+Audience: age ${opts.age}; grade ${opts.grade || course?.grade_level || "unspecified"}. Use short playful concrete wording for young children; reasoning and less childish wording for teenagers.
 Quality rules:
 - Each question tests ONE objective; tag "skill" with the matching objective skill.
 - multiple_choice: exactly 4 options, one unambiguous correct answer copied exactly into correct_answer, plausible distractors that are clearly wrong per the source.
@@ -410,7 +416,9 @@ ${opts.examPatterns ? `\nEXAM PATTERNS (style guidance only, do not copy text):\
 ${examples?.length ? `\nTEACHER-APPROVED EXAMPLES (match this quality/style):\n${JSON.stringify(examples)}\n` : ""}
 ${rejected?.length ? `\nAVOID these problems the teacher rejected before:\n${rejected.map((r) => `- ${r.reason}`).join("\n")}\n` : ""}
 ${opts.homework ? `\nHOMEWORK MODE: This is an interactive homework set. Stay strictly inside this lesson's content and objectives. Do NOT copy the book's own exercises or questions word-for-word; write NEW questions in the same context with different wording, examples and situations from the source. Vary formats (multiple_choice, true_false, fill_blank, short_answer) and cover every objective.\n` : ""}
-Generate ${opts.count} questions.\n\nSOURCE:\n${source}`,
+${opts.topic ? `TARGET TOPIC (only this part of the lesson, never invent missing material): ${opts.topic}\n` : ""}
+DO NOT REPEAT any of these existing questions, including rephrased versions:\n${JSON.stringify(previousStems.slice(-250))}
+Generate exactly ${opts.count} questions.\n\nSOURCE:\n${source}`,
   });
   const gen = z.object({ questions: z.array(z.unknown()), warnings: z.array(z.string()) }).parse(raw);
   const warnings = [...gen.warnings];
@@ -421,6 +429,11 @@ Generate ${opts.count} questions.\n\nSOURCE:\n${source}`,
       warnings.push("تم استبعاد سؤال بصيغة غير صالحة.");
       continue;
     }
+    if (isRepeatedQuestion(r.data.stem, [...previousStems, ...candidates.map(q => q.stem)])) {
+      warnings.push("تم استبعاد سؤال مكرر.");
+      continue;
+    }
+    if (candidates.length >= opts.count) break;
     const loc = locateQuote(r.data.source_quote, pageMap, r.data.source_page);
     if (loc.score < 0.5) {
       warnings.push(`تم استبعاد سؤال بلا دليل في الكتاب: «${r.data.stem.slice(0, 60)}…»`);
@@ -443,23 +456,18 @@ supported = the question and answer are fully supported by the source; answer_co
   );
   const byIdx = new Map(ver.verdicts.map((v) => [v.index, v]));
 
-  let { data: activity } = await admin
-    .from("activities")
-    .select("id")
-    .eq("lesson_id", lessonId)
-    .eq("kind", opts.homework ? "homework" : "practice")
-    .limit(1)
-    .maybeSingle();
-  if (!activity) {
-    const ins = await admin
-      .from("activities")
-      .insert({ course_id: lesson.course_id, lesson_id: lessonId, title: `${opts.homework ? "واجب" : "تدريب"}: ${lesson.title}`, kind: opts.homework ? "homework" : "practice", status: "draft" })
-      .select("id")
-      .single();
-    if (ins.error) throw ins.error;
-    activity = ins.data;
-  }
-  const { count: existing } = await admin.from("questions").select("id", { count: "exact", head: true }).eq("activity_id", activity.id);
+  const passedCandidates = candidates.filter((_q, i) => {
+    const v = byIdx.get(i);
+    return v?.supported && v.answer_correct && v.distractors_wrong && v.single_best_answer;
+  });
+  if (!passedCandidates.length) return { created: 0, warnings: [...warnings, "لم يجتز أي سؤال المراجعة"] };
+  const { data: activity, error: activityError } = await admin.from("activities").insert({
+    course_id: lesson.course_id, lesson_id: lessonId,
+    title: `${opts.homework ? "واجب" : opts.examPatterns ? "امتحان" : "تدريب"}: ${lesson.title} · ${new Date().toISOString()}`,
+    kind: opts.homework ? "homework" : opts.examPatterns ? "exam" : "practice", status: "draft",
+    target_age: opts.age, target_grade: opts.grade || null, target_topic: opts.topic || null,
+  }).select("id").single();
+  if (activityError || !activity) throw activityError ?? new Error("تعذر حفظ الدفعة");
   const skillToObj = new Map((objectives ?? []).map((o) => [(o.skill ?? "").trim(), o.id]));
 
   const activityId = activity.id;
@@ -487,7 +495,7 @@ supported = the question and answer are fully supported by the source; answer_co
       source_page: q.page,
       source_quote: q.source_quote,
       verification: { quote_support: q.support, ...(v ?? {}), model: provider.model },
-      position: (existing ?? 0) + i,
+      position: i,
       status: "draft" as const,
     }];
   });
