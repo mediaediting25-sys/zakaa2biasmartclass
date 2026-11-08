@@ -184,6 +184,7 @@ function RequestForm({ listing, role, defaultSubject, onDone }: { listing: Listi
 
   const send = useMutation({
     mutationFn: async () => {
+      if (!user) throw new Error(ar ? "سجّل الدخول أولًا" : "Sign in first");
       const studentId = isParent ? childId : user.id;
       if (!studentId) throw new Error(ar ? "اختر الابن أولًا" : "Choose a child first");
       const { error } = await supabase.from("join_requests").insert({
