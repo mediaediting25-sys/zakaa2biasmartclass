@@ -17,12 +17,12 @@ import { TeacherDirectoryPanel } from "@/components/TeacherDirectoryPanel";
 export const Route = createFileRoute("/_authenticated/teacher")({
   head: () => ({
     meta: [
-      { property: "og:title", content: "لوحة المعلم — سمارت كلاس" },
-      { property: "og:description", content: "إدارة المقررات والملفات وتقارير الطلاب في سمارت كلاس." },
+      { property: "og:title", content: "لوحة المعلم — ذكاؤبيا سمارت كلاس" },
+      { property: "og:description", content: "إدارة المقررات والملفات وتقارير الطلاب في ذكاؤبيا سمارت كلاس." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { title: "لوحة المعلم — سمارت كلاس" },
-      { name: "description", content: "إدارة المقررات والملفات وتقارير الطلاب في سمارت كلاس." },
+      { title: "لوحة المعلم — ذكاؤبيا سمارت كلاس" },
+      { name: "description", content: "إدارة المقررات والملفات وتقارير الطلاب في ذكاؤبيا سمارت كلاس." },
     ],
   }),
   component: TeacherHome,

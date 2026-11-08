@@ -13,11 +13,11 @@ import { homeForRole, type AppRole } from "@/hooks/useSession";
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({
     meta: [
-      { property: "og:title", content: "اختر نوع حسابك — سمارت كلاس" },
-      { property: "og:description", content: "حدّد نوع حسابك لإكمال إنشاء حساب سمارت كلاس." },
+      { property: "og:title", content: "اختر نوع حسابك — ذكاؤبيا سمارت كلاس" },
+      { property: "og:description", content: "حدّد نوع حسابك لإكمال إنشاء حساب ذكاؤبيا سمارت كلاس." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { title: "اختر نوع حسابك — سمارت كلاس" },
+      { title: "اختر نوع حسابك — ذكاؤبيا سمارت كلاس" },
       { name: "description", content: "حدّد إن كنت معلماً أو طالباً أو ولي أمر لإكمال إنشاء حسابك." },
     ],
   }),

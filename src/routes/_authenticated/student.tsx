@@ -14,12 +14,12 @@ import { listMyAttempts, listStudentActivities, listStudentCourses } from "@/lib
 export const Route = createFileRoute("/_authenticated/student")({
   head: () => ({
     meta: [
-      { property: "og:title", content: "لوحة الطالب — سمارت كلاس" },
-      { property: "og:description", content: "مقرراتك وأنشطتك ونتائجك في سمارت كلاس." },
+      { property: "og:title", content: "لوحة الطالب — ذكاؤبيا سمارت كلاس" },
+      { property: "og:description", content: "مقرراتك وأنشطتك ونتائجك في ذكاؤبيا سمارت كلاس." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { title: "لوحة الطالب — سمارت كلاس" },
-      { name: "description", content: "مقرراتك وأنشطتك ونتائجك في سمارت كلاس." },
+      { title: "لوحة الطالب — ذكاؤبيا سمارت كلاس" },
+      { name: "description", content: "مقرراتك وأنشطتك ونتائجك في ذكاؤبيا سمارت كلاس." },
     ],
   }),
   component: StudentHome,

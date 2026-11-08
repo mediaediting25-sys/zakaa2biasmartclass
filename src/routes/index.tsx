@@ -57,13 +57,13 @@ export const Route = createFileRoute("/")({
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://zakaa2biasmartclass.lovable.app/" },
       { name: "twitter:card", content: "summary_large_image" },
-      { title: "سمارت كلاس | منصة تعليمية تحول المنهج لاختبارات تفاعلية" },
+      { title: "ذكاؤبيا سمارت كلاس | منصة تعليمية تحول المنهج لاختبارات تفاعلية" },
       {
         name: "description",
         content:
           "منصة تعليمية تحوّل ملفات المنهج والامتحانات السابقة إلى دروس وأهداف وأسئلة يعتمدها المعلم، مع متابعة تقدم حقيقية للطالب وولي الأمر.",
       },
-      { property: "og:title", content: "سمارت كلاس — منهج ذكي من ملفاتك" },
+      { property: "og:title", content: "ذكاؤبيا سمارت كلاس — منهج ذكي من ملفاتك" },
       {
         property: "og:description",
         content: "حوّل ملفات المنهج إلى دروس وأسئلة يعتمدها المعلم، وتابع إتقان كل طالب.",
@@ -75,7 +75,7 @@ export const Route = createFileRoute("/")({
       children: JSON.stringify({
         "@context": "https://schema.org",
         "@graph": [
-          { "@type": "SoftwareApplication", name: "سمارت كلاس — SmartClass AI", applicationCategory: "EducationalApplication", operatingSystem: "Web, Android, iOS", url: "https://zakaa2biasmartclass.lovable.app", inLanguage: ["ar", "en"] },
+          { "@type": "SoftwareApplication", name: "ذكاؤبيا سمارت كلاس — Zakaa2obia Smart class", applicationCategory: "EducationalApplication", operatingSystem: "Web, Android, iOS", url: "https://zakaa2biasmartclass.lovable.app", inLanguage: ["ar", "en"] },
           { "@type": "Organization", name: "ذكاؤبيا سمارت كلاس", url: "https://zakaa2biasmartclass.lovable.app", logo: "https://zakaa2biasmartclass.lovable.app/icon-512.png" },
           { "@type": "FAQPage", mainEntity: FAQ.map(({ q, a }) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) },
         ],
@@ -86,7 +86,7 @@ export const Route = createFileRoute("/")({
 });
 
 const FAQ = [
-    { q: "ما هي منصة سمارت كلاس؟", a: "منصة تعليمية بالذكاء الاصطناعي تحوّل ملفات المنهج إلى دروس وأهداف وأسئلة تفاعلية يراجعها المعلم ويعتمدها قبل وصولها للطلاب." },
+    { q: "ما هي منصة ذكاؤبيا سمارت كلاس؟", a: "منصة تعليمية بالذكاء الاصطناعي تحوّل ملفات المنهج إلى دروس وأهداف وأسئلة تفاعلية يراجعها المعلم ويعتمدها قبل وصولها للطلاب." },
     { q: "هل يمكن تجربة المنصة مجانًا؟", a: "نعم، تبدأ بباقة تجربة مجانية، ثم تختار الباقة المناسبة لعدد طلابك." },
     { q: "كيف يضيف المعلم طلابه؟", a: "يشارك المعلم كود الانضمام الخاص بالمقرر مع طلابه، أو يقبل طلبات الانضمام التي تصله من دليل المدرسين." },
     { q: "هل يرى الطالب مواد مدرسين آخرين؟", a: "لا، الطالب يرى فقط المواد المعتمدة من المدرس الذي انضم إليه." },
@@ -172,7 +172,7 @@ function Landing() {
               {ar ? "عربي وإنجليزي — بلا ترجمة تلقائية للمحتوى" : "Arabic & English, no auto-translation"}
             </p>
             <h1 className="font-display text-4xl leading-tight font-extrabold sm:text-5xl">
-              {ar ? "سمارت كلاس" : "SmartClass AI"}
+              {ar ? "ذكاؤبيا سمارت كلاس" : "Zakaa2obia Smart class"}
             </h1>
             <p className="mt-3 font-display text-xl font-bold text-primary sm:text-2xl">
               {ar ? "منصة للمعلم تحوّل ملفات المنهج إلى دروس وأسئلة تفاعلية" : "A teacher platform that turns syllabus files into interactive lessons and questions"}
@@ -290,7 +290,7 @@ function Landing() {
       </section>
 
       <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-        {ar ? "سمارت كلاس — تعليم مبني على الأدلة" : "SmartClass — evidence-based teaching"}
+        {ar ? "ذكاؤبيا سمارت كلاس — تعليم مبني على الأدلة" : "Zakaa2obia Smart class — evidence-based teaching"}
       </footer>
     </div>
   );

@@ -13,12 +13,12 @@ import learningCompanions from "@/assets/learning-companions.jpg";
 export const Route = createFileRoute("/_authenticated/play/$activityId")({
   head: () => ({
     meta: [
-      { property: "og:title", content: "النشاط — سمارت كلاس" },
-      { property: "og:description", content: "حل أسئلة النشاط في سمارت كلاس." },
+      { property: "og:title", content: "النشاط — ذكاؤبيا سمارت كلاس" },
+      { property: "og:description", content: "حل أسئلة النشاط في ذكاؤبيا سمارت كلاس." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { title: "النشاط — سمارت كلاس" },
-      { name: "description", content: "حل أسئلة النشاط في سمارت كلاس." },
+      { title: "النشاط — ذكاؤبيا سمارت كلاس" },
+      { name: "description", content: "حل أسئلة النشاط في ذكاؤبيا سمارت كلاس." },
     ],
   }),
   component: Player,

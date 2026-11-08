@@ -12,13 +12,13 @@ export const Route = createFileRoute("/pricing")({
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://zakaa2biasmartclass.lovable.app/pricing" },
       { name: "twitter:card", content: "summary_large_image" },
-      { title: "الباقات والأسعار — سمارت كلاس | Pricing — SmartClass AI" },
+      { title: "الباقات والأسعار — ذكاؤبيا سمارت كلاس | Pricing — Zakaa2obia Smart class" },
       {
         name: "description",
         content:
           "باقات مناسبة للمعلم والسنتر في مصر والخليج: ابدأ مجانًا، واشترك في الباقة التي تناسب عدد طلابك وملفات الذكاء الاصطناعي.",
       },
-      { property: "og:title", content: "الباقات والأسعار — سمارت كلاس" },
+      { property: "og:title", content: "الباقات والأسعار — ذكاؤبيا سمارت كلاس" },
       {
         property: "og:description",
         content: "ابدأ مجانًا واختر الباقة التي تناسب عدد طلابك ومذكراتك.",
@@ -284,7 +284,7 @@ function PricingPage() {
       </main>
 
       <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-        {ar ? "سمارت كلاس — تعليم مبني على الأدلة" : "SmartClass — evidence-based teaching"}
+        {ar ? "ذكاؤبيا سمارت كلاس — تعليم مبني على الأدلة" : "Zakaa2obia Smart class — evidence-based teaching"}
       </footer>
     </div>
   );

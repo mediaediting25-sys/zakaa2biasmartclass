@@ -13,12 +13,12 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated/parent")({
   head: () => ({
     meta: [
-      { property: "og:title", content: "لوحة ولي الأمر — سمارت كلاس" },
-      { property: "og:description", content: "تابع تقدم أبنائك ودرجاتهم ومستوى إتقانهم في سمارت كلاس." },
+      { property: "og:title", content: "لوحة ولي الأمر — ذكاؤبيا سمارت كلاس" },
+      { property: "og:description", content: "تابع تقدم أبنائك ودرجاتهم ومستوى إتقانهم في ذكاؤبيا سمارت كلاس." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { title: "لوحة ولي الأمر — سمارت كلاس" },
-      { name: "description", content: "تابع تقدم أبنائك ودرجاتهم ومستوى إتقانهم في سمارت كلاس." },
+      { title: "لوحة ولي الأمر — ذكاؤبيا سمارت كلاس" },
+      { name: "description", content: "تابع تقدم أبنائك ودرجاتهم ومستوى إتقانهم في ذكاؤبيا سمارت كلاس." },
     ],
   }),
   component: ParentHome,

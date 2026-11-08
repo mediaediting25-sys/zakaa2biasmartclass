@@ -22,9 +22,9 @@ export const Route = createFileRoute("/teachers")({
   }),
   head: () => ({
     meta: [
-      { title: "المدرسون المتاحون — سمارت كلاس" },
-      { name: "description", content: "تصفح المدرسين المتاحين على سمارت كلاس حسب المادة وقدّم طلب انضمام يصل للمدرس مباشرة." },
-      { property: "og:title", content: "المدرسون المتاحون — سمارت كلاس" },
+      { title: "المدرسون المتاحون — ذكاؤبيا سمارت كلاس" },
+      { name: "description", content: "تصفح المدرسين المتاحين على ذكاؤبيا سمارت كلاس حسب المادة وقدّم طلب انضمام يصل للمدرس مباشرة." },
+      { property: "og:title", content: "المدرسون المتاحون — ذكاؤبيا سمارت كلاس" },
       { property: "og:description", content: "اختر مادتك واطلب الانضمام لمجموعة المدرس المناسب." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://zakaa2biasmartclass.lovable.app/teachers" },

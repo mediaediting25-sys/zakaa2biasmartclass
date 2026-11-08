@@ -25,11 +25,11 @@ import { grantRetake, listCourseReports, setTeacherComment } from "@/lib/reports
 export const Route = createFileRoute("/_authenticated/course/$courseId")({
   head: () => ({
     meta: [
-      { property: "og:title", content: "استوديو المنهج — سمارت كلاس" },
+      { property: "og:title", content: "استوديو المنهج — ذكاؤبيا سمارت كلاس" },
       { property: "og:description", content: "مراجعة المنهج والأسئلة ونشر الأنشطة ومتابعة تقارير الطلاب." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { title: "استوديو المنهج — سمارت كلاس" },
+      { title: "استوديو المنهج — ذكاؤبيا سمارت كلاس" },
       { name: "description", content: "مراجعة المنهج والأسئلة ونشر الأنشطة ومتابعة تقارير الطلاب." },
     ],
   }),
