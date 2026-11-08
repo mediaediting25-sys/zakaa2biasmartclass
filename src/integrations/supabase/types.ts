@@ -1045,6 +1045,21 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_owners: {
+        Row: {
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1207,6 +1222,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      role_audit: {
+        Row: {
+          actor_id: string
+          created_at: string
+          granted: boolean
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          target_id: string
+        }
+        Insert: {
+          actor_id: string
+          created_at?: string
+          granted: boolean
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          target_id: string
+        }
+        Update: {
+          actor_id?: string
+          created_at?: string
+          granted?: boolean
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          target_id?: string
+        }
+        Relationships: []
       }
       role_choices: {
         Row: {
@@ -1446,6 +1488,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_list_users: {
+        Args: never
+        Returns: {
+          email: string
+          full_name: string
+          is_owner: boolean
+          roles: string[]
+          user_id: string
+        }[]
+      }
+      admin_set_role: {
+        Args: {
+          _grant: boolean
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: undefined
+      }
       can_read_course_content: {
         Args: { _course_id: string }
         Returns: boolean
@@ -1480,6 +1540,7 @@ export type Database = {
       }
       is_org_member: { Args: { _org_id: string }; Returns: boolean }
       is_parent_of: { Args: { _student_id: string }; Returns: boolean }
+      is_platform_owner: { Args: never; Returns: boolean }
       join_course: { Args: { _code: string }; Returns: string }
       list_my_children: {
         Args: never
