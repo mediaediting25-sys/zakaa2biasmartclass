@@ -29,6 +29,11 @@ export function assessmentSection(activity: { status: string; published_at?: str
   return activity.status === "published" || activity.published_at ? "history" : "review";
 }
 
+export function batchReadyForPublication(questions: { status: string }[], hasIssues: (q: { status: string }) => boolean) {
+  const included = questions.filter(q => q.status !== "rejected");
+  return included.length > 0 && included.every(q => ["approved", "published"].includes(q.status) && !hasIssues(q));
+}
+
 export function distributeQuestionCount(count: number, lessonIds: string[]) {
   if (!lessonIds.length) return [];
   return lessonIds.slice(0, count).map((lessonId, index, selected) => ({

@@ -21,14 +21,14 @@ export const saveCoursePlan = createServerFn({ method: "POST" }).middleware([req
   });
 
 export const generatePresentation = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ lessonId: z.string().uuid(), language: z.enum(["ar", "en"]), age: z.number().int().min(4).max(22) }).parse(d))
+  .inputValidator((d: unknown) => z.object({ lessonId: z.string().uuid(), language: z.enum(["ar", "en"]), age: z.number().int().min(4).max(22), count: z.number().int().min(1).max(10).default(3), topic: z.string().trim().max(300).default(""), grade: z.string().trim().max(80).default("") }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: lesson } = await context.supabase.from("lessons").select("course_id").eq("id", data.lessonId).maybeSingle();
     if (!lesson) throw new Error("الدرس غير موجود");
     const { data: allowed } = await context.supabase.rpc("is_course_teacher", { _course_id: lesson.course_id });
     if (!allowed) throw new Error("غير مصرح");
     const { buildPresentation } = await import("@/server/ai/presentations.server");
-    const result = await buildPresentation(context.supabase, data.lessonId, data.language, data.age);
+    const result = await buildPresentation(context.supabase, data.lessonId, data.language, data.age, data);
     const { data: saved, error } = await context.supabase.from("lesson_presentations").insert({ lesson_id: data.lessonId, course_id: result.courseId, language: data.language, title: result.title, slides: result.slides, created_by: context.userId, status: "draft" }).select("id").single();
     if (error) throw error;
     return saved;

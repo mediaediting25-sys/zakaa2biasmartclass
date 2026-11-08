@@ -99,10 +99,13 @@ export function LessonPresentationTools({ courseId, lessonId, presentations, mod
   const gen = useServerFn(generatePresentation);
   const [language, setLanguage] = useState<"ar" | "en">("ar");
   const [age, setAge] = useState(12);
+  const [count, setCount] = useState(3);
+  const [topic, setTopic] = useState("");
+  const [grade, setGrade] = useState("");
   const [show, setShow] = useState<Pres | null>(null);
   const refresh = () => qc.invalidateQueries({ queryKey: ["presentations", courseId] });
   const m = useMutation({
-    mutationFn: () => gen({ data: { lessonId, language, age } }),
+    mutationFn: () => gen({ data: { lessonId, language, age, count, topic, grade } }),
     onSuccess: () => { toast.success(tr("تم توليد العرض — راجعه ثم انشره")); refresh(); },
     onError: (e: Error) => toast.error(message(e.message)),
   });
@@ -126,6 +129,9 @@ export function LessonPresentationTools({ courseId, lessonId, presentations, mod
           <option value="ar">العربية</option><option value="en">English</option>
         </select>
         <label className="flex items-center gap-1">{tr("سن الطالب")}<Input className="h-9 w-16" type="number" min={4} max={22} value={age} onChange={(e) => setAge(Number(e.target.value))} /></label>
+        <label className="flex items-center gap-1">{tr("عدد الأسئلة")}<Input className="h-10 w-20" type="number" min={1} max={10} value={count} onChange={e => setCount(Number(e.target.value))} /></label>
+        <Input aria-label={tr("الصف")} placeholder={tr("الصف")} className="w-full sm:w-40" value={grade} maxLength={80} onChange={e => setGrade(e.target.value)} />
+        <Input aria-label={tr("الجزئية المطلوبة")} placeholder={tr("الجزئية المطلوبة")} className="w-full sm:w-64" value={topic} maxLength={300} onChange={e => setTopic(e.target.value)} />
         <Button size="sm" variant="outline" onClick={() => m.mutate()} disabled={m.isPending}>{m.isPending ? tr("جارٍ التوليد…") : tr("توليد العرض")}</Button>
       </div>}
       {mine.map((p) => (

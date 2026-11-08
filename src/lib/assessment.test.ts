@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { assessmentOptions, assessmentSection, distributeQuestionCount, isRepeatedQuestion } from "./assessment";
+import { assessmentOptions, assessmentSection, batchReadyForPublication, distributeQuestionCount, isRepeatedQuestion } from "./assessment";
 
 describe("teacher assessment rules", () => {
+  it("keeps a batch in review until all non-rejected questions are approved", () => {
+    expect(batchReadyForPublication([{ status: "approved" }, { status: "draft" }], () => false)).toBe(false);
+    expect(batchReadyForPublication([{ status: "approved" }, { status: "rejected" }], () => false)).toBe(true);
+    expect(batchReadyForPublication([{ status: "approved" }], () => true)).toBe(false);
+    expect(batchReadyForPublication([], () => false)).toBe(false);
+  });
   it("moves published batches to history and keeps them there after unpublishing", () => {
     expect(assessmentSection({ status: "draft" })).toBe("review");
     expect(assessmentSection({ status: "approved" })).toBe("review");
