@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { questionIssues } from "./lesson-tools";
+import { assessmentOptions, batchReadyForPublication, distributeQuestionCount } from "./assessment";
 
 async function assertTeacher(supabase: any, courseId: string) {
   const { data, error } = await supabase.rpc("is_course_teacher", { _course_id: courseId });
@@ -57,7 +58,7 @@ export const processDocument = createServerFn({ method: "POST" })
 export const generateQuestions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
-    z.object({ lessonId: z.string().uuid(), count: z.number().int().min(1).max(15) }).parse(d),
+    assessmentOptions.extend({ lessonId: z.string().uuid() }).parse(d),
   )
   .handler(async ({ data, context }) => {
     const { data: lesson } = await context.supabase.from("lessons").select("course_id").eq("id", data.lessonId).maybeSingle();
@@ -65,19 +66,19 @@ export const generateQuestions = createServerFn({ method: "POST" })
     await assertTeacher(context.supabase, lesson.course_id);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { generateLessonQuestions } = await import("@/server/ai/pipelines.server");
-    return generateLessonQuestions(supabaseAdmin, data.lessonId, { count: data.count });
+    return generateLessonQuestions(supabaseAdmin, data.lessonId, data);
   });
 
 export const generateHomework = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ lessonId: z.string().uuid(), count: z.number().int().min(4).max(15) }).parse(d))
+  .inputValidator((d: unknown) => assessmentOptions.extend({ lessonId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: lesson } = await context.supabase.from("lessons").select("course_id").eq("id", data.lessonId).maybeSingle();
     if (!lesson) throw new Error("الدرس غير موجود");
     await assertTeacher(context.supabase, lesson.course_id);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { generateLessonQuestions } = await import("@/server/ai/pipelines.server");
-    return generateLessonQuestions(supabaseAdmin, data.lessonId, { count: data.count, homework: true });
+    return generateLessonQuestions(supabaseAdmin, data.lessonId, { ...data, homework: true });
   });
 
 /**
@@ -88,7 +89,7 @@ export const generateHomework = createServerFn({ method: "POST" })
 export const generateExamStyleQuestions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
-    z.object({ lessonId: z.string().uuid(), count: z.number().int().min(1).max(15) }).parse(d),
+    assessmentOptions.extend({ lessonId: z.string().uuid() }).parse(d),
   )
   .handler(async ({ data, context }) => {
     const { data: lesson } = await context.supabase.from("lessons").select("course_id").eq("id", data.lessonId).maybeSingle();
@@ -135,7 +136,7 @@ export const generateExamStyleQuestions = createServerFn({ method: "POST" })
 
     const { generateLessonQuestions } = await import("@/server/ai/pipelines.server");
     return generateLessonQuestions(supabaseAdmin, data.lessonId, {
-      count: data.count,
+      ...data,
       examPatterns: patterns.patterns,
     });
   });
@@ -158,12 +159,17 @@ export const publishCourse = createServerFn({ method: "POST" })
     const sb = context.supabase;
     await assertTeacher(sb, data.courseId);
     const [qs, acts, lessons] = await Promise.all([
-      sb.from("questions").select("id, stem, kind, activity_id, options, correct_answer, source_page, source_quote, status").eq("course_id", data.courseId).in("status", ["approved", "published"]),
-      sb.from("activities").select("id, lesson_id").eq("course_id", data.courseId),
+      sb.from("questions").select("id, stem, kind, activity_id, options, correct_answer, source_page, source_quote, status").eq("course_id", data.courseId).neq("status", "rejected"),
+      sb.from("activities").select("id, lesson_id, status, published_at").eq("course_id", data.courseId),
       sb.from("lessons").select("id, unit_id").eq("course_id", data.courseId),
     ]);
+    if (qs.error || acts.error || lessons.error) throw qs.error ?? acts.error ?? lessons.error;
     const rejected: { stem: string; reasons: string[] }[] = [];
     const good = (qs.data ?? []).filter((q: any) => {
+      const siblings = (qs.data ?? []).filter(other => other.activity_id === q.activity_id);
+      const activity = acts.data?.find(a => a.id === q.activity_id);
+      if (activity?.published_at && activity.status !== "published") return false;
+      if (!batchReadyForPublication(siblings, other => questionGateIssues(other).length > 0)) return false;
       const r = questionGateIssues(q);
       if (r.length) rejected.push({ stem: q.stem.slice(0, 60), reasons: r });
       return !r.length;
@@ -186,4 +192,57 @@ export const publishCourse = createServerFn({ method: "POST" })
     const { error } = await sb.from("courses").update({ status: "published" }).eq("id", data.courseId);
     if (error) throw new Error(error.message);
     return { published: good.length, rejected };
+  });
+
+export const generateAssessmentBatch = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => assessmentOptions.extend({ courseId: z.string().uuid(), unitId: z.string().uuid().optional(), lessonId: z.string().uuid().optional(), kind: z.enum(["practice", "homework"]) }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertTeacher(context.supabase, data.courseId);
+    let query = context.supabase.from("lessons").select("id").eq("course_id", data.courseId).neq("status", "rejected").order("position");
+    if (data.unitId) query = query.eq("unit_id", data.unitId);
+    if (data.lessonId) query = query.eq("id", data.lessonId);
+    const { data: lessons, error } = await query;
+    if (error) throw error;
+    if (!lessons?.length) throw new Error("لا توجد دروس في الجزء المختار");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { generateLessonQuestions } = await import("@/server/ai/pipelines.server");
+    let created = 0;
+    const warnings: string[] = [];
+    for (const allocation of distributeQuestionCount(data.count, lessons.map(l => l.id))) {
+      const result = await generateLessonQuestions(supabaseAdmin, allocation.lessonId, { ...data, count: allocation.count, homework: data.kind === "homework" });
+      created += result.created; warnings.push(...result.warnings);
+    }
+    return { created, warnings };
+  });
+
+export const publishAssessment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ activityId: z.string().uuid(), publish: z.boolean() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const sb = context.supabase;
+    const { data: activity, error } = await sb.from("activities").select("course_id, lesson_id").eq("id", data.activityId).single();
+    if (error || !activity) throw new Error("النشاط غير موجود");
+    await assertTeacher(sb, activity.course_id);
+    if (!data.publish) {
+      const { error: e } = await sb.from("activities").update({ status: "draft" }).eq("id", data.activityId);
+      if (e) throw e;
+      return { published: 0 };
+    }
+    const { data: questions, error: qError } = await sb.from("questions").select("*").eq("activity_id", data.activityId).neq("status", "rejected");
+    if (qError) throw qError;
+    if (!questions || !batchReadyForPublication(questions, q => questionIssues(q).length > 0)) throw new Error("اعتمد جميع الأسئلة المكتملة والموثقة قبل نشر الدفعة");
+    const { error: qe } = await sb.from("questions").update({ status: "published" }).eq("activity_id", data.activityId).in("status", ["approved", "published"]);
+    if (qe) throw qe;
+    if (activity.lesson_id) {
+      const { data: lesson, error: le } = await sb.from("lessons").update({ status: "published" }).eq("id", activity.lesson_id).select("unit_id").single();
+      if (le) throw le;
+      const { error: ue } = await sb.from("units").update({ status: "published" }).eq("id", lesson.unit_id);
+      if (ue) throw ue;
+    }
+    const { error: ae } = await sb.from("activities").update({ status: "published" }).eq("id", data.activityId);
+    if (ae) throw ae;
+    const { error: ce } = await sb.from("courses").update({ status: "published" }).eq("id", activity.course_id);
+    if (ce) throw ce;
+    return { published: questions.length };
   });

@@ -1,0 +1,1 @@
+ALTER POLICY teacher_photo_read ON storage.objects USING (bucket_id = 'teacher-avatars' AND ((storage.foldername(name))[1] = auth.uid()::text OR EXISTS (SELECT 1 FROM public.teacher_listings t WHERE t.is_listed AND t.photo_path = name)));

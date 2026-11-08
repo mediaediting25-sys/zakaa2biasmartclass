@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { getStudentActivity, submitAttempt } from "@/lib/student.functions";
+import learningCompanions from "@/assets/learning-companions.jpg";
 
 export const Route = createFileRoute("/_authenticated/play/$activityId")({
   head: () => ({
@@ -28,6 +29,7 @@ function Player() {
   const { activityId } = Route.useParams();
   const [startedAt] = useState(() => new Date().toISOString());
   const [secs, setSecs] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [choices, setChoices] = useState<Record<string, string>>({});
   const { data, isLoading, error } = useQuery({
     queryKey: ["play", activityId],
@@ -53,6 +55,7 @@ function Player() {
   const resById = new Map(result?.results.map((r) => [r.questionId, r]));
   const mm = String(Math.floor(secs / 60)).padStart(2, "0");
   const ss = String(secs % 60).padStart(2, "0");
+  const young = (data?.activity.target_age ?? 12) <= 9;
 
   return (
     <AppShell title={data?.activity.title ?? tr("النشاط")} homeTo="/student" actions={<span className="font-mono text-sm">{mm}:{ss}</span>}>
@@ -67,8 +70,11 @@ function Player() {
       )}
       {data && !data.locked && (
         <div className="mx-auto max-w-2xl space-y-4">
+          {young && <img src={learningCompanions} alt="" width={1152} height={576} className="aspect-[2/1] w-full rounded-lg object-cover" />}
+          <p className="text-sm text-muted-foreground">{Object.keys(choices).length} / {data.questions.length} {tr("مكتمل")}</p>
           {data.activity.instructions && <p className="text-muted-foreground">{data.activity.instructions}</p>}
           {data.questions.map((q, i) => {
+            if (young && !result && i !== activeIndex) return null;
             const r = resById.get(q.id);
             return (
               <Card key={q.id} className="p-5">
@@ -80,8 +86,8 @@ function Player() {
                       key={o}
                       type="button"
                       variant={choices[q.id] === o ? "default" : "outline"}
-                      className="h-auto justify-start whitespace-normal py-2 text-start"
-                      disabled={!!result}
+                      className={young ? "min-h-16 justify-start whitespace-normal border-2 px-5 py-4 text-start text-lg" : "h-auto justify-start whitespace-normal py-2 text-start"}
+                      disabled={!!result || submit.isPending}
                       onClick={() => setChoices((c) => ({ ...c, [q.id]: o }))}
                     >
                       {o}
@@ -96,6 +102,7 @@ function Player() {
               </Card>
             );
           })}
+          {young && !result && <div className="flex flex-wrap items-center justify-between gap-2"><Button variant="outline" disabled={activeIndex === 0} onClick={() => setActiveIndex(i => i - 1)}>{tr("السابق")}</Button><span>{activeIndex + 1} / {data.questions.length}</span><Button disabled={activeIndex >= data.questions.length - 1} onClick={() => setActiveIndex(i => i + 1)}>{tr("التالي")}</Button></div>}
           {!data.questions.length && <p>{tr("لا توجد أسئلة في هذا النشاط.")}</p>}
           {result ? (
             <Card className="p-5 text-center">

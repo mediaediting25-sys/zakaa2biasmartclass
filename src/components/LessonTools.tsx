@@ -80,29 +80,32 @@ export function PacingPanel({ courseId }: { courseId: string }) {
   );
 }
 
-type Pres = { id: string; lesson_id: string; language: string; title: string; slides: unknown; status: string };
+type Pres = { id: string; lesson_id: string; language: string; title: string; slides: unknown; status: string; published_at: string | null };
 
 export function usePresentations(courseId: string) {
   return useQuery({
     queryKey: ["presentations", courseId],
     queryFn: async () => {
-      const { data, error } = await supabase.from("lesson_presentations").select("id, lesson_id, language, title, slides, status").eq("course_id", courseId);
+      const { data, error } = await supabase.from("lesson_presentations").select("id, lesson_id, language, title, slides, status, published_at").eq("course_id", courseId);
       if (error) throw error;
       return (data ?? []) as Pres[];
     },
   });
 }
 
-export function LessonPresentationTools({ courseId, lessonId, presentations }: { courseId: string; lessonId: string; presentations: Pres[] }) {
+export function LessonPresentationTools({ courseId, lessonId, presentations, mode = "generation" }: { courseId: string; lessonId: string; presentations: Pres[]; mode?: "generation" | "review" | "history" }) {
   const { tr, message } = useI18n();
   const qc = useQueryClient();
   const gen = useServerFn(generatePresentation);
   const [language, setLanguage] = useState<"ar" | "en">("ar");
   const [age, setAge] = useState(12);
+  const [count, setCount] = useState(3);
+  const [topic, setTopic] = useState("");
+  const [grade, setGrade] = useState("");
   const [show, setShow] = useState<Pres | null>(null);
   const refresh = () => qc.invalidateQueries({ queryKey: ["presentations", courseId] });
   const m = useMutation({
-    mutationFn: () => gen({ data: { lessonId, language, age } }),
+    mutationFn: () => gen({ data: { lessonId, language, age, count, topic, grade } }),
     onSuccess: () => { toast.success(tr("تم توليد العرض — راجعه ثم انشره")); refresh(); },
     onError: (e: Error) => toast.error(message(e.message)),
   });
@@ -114,19 +117,23 @@ export function LessonPresentationTools({ courseId, lessonId, presentations }: {
     onSuccess: refresh,
     onError: (e: Error) => toast.error(message(e.message)),
   });
-  const mine = presentations.filter((p) => p.lesson_id === lessonId);
+  const mine = presentations.filter(p => p.lesson_id === lessonId && (mode === "history" ? p.status === "published" || !!p.published_at : mode === "review" ? p.status !== "published" && !p.published_at : false));
+  if (mode !== "generation" && !mine.length) return null;
 
   return (
     <div className="mt-3 rounded-xl border border-border p-3 text-sm">
-      <div className="flex flex-wrap items-center gap-2">
+      {mode === "generation" && <div className="flex flex-wrap items-center gap-2">
         <Presentation className="size-4 text-primary" />
         <span className="font-medium">{tr("عرض رحلة تفاعلية")}</span>
         <select className="h-9 rounded-md border border-input bg-background px-2" value={language} onChange={(e) => setLanguage(e.target.value as "ar" | "en")}>
           <option value="ar">العربية</option><option value="en">English</option>
         </select>
         <label className="flex items-center gap-1">{tr("سن الطالب")}<Input className="h-9 w-16" type="number" min={4} max={22} value={age} onChange={(e) => setAge(Number(e.target.value))} /></label>
+        <label className="flex items-center gap-1">{tr("عدد الأسئلة")}<Input className="h-10 w-20" type="number" min={1} max={10} value={count} onChange={e => setCount(Number(e.target.value))} /></label>
+        <Input aria-label={tr("الصف")} placeholder={tr("الصف")} className="w-full sm:w-40" value={grade} maxLength={80} onChange={e => setGrade(e.target.value)} />
+        <Input aria-label={tr("الجزئية المطلوبة")} placeholder={tr("الجزئية المطلوبة")} className="w-full sm:w-64" value={topic} maxLength={300} onChange={e => setTopic(e.target.value)} />
         <Button size="sm" variant="outline" onClick={() => m.mutate()} disabled={m.isPending}>{m.isPending ? tr("جارٍ التوليد…") : tr("توليد العرض")}</Button>
-      </div>
+      </div>}
       {mine.map((p) => (
         <div key={p.id} className="mt-2 flex flex-wrap items-center gap-2">
           <Badge variant="outline">{p.language === "ar" ? "AR" : "EN"}</Badge>

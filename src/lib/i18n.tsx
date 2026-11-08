@@ -1,5 +1,4 @@
 import {
-  createContext,
   useCallback,
   useContext,
   useEffect,
@@ -9,8 +8,9 @@ import {
 } from "react";
 import { translateUi } from "./ui-translations";
 import { localizeMessage } from "./localized-messages";
+import { I18nContext, type I18nValue, type Locale } from "./i18n-context";
 
-export type Locale = "ar" | "en";
+export type { Locale } from "./i18n-context";
 
 const STORAGE_KEY = "smartclass.locale";
 
@@ -57,18 +57,6 @@ const dict = {
 
 export type TranslationKey = keyof typeof dict;
 
-type I18nValue = {
-  locale: Locale;
-  dir: "rtl" | "ltr";
-  setLocale: (locale: Locale) => void;
-  toggleLocale: () => void;
-  t: (key: TranslationKey) => string;
-  tr: (text: string, ...values: (string | number)[]) => string;
-  message: (text: string) => string;
-};
-
-const I18nContext = createContext<I18nValue | null>(null);
-
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>("ar");
 
@@ -95,7 +83,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       dir,
       setLocale,
       toggleLocale: () => setLocale(locale === "ar" ? "en" : "ar"),
-      t: (key) => dict[key]?.[locale] ?? key,
+      t: (key) => key in dict ? dict[key as TranslationKey][locale] : key,
       tr: (text, ...values) => translateUi(locale, text, ...values),
       message: (text) => localizeMessage(locale, text),
     }),

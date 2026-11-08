@@ -29,6 +29,27 @@
       "when": 1793609095913,
       "tag": "0003_review_lesson_presentations",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794127026450,
+      "tag": "0004_assessment_batches_and_teacher_photos",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794127175472,
+      "tag": "0005_preserve_multiple_presentation_batches",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794127199285,
+      "tag": "0006_scope_shared_teacher_photos",
+      "breakpoints": true
     }
   ]
 }

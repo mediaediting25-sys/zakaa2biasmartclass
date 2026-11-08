@@ -1,0 +1,14 @@
+ALTER TABLE public.activities ADD COLUMN IF NOT EXISTS target_age integer, ADD COLUMN IF NOT EXISTS target_grade text, ADD COLUMN IF NOT EXISTS target_topic text, ADD COLUMN IF NOT EXISTS published_at timestamptz;
+UPDATE public.activities SET published_at = updated_at WHERE status = 'published' AND published_at IS NULL;
+ALTER TABLE public.lesson_presentations ADD COLUMN IF NOT EXISTS published_at timestamptz;
+UPDATE public.lesson_presentations SET published_at = created_at WHERE status = 'published' AND published_at IS NULL;
+ALTER TABLE public.teacher_listings ADD COLUMN IF NOT EXISTS photo_path text;
+CREATE OR REPLACE FUNCTION public.mark_content_publication() RETURNS trigger LANGUAGE plpgsql SET search_path = public AS $$ BEGIN IF NEW.status = 'published' THEN NEW.published_at = COALESCE(OLD.published_at, now()); END IF; RETURN NEW; END; $$;
+CREATE TRIGGER activities_publication_history BEFORE UPDATE ON public.activities FOR EACH ROW EXECUTE FUNCTION public.mark_content_publication();
+CREATE TRIGGER presentations_publication_history BEFORE UPDATE ON public.lesson_presentations FOR EACH ROW EXECUTE FUNCTION public.mark_content_publication();
+CREATE OR REPLACE FUNCTION public.prevent_duplicate_question() RETURNS trigger LANGUAGE plpgsql SET search_path = public AS $$ DECLARE normalized text; BEGIN PERFORM pg_advisory_xact_lock(hashtextextended(NEW.course_id::text, 0)); normalized := regexp_replace(lower(NEW.stem), '[[:space:][:punct:]ـًٌٍَُِّْٰ]+', '', 'g'); IF EXISTS (SELECT 1 FROM public.questions q WHERE q.course_id = NEW.course_id AND q.id <> NEW.id AND regexp_replace(lower(q.stem), '[[:space:][:punct:]ـًٌٍَُِّْٰ]+', '', 'g') = normalized) THEN RAISE EXCEPTION 'Duplicate question in this course'; END IF; RETURN NEW; END; $$;
+CREATE TRIGGER question_deduplication BEFORE INSERT OR UPDATE OF stem ON public.questions FOR EACH ROW EXECUTE FUNCTION public.prevent_duplicate_question();
+CREATE POLICY teacher_photo_insert ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'teacher-avatars' AND (storage.foldername(name))[1] = auth.uid()::text AND public.has_role(auth.uid(), 'teacher'));
+CREATE POLICY teacher_photo_update ON storage.objects FOR UPDATE TO authenticated USING (bucket_id = 'teacher-avatars' AND (storage.foldername(name))[1] = auth.uid()::text AND public.has_role(auth.uid(), 'teacher')) WITH CHECK (bucket_id = 'teacher-avatars' AND (storage.foldername(name))[1] = auth.uid()::text AND public.has_role(auth.uid(), 'teacher'));
+CREATE POLICY teacher_photo_delete ON storage.objects FOR DELETE TO authenticated USING (bucket_id = 'teacher-avatars' AND (storage.foldername(name))[1] = auth.uid()::text AND public.has_role(auth.uid(), 'teacher'));
+CREATE POLICY teacher_photo_read ON storage.objects FOR SELECT TO anon, authenticated USING (bucket_id = 'teacher-avatars');
