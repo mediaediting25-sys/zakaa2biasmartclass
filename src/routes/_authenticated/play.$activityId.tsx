@@ -29,6 +29,7 @@ function Player() {
   const { activityId } = Route.useParams();
   const [startedAt] = useState(() => new Date().toISOString());
   const [secs, setSecs] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [choices, setChoices] = useState<Record<string, string>>({});
   const { data, isLoading, error } = useQuery({
     queryKey: ["play", activityId],
@@ -55,7 +56,6 @@ function Player() {
   const mm = String(Math.floor(secs / 60)).padStart(2, "0");
   const ss = String(secs % 60).padStart(2, "0");
   const young = (data?.activity.target_age ?? 12) <= 9;
-  const activeIndex = Math.min(data?.questions.length ? data.questions.length - 1 : 0, Object.keys(choices).length);
 
   return (
     <AppShell title={data?.activity.title ?? tr("النشاط")} homeTo="/student" actions={<span className="font-mono text-sm">{mm}:{ss}</span>}>
@@ -102,7 +102,7 @@ function Player() {
               </Card>
             );
           })}
-          {young && !result && <div className="flex flex-wrap gap-2">{data.questions.map((q, i) => <Button key={q.id} variant={choices[q.id] ? "default" : "outline"} size="sm" onClick={() => document.getElementById(q.id)?.focus()} disabled>{i + 1}{choices[q.id] ? " ✓" : ""}</Button>)}</div>}
+          {young && !result && <div className="flex flex-wrap items-center justify-between gap-2"><Button variant="outline" disabled={activeIndex === 0} onClick={() => setActiveIndex(i => i - 1)}>{tr("السابق")}</Button><span>{activeIndex + 1} / {data.questions.length}</span><Button disabled={activeIndex >= data.questions.length - 1} onClick={() => setActiveIndex(i => i + 1)}>{tr("التالي")}</Button></div>}
           {!data.questions.length && <p>{tr("لا توجد أسئلة في هذا النشاط.")}</p>}
           {result ? (
             <Card className="p-5 text-center">

@@ -43,6 +43,13 @@
       "when": 1794127175472,
       "tag": "0005_preserve_multiple_presentation_batches",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794127199285,
+      "tag": "0006_scope_shared_teacher_photos",
+      "breakpoints": true
     }
   ]
 }
