@@ -1,6 +1,18 @@
 import type { Locale } from "./i18n";
 
 const english: Record<string, string> = {
+  "إدارة المنصة": "Platform administration",
+  "مالك المنصة": "Platform owner",
+  "المستخدمون": "Users",
+  "مديرو المنصة": "Administrators",
+  "البحث بالاسم أو البريد": "Search by name or email",
+  "الصلاحية": "Role",
+  "مستخدم": "User",
+  "تم حفظ الصلاحيات": "Permissions saved",
+  "تأكيد تغيير صلاحيات هذا المستخدم؟": "Confirm changing this user's roles?",
+  "هذه الصفحة متاحة لمديري المنصة فقط": "This page is only available to platform administrators",
+  "تعذر تغيير الصلاحية؛ تحقق من صلاحياتك واحتفاظ المستخدم بدور واحد على الأقل": "Unable to change role. Check your permissions and keep at least one role for the user",
+  "لا توجد نتائج": "No results",
   "لغة التوليد": "Generation language",
   "العربية والإنجليزية — العدد لكل لغة": "Arabic & English — count per language",
   "حذف السؤال المرفوض": "Delete rejected question",
