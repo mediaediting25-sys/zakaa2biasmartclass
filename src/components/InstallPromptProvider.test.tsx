@@ -1,6 +1,6 @@
 import { act, cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { I18nProvider } from "@/lib/i18n";
+import { I18nProvider, useI18n } from "@/lib/i18n";
 import { InstallPromptProvider, useInstallPrompt } from "./InstallPromptProvider";
 
 function Status() {
@@ -8,9 +8,23 @@ function Status() {
   return <output data-testid="installed">{String(installed)}</output>;
 }
 
+function LanguageControl() {
+  const { toggleLocale, locale } = useI18n();
+  const { openInstall } = useInstallPrompt();
+  return <button onClick={() => { toggleLocale(); openInstall(); }}>{locale}</button>;
+}
+
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.restoreAllMocks(); sessionStorage.clear(); });
 
 describe("automatic mobile installation invitation", () => {
+  it("keeps the install dialog connected to the shared language provider", async () => {
+    localStorage.clear();
+    render(<I18nProvider><InstallPromptProvider><LanguageControl /></InstallPromptProvider></I18nProvider>);
+    await act(async () => { screen.getByRole("button", { name: "ar" }).click(); });
+    expect(screen.getByRole("dialog")).toHaveAttribute("dir", "ltr");
+    expect(screen.getByRole("heading", { name: "Add SmartClass to your phone" })).toBeInTheDocument();
+    localStorage.clear();
+  });
   it("opens automatically on mobile and closes when installation is confirmed", async () => {
     vi.useFakeTimers();
     vi.spyOn(navigator, "userAgent", "get").mockReturnValue("Android Mobile Chrome");
