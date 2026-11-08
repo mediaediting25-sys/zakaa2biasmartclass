@@ -15,7 +15,7 @@ export type { Locale } from "./i18n-context";
 const STORAGE_KEY = "smartclass.locale";
 
 const dict = {
-  "app.name": { ar: "سمارت كلاس", en: "SmartClass" },
+  "app.name": { ar: "ذكاؤبيا سمارت كلاس", en: "Zakaa2obia Smart class" },
   "app.tagline": {
     ar: "منصة تعليمية تبني المنهج من ملفاتك بالذكاء الاصطناعي",
     en: "An AI platform that builds your curriculum from your own files",

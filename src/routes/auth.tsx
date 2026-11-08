@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { homeForRole, type AppRole } from "@/hooks/useSession";
 import { useI18n } from "@/lib/i18n";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (search: Record<string, unknown>): { mode?: "signup" | "signin" | undefined } => ({
@@ -134,6 +135,7 @@ function AuthPage() {
             </span>
             {t("app.name")}
           </Link>
+          <ThemeToggle />
           <Button variant="ghost" size="sm" onClick={toggleLocale}>
             {t("nav.language")}
           </Button>

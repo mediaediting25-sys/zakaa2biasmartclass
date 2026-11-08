@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useI18n } from "@/lib/i18n";
-import { generateAssessmentBatch, generateExamStyleQuestions, publishAssessment } from "@/lib/teacher.functions";
+import { generateAssessmentBatch, generateExamStyleQuestions, publishAssessment, deleteRejectedQuestion } from "@/lib/teacher.functions";
+import { Trash2 } from "lucide-react";
 import { loadCurriculum, setItemStatus } from "@/lib/api";
 import { assessmentSection } from "@/lib/assessment";
 import { LessonPresentationTools, usePresentations } from "./LessonTools";
@@ -20,6 +21,7 @@ export function AssessmentWorkspace({ courseId, curriculum, refresh }: { courseI
   const [lessonId, setLessonId] = useState("");
   const [topic, setTopic] = useState("");
   const [count, setCount] = useState(5);
+  const [language, setLanguage] = useState<"ar" | "en" | "both">("ar");
   const [age, setAge] = useState(12);
   const [grade, setGrade] = useState("");
   const [reviewKind, setReviewKind] = useState("all");
@@ -27,9 +29,11 @@ export function AssessmentWorkspace({ courseId, curriculum, refresh }: { courseI
   const generate = useServerFn(generateAssessmentBatch);
   const exam = useServerFn(generateExamStyleQuestions);
   const publish = useServerFn(publishAssessment);
+  const deleteQuestion = useServerFn(deleteRejectedQuestion);
+  const deletion = useMutation({ mutationFn: (questionId: string) => deleteQuestion({ data: { questionId } }), onSuccess: refresh, onError: (e: Error) => toast.error(message(e.message)) });
   const pres = usePresentations(courseId);
   const generation = useMutation({
-    mutationFn: () => tab === "exam" ? exam({ data: { lessonId, topic, count, age, grade } }) : generate({ data: { courseId, unitId: unitId || undefined, lessonId: lessonId || undefined, topic, count, age, grade, kind: tab === "homework" ? "homework" : "practice" } }),
+    mutationFn: () => tab === "exam" ? exam({ data: { lessonId, topic, count, age, grade, language } }) : generate({ data: { courseId, unitId: unitId || undefined, lessonId: lessonId || undefined, topic, count, age, grade, language, kind: tab === "homework" ? "homework" : "practice" } }),
     onSuccess: r => { setWarnings(r.warnings); toast.success(tr("تم توليد {0} سؤال موثّق للمراجعة", r.created)); refresh(); setTab("review"); },
     onError: (e: Error) => toast.error(message(e.message)),
   });
@@ -45,7 +49,7 @@ export function AssessmentWorkspace({ courseId, curriculum, refresh }: { courseI
     {!batches(section).length && <p className="py-8 text-muted-foreground">{tr("لا توجد دفعات هنا بعد.")}</p>}
     {batches(section).map(a => <article key={a.id} className="border-b border-border py-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div><h3 className="font-bold">{a.title}</h3><p className="text-sm text-muted-foreground">{new Date(a.created_at).toLocaleString(locale)} · {questionList(a.id).length} {tr("سؤال")} · {a.target_age ? `${tr("سن الطالب")}: ${a.target_age}` : ""}</p>{a.target_topic && <p className="text-sm">{a.target_topic}</p>}</div><Button disabled={publication.isPending} onClick={() => publication.mutate({ activityId: a.id, publish: a.status !== "published" })}>{a.status === "published" ? tr("إلغاء النشر") : section === "history" ? tr("إعادة النشر") : tr("نشر للطلاب")}</Button></div>
-      <details open={section === "review"}><summary className="cursor-pointer py-2 font-medium">{tr("عرض الأسئلة")}</summary><ul className="space-y-3">{questionList(a.id).map(q => <li key={q.id} className="rounded-lg border p-4"><div className="flex flex-wrap justify-between gap-2"><p className="font-medium">{q.stem}</p><Badge variant="secondary">{tr(q.status === "published" ? "منشور" : q.status === "approved" ? "معتمد" : q.status === "rejected" ? "مرفوض" : "يحتاج مراجعة")}</Badge></div><ul className="mt-2 list-inside list-disc text-sm">{(Array.isArray(q.options) ? q.options : []).map((o, i) => <li key={i}>{String(o)}</li>)}</ul><p className="mt-2 text-sm text-primary">{tr("الإجابة الصحيحة")}: {String((q.correct_answer as { value?: unknown } | null)?.value ?? "")}</p><p className="mt-2 text-xs text-muted-foreground">{tr("المصدر ص")} {q.source_page}: {q.source_quote}</p>{q.status === "draft" && <div className="mt-3 flex gap-2"><Button size="sm" disabled={approve.isPending} onClick={() => approve.mutate({ id: q.id, status: "approved" })}>{tr("اعتماد")}</Button><Button size="sm" variant="outline" disabled={approve.isPending} onClick={() => approve.mutate({ id: q.id, status: "rejected" })}>{tr("رفض")}</Button></div>}</li>)}</ul></details>
+      <details open={section === "review"}><summary className="cursor-pointer py-2 font-medium">{tr("عرض الأسئلة")}</summary><ul className="space-y-3">{questionList(a.id).map(q => <li key={q.id} className="rounded-lg border p-4"><div className="flex flex-wrap justify-between gap-2"><p className="font-medium">{q.stem}</p><Badge variant="secondary">{tr(q.status === "published" ? "منشور" : q.status === "approved" ? "معتمد" : q.status === "rejected" ? "مرفوض" : "يحتاج مراجعة")}</Badge></div><ul className="mt-2 list-inside list-disc text-sm">{(Array.isArray(q.options) ? q.options : []).map((o, i) => <li key={i}>{String(o)}</li>)}</ul><p className="mt-2 text-sm text-primary">{tr("الإجابة الصحيحة")}: {String((q.correct_answer as { value?: unknown } | null)?.value ?? "")}</p><p className="mt-2 text-xs text-muted-foreground">{tr("المصدر ص")} {q.source_page}: {q.source_quote}</p>{q.status === "rejected" && <Button className="mt-3" size="icon" variant="outline" title={tr("حذف السؤال المرفوض")} aria-label={tr("حذف السؤال المرفوض")} disabled={deletion.isPending} onClick={() => { if (window.confirm(tr("هل تريد حذف السؤال المرفوض نهائيًا؟"))) deletion.mutate(q.id); }}><Trash2 className="size-4" /></Button>}{q.status === "draft" && <div className="mt-3 flex gap-2"><Button size="sm" disabled={approve.isPending} onClick={() => approve.mutate({ id: q.id, status: "approved" })}>{tr("اعتماد")}</Button><Button size="sm" variant="outline" disabled={approve.isPending} onClick={() => approve.mutate({ id: q.id, status: "rejected" })}>{tr("رفض")}</Button></div>}</li>)}</ul></details>
     </article>)}
     {section === "history" && curriculum.lessons.map(l => <LessonPresentationTools key={l.id} courseId={courseId} lessonId={l.id} presentations={pres.data ?? []} mode="history" />)}
   </div>;
@@ -56,6 +60,7 @@ export function AssessmentWorkspace({ courseId, curriculum, refresh }: { courseI
       <label className="grid gap-2 text-sm">{tr("الدرس")}<select required={mode === "exam"} className="h-11 rounded-md border bg-background px-3" value={lessonId} onChange={e => setLessonId(e.target.value)}><option value="">{tr("كل دروس الجزء المختار")}</option>{lessons.map(l => <option key={l.id} value={l.id}>{l.title}</option>)}</select></label>
       <label className="grid gap-2 text-sm">{tr("الجزئية المطلوبة")}<Input value={topic} maxLength={300} onChange={e => setTopic(e.target.value)} placeholder={tr("مثال: دورة الماء فقط")} /></label>
       <label className="grid gap-2 text-sm">{tr("عدد الأسئلة")}<Input type="number" min={1} max={15} required value={count} onChange={e => setCount(Number(e.target.value))} /></label>
+      <label className="grid gap-2 text-sm">{tr("لغة التوليد")}<select className="h-11 rounded-md border bg-background px-3" value={language} onChange={e => setLanguage(e.target.value as "ar" | "en" | "both")}><option value="ar">العربية</option><option value="en">English</option><option value="both">{tr("العربية والإنجليزية — العدد لكل لغة")}</option></select></label>
       <label className="grid gap-2 text-sm">{tr("سن الطالب")}<Input type="number" min={4} max={22} required value={age} onChange={e => setAge(Number(e.target.value))} /></label>
       <label className="grid gap-2 text-sm">{tr("الصف")}<Input value={grade} maxLength={80} onChange={e => setGrade(e.target.value)} /></label>
       <Button type="submit" disabled={generation.isPending || !lessons.length}>{generation.isPending ? tr("جارٍ التوليد…") : tr(names[mode as "practice" | "homework" | "exam"])}</Button>

@@ -1,6 +1,16 @@
 import type { Locale } from "./i18n";
 
 const english: Record<string, string> = {
+  "لغة التوليد": "Generation language",
+  "العربية والإنجليزية — العدد لكل لغة": "Arabic & English — count per language",
+  "حذف السؤال المرفوض": "Delete rejected question",
+  "هل تريد حذف السؤال المرفوض نهائيًا؟": "Permanently delete this rejected question?",
+  "يمكن حذف الأسئلة المرفوضة فقط": "Only rejected questions can be deleted",
+  "تعذر حذف السؤال المرفوض": "Unable to delete the rejected question",
+  "أعطِ هذا الرمز لولي أمرك. يظل متاحًا طوال تسجيلك في مقرر غير مؤرشف، ولا يُستهلك بعد الربط.": "Give this code to your parent. It stays available while you are enrolled in a non-archived course and is not consumed after linking.",
+  "رمز ربط الطالب": "Student linking code",
+  "الألوان الداكنة — 1": "Dark palette — 1",
+  "الألوان الفاتحة — 2": "Light palette — 2",
   "العروض": "Presentations",
   "المراجعة والاعتماد": "Review and approval",
   "السجل": "History",

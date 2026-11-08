@@ -97,7 +97,7 @@ export function LessonPresentationTools({ courseId, lessonId, presentations, mod
   const { tr, message } = useI18n();
   const qc = useQueryClient();
   const gen = useServerFn(generatePresentation);
-  const [language, setLanguage] = useState<"ar" | "en">("ar");
+  const [language, setLanguage] = useState<"ar" | "en" | "both">("ar");
   const [age, setAge] = useState(12);
   const [count, setCount] = useState(3);
   const [topic, setTopic] = useState("");
@@ -125,8 +125,8 @@ export function LessonPresentationTools({ courseId, lessonId, presentations, mod
       {mode === "generation" && <div className="flex flex-wrap items-center gap-2">
         <Presentation className="size-4 text-primary" />
         <span className="font-medium">{tr("عرض رحلة تفاعلية")}</span>
-        <select className="h-9 rounded-md border border-input bg-background px-2" value={language} onChange={(e) => setLanguage(e.target.value as "ar" | "en")}>
-          <option value="ar">العربية</option><option value="en">English</option>
+        <select aria-label={tr("لغة التوليد")} className="h-9 rounded-md border border-input bg-background px-2" value={language} onChange={(e) => setLanguage(e.target.value as "ar" | "en" | "both")}>
+          <option value="ar">العربية</option><option value="en">English</option><option value="both">{tr("العربية والإنجليزية — العدد لكل لغة")}</option>
         </select>
         <label className="flex items-center gap-1">{tr("سن الطالب")}<Input className="h-9 w-16" type="number" min={4} max={22} value={age} onChange={(e) => setAge(Number(e.target.value))} /></label>
         <label className="flex items-center gap-1">{tr("عدد الأسئلة")}<Input className="h-10 w-20" type="number" min={1} max={10} value={count} onChange={e => setCount(Number(e.target.value))} /></label>

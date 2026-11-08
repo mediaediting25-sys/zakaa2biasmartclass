@@ -134,7 +134,7 @@ function ParentLinkCard() {
   return (
     <Card className="mt-6 p-5">
       <h2 className="mb-1 font-semibold">{tr("ربط ولي الأمر")}</h2>
-      <p className="mb-3 text-sm text-muted-foreground">{tr("أعطِ هذا الرمز لولي أمرك ليتابع تقدمك. صالح لمدة 7 أيام ولمرة واحدة.")}</p>
+      <p className="mb-3 text-sm text-muted-foreground">{tr("أعطِ هذا الرمز لولي أمرك. يظل متاحًا طوال تسجيلك في مقرر غير مؤرشف، ولا يُستهلك بعد الربط.")}</p>
       {code ? (
         <div className="flex items-center gap-3">
           <span className="rounded-md bg-muted px-4 py-2 font-mono text-xl tracking-widest" dir="ltr">{code}</span>

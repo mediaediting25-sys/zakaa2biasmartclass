@@ -10,6 +10,7 @@ import { useProfile, useSession } from "@/hooks/useSession";
 import { NotificationBell } from "@/components/NotificationBell";
 import { BackButton } from "@/components/BackButton";
 import { InstallButton } from "@/components/InstallButton";
+import { ThemeToggle } from "./ThemeToggle";
 
 type NavItem = { to: string; label: string };
 
@@ -55,6 +56,7 @@ export function AppShell({
           <div className="flex min-w-0 items-center gap-0.5 overflow-x-auto sm:gap-1">
             <BackButton className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
             <InstallButton className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
+            <ThemeToggle />
             {homeTo && (
               <Button
                 variant="ghost"

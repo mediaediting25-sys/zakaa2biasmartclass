@@ -83,15 +83,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { name: "author", content: "SmartClass AI" },
+      { name: "author", content: "Zakaa2obia Smart class" },
       { name: "google-site-verification", content: "z6tV9Xn4GGUh7nmdawEhmr4WlJihNLS-KrxuqF4sSMQ" },
       { name: "theme-color", content: "#0b1626" },
-      { name: "application-name", content: "Zakaa2obya Smart Class" },
-      { name: "apple-mobile-web-app-title", content: "Zakaa2obya Smart Class" },
+      { name: "application-name", content: "Zakaa2obia Smart class" },
+      { name: "apple-mobile-web-app-title", content: "Z.S.C" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      { property: "og:site_name", content: "سمارت كلاس | SmartClass" },
+      { property: "og:site_name", content: "ذكاؤبيا سمارت كلاس | Zakaa2obia Smart class" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -131,6 +131,10 @@ function RootComponent() {
   const router = useRouter();
 
   useEffect(() => {
+    try {
+      document.documentElement.dataset.palette = localStorage.getItem("smartclass.palette") === "light" ? "light" : "dark";
+      window.dispatchEvent(new Event("palette-change"));
+    } catch { /* Default dark palette. */ }
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();
