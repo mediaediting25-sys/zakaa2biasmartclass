@@ -132,7 +132,7 @@ function RootComponent() {
 
   useEffect(() => {
     try {
-      document.documentElement.dataset.palette = localStorage.getItem("smartclass.palette") === "light" ? "light" : "dark";
+      document.documentElement.dataset["palette"] = localStorage.getItem("smartclass.palette") === "light" ? "light" : "dark";
       window.dispatchEvent(new Event("palette-change"));
     } catch { /* Default dark palette. */ }
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {

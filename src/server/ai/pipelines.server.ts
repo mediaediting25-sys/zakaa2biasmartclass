@@ -335,7 +335,7 @@ export async function generateLessonQuestions(
   admin: Admin,
   lessonId: string,
   opts: AssessmentOptions & { examPatterns?: string | null; homework?: boolean },
-) {
+): Promise<{ created: number; warnings: string[] }> {
   if (opts.language === "both") {
     const ar = await generateLessonQuestions(admin, lessonId, { ...opts, language: "ar" });
     const en = await generateLessonQuestions(admin, lessonId, { ...opts, language: "en" });
