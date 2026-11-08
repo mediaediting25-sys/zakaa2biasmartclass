@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { homeForRole, type AppRole } from "@/hooks/useSession";
 import { useI18n } from "@/lib/i18n";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (search: Record<string, unknown>): { mode?: "signup" | "signin" | undefined } => ({
@@ -21,15 +22,15 @@ export const Route = createFileRoute("/auth")({
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://zakaa2biasmartclass.lovable.app/auth" },
       { name: "twitter:card", content: "summary_large_image" },
-      { title: "تسجيل الدخول — سمارت كلاس | Sign in to SmartClass" },
+      { title: "تسجيل الدخول — ذكاؤبيا سمارت كلاس | Sign in to Zakaa2obia Smart class" },
       {
         name: "description",
         content: "سجّل الدخول أو أنشئ حسابًا كمعلم أو طالب أو ولي أمر لمتابعة المنهج والتقدم.",
       },
-      { property: "og:title", content: "تسجيل الدخول — سمارت كلاس" },
+      { property: "og:title", content: "تسجيل الدخول — ذكاؤبيا سمارت كلاس" },
       {
         property: "og:description",
-        content: "حساب واحد للمعلم والطالب وولي الأمر داخل سمارت كلاس.",
+        content: "حساب واحد للمعلم والطالب وولي الأمر داخل ذكاؤبيا سمارت كلاس.",
       },
     ],
     links: [{ rel: "canonical", href: "https://zakaa2biasmartclass.lovable.app/auth" }],
@@ -134,6 +135,7 @@ function AuthPage() {
             </span>
             {t("app.name")}
           </Link>
+          <ThemeToggle />
           <Button variant="ghost" size="sm" onClick={toggleLocale}>
             {t("nav.language")}
           </Button>

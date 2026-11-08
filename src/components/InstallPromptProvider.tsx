@@ -80,7 +80,7 @@ export function InstallPromptProvider({ children }: { children: ReactNode }) {
         <DialogContent dir={dir} className="install-prompt rounded-lg bg-card text-card-foreground">
           <div className="flex items-center gap-3">
             <img src="/icon-192.png" alt="" className="size-14 rounded-lg" />
-            <DialogTitle className="text-start leading-relaxed">{tr("أضف سمارت كلاس على موبايلك")}</DialogTitle>
+            <DialogTitle className="text-start leading-relaxed">{tr("أضف ذكاؤبيا سمارت كلاس على موبايلك")}</DialogTitle>
           </div>
           <DialogDescription className="text-start">{t("app.name")}</DialogDescription>
           {failed && <p role="status" className="text-sm text-muted-foreground">{tr("تعذّر فتح نافذة التثبيت. استخدم قائمة المتصفح للإضافة.")}</p>}

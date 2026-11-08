@@ -1460,6 +1460,10 @@ export type Database = {
         Args: { _approve: boolean; _course_id: string; _request_id: string }
         Returns: undefined
       }
+      delete_rejected_question: {
+        Args: { _question_id: string }
+        Returns: undefined
+      }
       get_my_link_code: { Args: { _regenerate?: boolean }; Returns: string }
       has_role: {
         Args: {

@@ -17,3 +17,6 @@
 - Keep generated assessments in separate activity batches, enforce normalized deduplication in PostgreSQL, and retain first-publication timestamps so unpublished history never returns to review.
 - Store teacher photos in an owner-scoped private bucket and share signed image URLs on listings because workspace policy forbids public buckets.
 - Use teacher-selected activity audience settings for age-adapted interaction; never infer or expose student personal age data.
+- Persist palette selection only after hydration and apply semantic tokens at the root so all routes preserve the shared background.
+- Generation language is explicit teacher input; retain original source quotations and use separate reviewable batches per output language.
+- Parent-code redemption is non-consuming and requires a non-archived enrollment; rejected-question deletion is enforced in a teacher-authorized database function and refuses student-answer history.

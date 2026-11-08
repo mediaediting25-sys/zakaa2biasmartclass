@@ -152,6 +152,7 @@ export async function extractCurriculum(
   admin: Admin,
   doc: { id: string; course_id: string },
   pages: { page: number; text: string }[],
+  language?: "ar" | "en",
 ) {
   const pageMap = new Map(pages.map((p) => [p.page, p.text]));
   let source = pages.map((p) => `[p.${p.page}]\n${p.text.replace(/\s+/g, " ").trim()}`).join("\n\n");
@@ -164,7 +165,7 @@ export async function extractCurriculum(
     schemaName: "curriculum",
     schema: curriculumSchema as unknown as Record<string, unknown>,
     effort: "medium",
-    system: `You are a meticulous curriculum analyst for K-12 teachers in MENA. Extract the faithful structure of the textbook: units -> lessons -> learning objectives (with a short skill tag). Follow the book's own headings and order.${GROUNDING_RULES}`,
+    system: `You are a meticulous curriculum analyst for K-12 teachers in MENA. Extract the faithful structure of the textbook: units -> lessons -> learning objectives (with a short skill tag). Follow the book's own headings and order.${GROUNDING_RULES}${language ? `\nOUTPUT LANGUAGE OVERRIDE: Write titles, descriptions, summaries and objectives in ${language === "ar" ? "Arabic" : "English"}, regardless of source language. Preserve verbatim source_quote in the original source language. Translate faithfully without adding facts.` : ""}`,
     user: `SOURCE:\n${source}`,
   });
   const parsed = CurriculumZ.parse(raw);
@@ -334,7 +335,12 @@ export async function generateLessonQuestions(
   admin: Admin,
   lessonId: string,
   opts: AssessmentOptions & { examPatterns?: string | null; homework?: boolean },
-) {
+): Promise<{ created: number; warnings: string[] }> {
+  if (opts.language === "both") {
+    const ar = await generateLessonQuestions(admin, lessonId, { ...opts, language: "ar" });
+    const en = await generateLessonQuestions(admin, lessonId, { ...opts, language: "en" });
+    return { created: ar.created + en.created, warnings: [...ar.warnings, ...en.warnings] };
+  }
   const { data: lesson } = await admin
     .from("lessons")
     .select("id, title, summary, source_document_id, source_page, course_id, courses(content_language, subject, grade_level)")
@@ -402,7 +408,7 @@ export async function generateLessonQuestions(
     schemaName: "questions",
     schema: questionSchema as unknown as Record<string, unknown>,
     effort: "medium",
-    system: `You are an expert assessment designer writing exam-quality questions for ${course?.subject ?? "a school subject"} (${course?.grade_level ?? "K-12"}). Write in language: ${course?.content_language ?? "ar"}.
+    system: `You are an expert assessment designer writing exam-quality questions for ${course?.subject ?? "a school subject"} (${course?.grade_level ?? "K-12"}). Write in language: ${opts.language}.
 Audience: age ${opts.age}; grade ${opts.grade || course?.grade_level || "unspecified"}. Use short playful concrete wording for young children; reasoning and less childish wording for teenagers.
 Quality rules:
 - Each question tests ONE objective; tag "skill" with the matching objective skill.
@@ -411,7 +417,8 @@ Quality rules:
 - fill_blank: use "____" in the stem; accepted_answers lists all acceptable spellings.
 - Mix difficulty (about 40% easy, 40% medium, 20% challenge). No trick questions, no "all of the above".
 - fill_blank and short_answer: options must be empty; include a concise correct_answer and accepted_answers.
-- Explanation cites why, using only the source.${GROUNDING_RULES}`,
+- Explanation cites why, using only the source.${GROUNDING_RULES}
+OUTPUT LANGUAGE OVERRIDE: Write stem, options, correct_answer, accepted_answers and explanation in ${opts.language === "en" ? "English" : "Arabic"} regardless of source language. Preserve source_quote verbatim in its original language. Keep skill tags identical to the supplied objectives.`,
     user: `LESSON: ${lesson.title}\nSUMMARY: ${lesson.summary ?? ""}\nOBJECTIVES:\n${(objectives ?? []).map((o) => `- [${o.skill}] ${o.description}`).join("\n")}
 ${opts.examPatterns ? `\nEXAM PATTERNS (style guidance only, do not copy text):\n${opts.examPatterns}\n` : ""}
 ${examples?.length ? `\nTEACHER-APPROVED EXAMPLES (match this quality/style):\n${JSON.stringify(examples)}\n` : ""}
@@ -464,7 +471,7 @@ supported = the question and answer are fully supported by the source; answer_co
   if (!passedCandidates.length) return { created: 0, warnings: [...warnings, "لم يجتز أي سؤال المراجعة"] };
   const { data: activity, error: activityError } = await admin.from("activities").insert({
     course_id: lesson.course_id, lesson_id: lessonId,
-    title: `${opts.homework ? "واجب" : opts.examPatterns ? "امتحان" : "تدريب"}: ${lesson.title} · ${new Date().toISOString()}`,
+    title: `${opts.language === "en" ? (opts.homework ? "Homework" : opts.examPatterns ? "Exam" : "Practice") : (opts.homework ? "واجب" : opts.examPatterns ? "امتحان" : "تدريب")}: ${lesson.title} · ${opts.language.toUpperCase()} · ${new Date().toISOString()}`,
     kind: opts.homework ? "homework" : opts.examPatterns ? "exam" : "practice", status: "draft",
     target_age: opts.age, target_grade: opts.grade || null, target_topic: opts.topic || null,
   }).select("id").single();

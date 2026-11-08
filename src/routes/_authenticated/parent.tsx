@@ -13,12 +13,12 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated/parent")({
   head: () => ({
     meta: [
-      { property: "og:title", content: "لوحة ولي الأمر — سمارت كلاس" },
-      { property: "og:description", content: "تابع تقدم أبنائك ودرجاتهم ومستوى إتقانهم في سمارت كلاس." },
+      { property: "og:title", content: "لوحة ولي الأمر — ذكاؤبيا سمارت كلاس" },
+      { property: "og:description", content: "تابع تقدم أبنائك ودرجاتهم ومستوى إتقانهم في ذكاؤبيا سمارت كلاس." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { title: "لوحة ولي الأمر — سمارت كلاس" },
-      { name: "description", content: "تابع تقدم أبنائك ودرجاتهم ومستوى إتقانهم في سمارت كلاس." },
+      { title: "لوحة ولي الأمر — ذكاؤبيا سمارت كلاس" },
+      { name: "description", content: "تابع تقدم أبنائك ودرجاتهم ومستوى إتقانهم في ذكاؤبيا سمارت كلاس." },
     ],
   }),
   component: ParentHome,
@@ -34,6 +34,11 @@ const pct = (v: number) => Math.round(Number(v) <= 1 ? Number(v) * 100 : Number(
 
 function ChildReport({ studentId }: { studentId: string }) {
   const { tr, locale, message } = useI18n();
+  const linkCode = useQuery({ queryKey: ["child-link-code", studentId], queryFn: async () => {
+    const { data, error } = await supabase.from("student_link_codes").select("code").eq("student_id", studentId).maybeSingle();
+    if (error) throw error;
+    return data?.code ?? null;
+  } });
   const { data, isLoading } = useQuery({
     queryKey: ["child-report", studentId],
     queryFn: async () => {
@@ -53,6 +58,7 @@ function ChildReport({ studentId }: { studentId: string }) {
 
   return (
     <div className="space-y-5">
+      {linkCode.data && <p className="text-sm">{tr("رمز ربط الطالب")}: <b className="font-mono" dir="ltr">{linkCode.data}</b></p>}
       <div className="grid gap-3 sm:grid-cols-3">
         <Card className="p-4"><div className="text-sm text-muted-foreground">{tr("المقررات")}</div><div className="text-2xl font-bold">{data.courses.length}</div></Card>
         <Card className="p-4"><div className="text-sm text-muted-foreground">{tr("الأنشطة المكتملة")}</div><div className="text-2xl font-bold">{data.attempts.length}</div></Card>

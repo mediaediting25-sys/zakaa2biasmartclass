@@ -25,11 +25,11 @@ import { grantRetake, listCourseReports, setTeacherComment } from "@/lib/reports
 export const Route = createFileRoute("/_authenticated/course/$courseId")({
   head: () => ({
     meta: [
-      { property: "og:title", content: "استوديو المنهج — سمارت كلاس" },
+      { property: "og:title", content: "استوديو المنهج — ذكاؤبيا سمارت كلاس" },
       { property: "og:description", content: "مراجعة المنهج والأسئلة ونشر الأنشطة ومتابعة تقارير الطلاب." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { title: "استوديو المنهج — سمارت كلاس" },
+      { title: "استوديو المنهج — ذكاؤبيا سمارت كلاس" },
       { name: "description", content: "مراجعة المنهج والأسئلة ونشر الأنشطة ومتابعة تقارير الطلاب." },
     ],
   }),
@@ -60,6 +60,7 @@ const statusLabel: Record<string, string> = {
   const process = useServerFn(processDocument);
   const publish = useServerFn(publishCourse);
   const [category, setCategory] = useState<"curriculum" | "previous_exams">("curriculum");
+  const [language, setLanguage] = useState<"ar" | "en">("ar");
 
   const course = useQuery({ queryKey: ["course", courseId], queryFn: () => getCourse(courseId) });
   const docs = useQuery({ queryKey: ["docs", courseId], queryFn: () => listDocuments(courseId),
@@ -77,7 +78,7 @@ const statusLabel: Record<string, string> = {
       if (!user) throw new Error("Please sign in");
       const id = await uploadCourseDocument({ courseId, userId: user.id, file, category });
       refresh();
-      return process({ data: { documentId: id } });
+      return process({ data: { documentId: id, language } });
     },
     onSuccess: (r) => {
       toast.success(tr("تم التحليل: {0} وحدة، {1} درس", r.units, r.lessons));
@@ -131,6 +132,7 @@ const statusLabel: Record<string, string> = {
             <option value="curriculum">{tr("كتاب / منهج")}</option>
             <option value="previous_exams">{tr("امتحانات سابقة")}</option>
           </select>
+          <label className="flex items-center gap-2 text-sm">{tr("لغة التوليد")}<select className="h-10 rounded-md border bg-background px-3" value={language} onChange={e => setLanguage(e.target.value as "ar" | "en")}><option value="ar">العربية</option><option value="en">English</option></select></label>
           <label className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
             <FileUp className="size-4" />
             {upload.isPending ? tr("جارٍ الرفع والتحليل…") : tr("رفع PDF")}
@@ -167,7 +169,7 @@ const statusLabel: Record<string, string> = {
                 {d.processing_error && <span className="max-w-xs truncate text-destructive">{message(d.processing_error)}</span>}
                 <Badge variant="secondary">{docStatusLabel[d.processing_status] ?? d.processing_status}</Badge>
                 {d.processing_status === "failed" && (
-                  <Button size="sm" variant="outline" onClick={() => process({ data: { documentId: d.id } }).then(refresh, (e) => toast.error(message(e.message)))}>
+                  <Button size="sm" variant="outline" onClick={() => process({ data: { documentId: d.id, language } }).then(refresh, (e) => toast.error(message(e.message)))}>
                     {tr("إعادة")}
                   </Button>
                 )}

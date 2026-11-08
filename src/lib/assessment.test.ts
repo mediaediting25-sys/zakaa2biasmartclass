@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { assessmentOptions, assessmentSection, batchReadyForPublication, distributeQuestionCount, isRepeatedQuestion } from "./assessment";
+import { assessmentOptions, assessmentSection, batchReadyForPublication, distributeQuestionCount, isRepeatedQuestion, canDeleteQuestion } from "./assessment";
 
 describe("teacher assessment rules", () => {
+  it("accepts Arabic, English and both for question and homework generation", () => {
+    for (const language of ["ar", "en", "both"]) expect(assessmentOptions.parse({ count: 5, language }).language).toBe(language);
+    expect(assessmentOptions.safeParse({ count: 5, language: "fr" }).success).toBe(false);
+  });
+  it("only allows deletion of rejected questions", () => {
+    expect(canDeleteQuestion("rejected")).toBe(true);
+    for (const status of ["draft", "approved", "published"]) expect(canDeleteQuestion(status)).toBe(false);
+  });
   it("keeps a batch in review until all non-rejected questions are approved", () => {
     expect(batchReadyForPublication([{ status: "approved" }, { status: "draft" }], () => false)).toBe(false);
     expect(batchReadyForPublication([{ status: "approved" }, { status: "rejected" }], () => false)).toBe(true);

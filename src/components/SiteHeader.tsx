@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { homeForRole, useProfile, useRole, useSession } from "@/hooks/useSession";
 import { useI18n } from "@/lib/i18n";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function SiteHeader() {
   const { t, tr, toggleLocale } = useI18n();
@@ -41,6 +42,7 @@ export function SiteHeader() {
         <div className="flex min-w-0 items-center gap-0.5 overflow-x-auto sm:gap-2">
           {pathname !== "/" && <BackButton />}
           <InstallButton />
+          <ThemeToggle />
           <Button asChild variant="ghost" size="sm">
             <Link to="/teachers">{tr("المدرسون")}</Link>
           </Button>

@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { questionIssues } from "./lesson-tools";
-import { assessmentOptions, batchReadyForPublication, distributeQuestionCount } from "./assessment";
+import { assessmentOptions, batchReadyForPublication, distributeQuestionCount, canDeleteQuestion } from "./assessment";
 
 async function assertTeacher(supabase: any, courseId: string) {
   const { data, error } = await supabase.rpc("is_course_teacher", { _course_id: courseId });
@@ -13,7 +13,7 @@ async function assertTeacher(supabase: any, courseId: string) {
 /** Index a PDF and extract a grounded curriculum draft (never auto-published). */
 export const processDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ documentId: z.string().uuid() }).parse(d))
+  .inputValidator((d: unknown) => z.object({ documentId: z.string().uuid(), language: z.enum(["ar", "en"]).optional() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: doc, error } = await context.supabase
       .from("documents")
@@ -42,7 +42,7 @@ export const processDocument = createServerFn({ method: "POST" })
       const pages = await indexDocument(supabaseAdmin, doc);
       const result =
         doc.category === "curriculum"
-          ? await extractCurriculum(supabaseAdmin, doc, pages)
+          ? await extractCurriculum(supabaseAdmin, doc, pages, data.language)
           : { units: 0, lessons: 0, warnings: [] as string[] };
       await supabaseAdmin.from("documents").update({ processing_status: "processed" }).eq("id", doc.id);
       if (job) await supabaseAdmin.from("ai_jobs").update({ status: "succeeded", result, finished_at: new Date().toISOString() }).eq("id", job.id);
@@ -67,6 +67,19 @@ export const generateQuestions = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { generateLessonQuestions } = await import("@/server/ai/pipelines.server");
     return generateLessonQuestions(supabaseAdmin, data.lessonId, data);
+  });
+
+export const deleteRejectedQuestion = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ questionId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: q, error } = await context.supabase.from("questions").select("course_id, status").eq("id", data.questionId).single();
+    if (error || !q) throw new Error("السؤال غير موجود");
+    await assertTeacher(context.supabase, q.course_id);
+    if (!canDeleteQuestion(q.status)) throw new Error("يمكن حذف الأسئلة المرفوضة فقط");
+    const { error: deletionError } = await context.supabase.rpc("delete_rejected_question", { _question_id: data.questionId });
+    if (deletionError) throw new Error("تعذر حذف السؤال المرفوض");
+    return { deleted: true };
   });
 
 export const generateHomework = createServerFn({ method: "POST" })
