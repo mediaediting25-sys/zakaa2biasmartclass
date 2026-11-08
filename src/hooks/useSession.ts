@@ -36,10 +36,11 @@ export function useRole(user: User | null) {
     queryKey: ["my-role", user?.id],
     enabled: !!user,
     queryFn: async () => {
+      if (!user) return "student" as AppRole;
       const { data, error } = await supabase
         .from("user_roles")
         .select("role")
-        .eq("user_id", user!.id);
+        .eq("user_id", user.id);
       if (error) throw error;
       const roles = (data ?? []).map((r) => r.role as AppRole);
       const priority: AppRole[] = ["admin", "teacher", "parent", "student"];
@@ -66,8 +67,9 @@ export function useProfile(user: User | null) {
 
 export function homeForRole(role: AppRole | undefined) {
   switch (role) {
-    case "teacher":
     case "admin":
+      return "/admin" as const;
+    case "teacher":
       return "/teacher" as const;
     case "parent":
       return "/parent" as const;

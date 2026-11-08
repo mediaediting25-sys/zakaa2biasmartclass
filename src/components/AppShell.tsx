@@ -1,12 +1,12 @@
 import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { GraduationCap, Home, Languages, LogOut } from "lucide-react";
+import { GraduationCap, Home, Languages, LogOut, ShieldCheck } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
-import { useProfile, useSession } from "@/hooks/useSession";
+import { useProfile, useSession, useRole } from "@/hooks/useSession";
 import { NotificationBell } from "@/components/NotificationBell";
 import { BackButton } from "@/components/BackButton";
 import { InstallButton } from "@/components/InstallButton";
@@ -31,6 +31,7 @@ export function AppShell({
 }) {
   const { t, tr, toggleLocale } = useI18n();
   const { user } = useSession();
+  const { data: role } = useRole(user);
   const { data: profile } = useProfile(user);
   const navigate = useNavigate();
   const router = useRouter();
@@ -57,6 +58,7 @@ export function AppShell({
             <BackButton className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
             <InstallButton className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
             <ThemeToggle />
+            {role === "admin" && <Button asChild variant="ghost" size="sm" title={tr("إدارة المنصة")}><Link to="/admin" aria-label={tr("إدارة المنصة")}><ShieldCheck className="size-4" /></Link></Button>}
             {homeTo && (
               <Button
                 variant="ghost"
