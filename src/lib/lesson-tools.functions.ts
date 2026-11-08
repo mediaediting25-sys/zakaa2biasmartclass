@@ -29,7 +29,7 @@ export const generatePresentation = createServerFn({ method: "POST" }).middlewar
     if (!allowed) throw new Error("غير مصرح");
     const { buildPresentation } = await import("@/server/ai/presentations.server");
     const result = await buildPresentation(context.supabase, data.lessonId, data.language, data.age);
-    const { data: saved, error } = await context.supabase.from("lesson_presentations").upsert({ lesson_id: data.lessonId, course_id: result.courseId, language: data.language, title: result.title, slides: result.slides, created_by: context.userId, status: "draft" }, { onConflict: "lesson_id,language" }).select("id").single();
+    const { data: saved, error } = await context.supabase.from("lesson_presentations").insert({ lesson_id: data.lessonId, course_id: result.courseId, language: data.language, title: result.title, slides: result.slides, created_by: context.userId, status: "draft" }).select("id").single();
     if (error) throw error;
     return saved;
   });

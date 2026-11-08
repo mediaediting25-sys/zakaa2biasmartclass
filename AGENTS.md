@@ -13,3 +13,6 @@
 - Localize fixed UI wording through useI18n and browser-safe translation modules; preserve authored names, curriculum content, answers, and teacher comments to avoid rewriting educational data.
 - Keep installation manifest-only with one root-level InstallPromptProvider owning browser prompt events and session dismissal; installation support varies by browser and does not require offline caching.
 - Keep the auth form mode in validated URL search state so account-creation links open signup directly while ordinary sign-in links preserve login.
+- Keep generated assessments in separate activity batches, enforce normalized deduplication in PostgreSQL, and retain first-publication timestamps so unpublished history never returns to review.
+- Store teacher photos in an owner-scoped private bucket and share signed image URLs on listings because workspace policy forbids public buckets.
+- Use teacher-selected activity audience settings for age-adapted interaction; never infer or expose student personal age data.
