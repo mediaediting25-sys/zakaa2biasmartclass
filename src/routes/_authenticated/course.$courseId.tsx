@@ -2,7 +2,7 @@ import { useI18n } from "@/lib/i18n";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Check, FileUp, Sparkles, X } from "lucide-react";
+import { FileUp } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -15,11 +15,11 @@ import {
   getCourse,
   listDocuments,
   loadCurriculum,
-  setItemStatus,
   uploadCourseDocument,
 } from "@/lib/api";
-import { generateExamStyleQuestions, generateHomework, generateQuestions, processDocument, publishCourse } from "@/lib/teacher.functions";
-import { LessonPresentationTools, PacingPanel, usePresentations } from "@/components/LessonTools";
+import { processDocument, publishCourse } from "@/lib/teacher.functions";
+import { PacingPanel } from "@/components/LessonTools";
+import { AssessmentWorkspace } from "@/components/AssessmentWorkspace";
 import { grantRetake, listCourseReports, setTeacherComment } from "@/lib/reports.functions";
 
 export const Route = createFileRoute("/_authenticated/course/$courseId")({
@@ -58,8 +58,6 @@ const statusLabel: Record<string, string> = {
   const { user } = useSession();
   const qc = useQueryClient();
   const process = useServerFn(processDocument);
-  const genQ = useServerFn(generateQuestions);
-  const genExamQ = useServerFn(generateExamStyleQuestions);
   const publish = useServerFn(publishCourse);
   const [category, setCategory] = useState<"curriculum" | "previous_exams">("curriculum");
 
@@ -90,42 +88,6 @@ const statusLabel: Record<string, string> = {
       toast.error(message(e.message));
       refresh();
     },
-  });
-
-  const gen = useMutation({
-    mutationFn: (lessonId: string) => genQ({ data: { lessonId, count: 5 } }),
-    onSuccess: (r) => {
-      toast.success(tr("تم توليد {0} سؤال موثّق للمراجعة", r.created));
-      refresh();
-    },
-    onError: (e: Error) => toast.error(message(e.message)),
-  });
-
-  const genExam = useMutation({
-    mutationFn: (lessonId: string) => genExamQ({ data: { lessonId, count: 5 } }),
-    onSuccess: (r) => {
-      toast.success(tr("تم توليد {0} سؤال بأسلوب الامتحانات للمراجعة", r.created));
-      refresh();
-    },
-    onError: (e: Error) => toast.error(message(e.message)),
-  });
-
-  const genHwFn = useServerFn(generateHomework);
-  const pres = usePresentations(courseId);
-  const genHw = useMutation({
-    mutationFn: (lessonId: string) => genHwFn({ data: { lessonId, count: 8 } }),
-    onSuccess: (r) => {
-      toast.success(tr("تم توليد واجب من {0} سؤال للمراجعة", r.created));
-      refresh();
-    },
-    onError: (e: Error) => toast.error(message(e.message)),
-  });
-
-  const setStatus = useMutation({
-    mutationFn: (a: { table: "units" | "lessons" | "questions" | "activities"; id: string; status: "approved" | "rejected" | "published" }) =>
-      setItemStatus(a.table, a.id, a.status),
-    onSuccess: refresh,
-    onError: (e: Error) => toast.error(message(e.message)),
   });
 
   const publishAll = useMutation({
@@ -218,85 +180,7 @@ const statusLabel: Record<string, string> = {
 
       <PacingPanel courseId={courseId} />
 
-      {c?.units.map((u) => (
-        <section key={u.id} className="mb-6">
-          <h2 className="mb-3 font-display text-xl font-bold">{u.title}</h2>
-          <div className="space-y-4">
-            {c.lessons
-              .filter((l) => l.unit_id === u.id)
-              .map((l) => {
-                const acts = c.activities.filter((a) => a.lesson_id === l.id).map((a) => a.id);
-                const qs = c.questions.filter((q) => acts.includes(q.activity_id));
-                return (
-                  <div key={l.id} className="surface rounded-2xl p-5">
-                    <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                      <h3 className="font-bold">{l.title}</h3>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary">{statusLabel[l.status]}</Badge>
-                        {l.source_page && <Badge variant="outline">{tr("ص")} {l.source_page}</Badge>}
-                        <Button size="sm" variant="outline" onClick={() => gen.mutate(l.id)} disabled={gen.isPending || genExam.isPending}>
-                          <Sparkles className="size-4" /> {tr("توليد أسئلة")}
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => genExam.mutate(l.id)} disabled={gen.isPending || genExam.isPending}>
-                          <Sparkles className="size-4" /> {tr("بأسلوب الامتحانات")}
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => genHw.mutate(l.id)} disabled={genHw.isPending}>
-                          <Sparkles className="size-4" /> {genHw.isPending ? tr("جارٍ التوليد…") : tr("توليد واجب")}
-                        </Button>
-                      </div>
-                    </div>
-                    {l.summary && <p className="mb-2 text-sm text-muted-foreground">{l.summary}</p>}
-                    {l.source_quote && (
-                      <blockquote className="mb-3 border-s-2 border-primary ps-3 text-xs text-muted-foreground">
-                        «{l.source_quote}»
-                      </blockquote>
-                    )}
-                    <LessonPresentationTools courseId={courseId} lessonId={l.id} presentations={pres.data ?? []} />
-                    <ul className="space-y-3">
-                      {qs.map((q) => {
-                        const opts = Array.isArray(q.options) ? (q.options as string[]) : [];
-                        const ans = (q.correct_answer as { value?: string } | null)?.value;
-                        return (
-                          <li key={q.id} className="rounded-xl border border-border p-3 text-sm">
-                            <div className="mb-1 flex items-start justify-between gap-2">
-                              <p className="font-medium">{q.stem}</p>
-                              <div className="flex shrink-0 items-center gap-1">
-                                <Badge variant={(q.confidence ?? 0) >= 0.8 ? "default" : "destructive"}>
-                                  {Math.round((q.confidence ?? 0) * 100)}%
-                                </Badge>
-                                <Badge variant="secondary">{statusLabel[q.status]}</Badge>
-                              </div>
-                            </div>
-                            {opts.length > 0 && (
-                              <ul className="mb-1 list-inside list-disc">
-                                {opts.map((o) => (
-                                  <li key={o} className={o === ans ? "font-bold text-primary" : ""}>{o}</li>
-                                ))}
-                              </ul>
-                            )}
-                            {q.source_quote && (
-                              <p className="text-xs text-muted-foreground">{tr("المصدر ص")} {q.source_page}: «{q.source_quote}»</p>
-                            )}
-                            {q.status === "draft" && (
-                              <div className="mt-2 flex gap-2">
-                                <Button size="sm" onClick={() => setStatus.mutate({ table: "questions", id: q.id, status: "approved" })}>
-                                  <Check className="size-4" /> {tr("اعتماد")}
-                                </Button>
-                                <Button size="sm" variant="outline" onClick={() => setStatus.mutate({ table: "questions", id: q.id, status: "rejected" })}>
-                                  <X className="size-4" /> {tr("رفض")}
-                                </Button>
-                              </div>
-                            )}
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                );
-              })}
-          </div>
-        </section>
-      ))}
+      {c && <AssessmentWorkspace courseId={courseId} curriculum={c} refresh={refresh} />}
 
       <StudentReports courseId={courseId} />
     </AppShell>

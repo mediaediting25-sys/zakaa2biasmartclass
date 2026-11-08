@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
+import { TeacherPhoto } from "@/components/TeacherPhoto";
 import { SUBJECTS, subjectLabel } from "@/lib/subjects";
 
 function FeaturedTeachers({ ar }: { ar: boolean }) {
@@ -15,7 +16,7 @@ function FeaturedTeachers({ ar }: { ar: boolean }) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("teacher_listings")
-        .select("teacher_id, display_name, subjects, grade_levels")
+        .select("teacher_id, display_name, subjects, grade_levels, photo_path")
         .eq("is_listed", true)
         .limit(6);
       if (error) throw error;
@@ -37,7 +38,7 @@ function FeaturedTeachers({ ar }: { ar: boolean }) {
         ) : (
           q.data.map((t) => (
             <Link key={t.teacher_id} to="/teachers" className="surface flex items-center gap-3 rounded-2xl p-5 transition-shadow hover:shadow-lg">
-              <span className="grid size-11 place-items-center rounded-full bg-secondary text-secondary-foreground"><UserRound className="size-5" /></span>
+              <TeacherPhoto path={t.photo_path} name={t.display_name} />
               <div>
                 <div className="font-display font-bold">{t.display_name}</div>
                 <div className="text-xs text-muted-foreground">{t.subjects.map((s) => subjectLabel(s, locale)).join(" · ") || t.grade_levels}</div>

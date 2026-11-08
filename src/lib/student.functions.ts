@@ -8,12 +8,12 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 async function assertActivity(supabase: any, activityId: string) {
   const { data, error } = await supabase
     .from("activities")
-    .select("id, course_id, title, instructions")
+    .select("id, course_id, title, instructions, target_age, target_grade")
     .eq("id", activityId)
     .eq("status", "published")
     .maybeSingle();
   if (error || !data) throw new Error("النشاط غير متاح — activity not available");
-  return data as { id: string; course_id: string; title: string; instructions: string | null };
+  return data as { id: string; course_id: string; title: string; instructions: string | null; target_age: number | null; target_grade: string | null };
 }
 
 /** Questions without answers: correct answers stay on the server. */

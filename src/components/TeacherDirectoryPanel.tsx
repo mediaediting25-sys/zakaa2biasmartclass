@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
+import { TeacherPhoto } from "./TeacherPhoto";
 import { SUBJECTS, subjectLabel } from "@/lib/subjects";
 
 export function TeacherDirectoryPanel({ userId, courses }: { userId: string; courses: { id: string; title: string }[] }) {
@@ -38,6 +39,7 @@ export function TeacherDirectoryPanel({ userId, courses }: { userId: string; cou
     },
   });
 
+  const [photoPath, setPhotoPath] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [grades, setGrades] = useState("");
@@ -47,6 +49,7 @@ export function TeacherDirectoryPanel({ userId, courses }: { userId: string; cou
 
   useEffect(() => {
     if (!listing.data) return;
+    setPhotoPath(listing.data.photo_path);
     setName(listing.data.display_name);
     setBio(listing.data.bio ?? "");
     setGrades(listing.data.grade_levels ?? "");
@@ -58,11 +61,24 @@ export function TeacherDirectoryPanel({ userId, courses }: { userId: string; cou
     mutationFn: async () => {
       const { error } = await supabase.from("teacher_listings").upsert({
         teacher_id: userId, display_name: name.trim(), bio: bio.trim() || null,
-        grade_levels: grades.trim() || null, subjects, is_listed: listed,
+        grade_levels: grades.trim() || null, subjects, is_listed: listed, photo_path: photoPath,
       });
       if (error) throw error;
     },
     onSuccess: () => { toast.success(ar ? "تم حفظ ملفك في دليل المدرسين" : "Directory profile saved"); qc.invalidateQueries({ queryKey: ["my-listing"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const uploadPhoto = useMutation({
+    mutationFn: async (file: File) => {
+      if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 5 * 1024 * 1024) throw new Error(ar ? "اختر صورة JPG أو PNG أو WebP حتى 5 ميغابايت" : "Choose JPG, PNG or WebP up to 5 MB");
+      const extension = file.type === "image/jpeg" ? "jpg" : file.type === "image/png" ? "png" : "webp";
+      const path = `${userId}/${crypto.randomUUID()}.${extension}`;
+      const { error } = await supabase.storage.from("teacher-avatars").upload(path, file, { contentType: file.type });
+      if (error) throw error;
+      return path;
+    },
+    onSuccess: path => setPhotoPath(path),
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -118,6 +134,11 @@ export function TeacherDirectoryPanel({ userId, courses }: { userId: string; cou
           <Megaphone className="size-5 text-primary" /> {ar ? "ملفي في دليل المدرسين" : "My directory profile"}
         </h2>
         <p className="text-xs text-muted-foreground">{ar ? "يظهر للطلاب وأولياء الأمور في صفحة «المدرسون» ليطلبوا الانضمام إليك." : "Shown on the Teachers page so students and parents can request to join."}</p>
+        <div className="flex flex-wrap items-center gap-3">
+          <TeacherPhoto path={photoPath} name={name} />
+          <label className="grid gap-2 text-sm">{ar ? "صورة المدرس" : "Teacher photo"}<Input type="file" accept="image/jpeg,image/png,image/webp" disabled={uploadPhoto.isPending} onChange={e => { const file = e.target.files?.[0]; if (file) uploadPhoto.mutate(file); e.target.value = ""; }} /></label>
+          {photoPath && <Button type="button" variant="outline" onClick={() => setPhotoPath(null)}>{ar ? "إزالة الصورة" : "Remove photo"}</Button>}
+        </div>
         <Input placeholder={ar ? "الاسم الظاهر" : "Display name"} value={name} onChange={(e) => setName(e.target.value)} required />
         <Input placeholder={ar ? "الصفوف (مثال: الصف الأول الثانوي)" : "Grades taught"} value={grades} onChange={(e) => setGrades(e.target.value)} />
         <Textarea rows={2} placeholder={ar ? "نبذة قصيرة عنك" : "Short bio"} value={bio} onChange={(e) => setBio(e.target.value)} />
@@ -135,7 +156,7 @@ export function TeacherDirectoryPanel({ userId, courses }: { userId: string; cou
           <input type="checkbox" checked={listed} onChange={(e) => setListed(e.target.checked)} />
           {ar ? "اظهر في دليل المدرسين" : "Show me in the directory"}
         </label>
-        <Button type="submit" disabled={save.isPending}>{ar ? "حفظ" : "Save"}</Button>
+        <Button type="submit" disabled={save.isPending || uploadPhoto.isPending}>{ar ? "حفظ" : "Save"}</Button>
       </form>
     </div>
   );

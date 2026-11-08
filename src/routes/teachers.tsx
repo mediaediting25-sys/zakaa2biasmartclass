@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useRole, useSession } from "@/hooks/useSession";
 import { useI18n } from "@/lib/i18n";
+import { TeacherPhoto } from "@/components/TeacherPhoto";
 import { SUBJECTS, subjectLabel } from "@/lib/subjects";
 
 type Search = { subject?: string | undefined };
@@ -34,7 +35,7 @@ export const Route = createFileRoute("/teachers")({
   component: TeachersPage,
 });
 
-type Listing = { teacher_id: string; display_name: string; bio: string | null; subjects: string[]; grade_levels: string | null };
+type Listing = { photo_path: string | null; teacher_id: string; display_name: string; bio: string | null; subjects: string[]; grade_levels: string | null };
 
 function TeachersPage() {
   const { locale } = useI18n();
@@ -50,7 +51,7 @@ function TeachersPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("teacher_listings")
-        .select("teacher_id, display_name, bio, subjects, grade_levels")
+        .select("teacher_id, display_name, bio, subjects, grade_levels, photo_path")
         .eq("is_listed", true)
         .order("display_name");
       if (error) throw error;
@@ -62,10 +63,11 @@ function TeachersPage() {
     queryKey: ["my-join-requests", user?.id],
     enabled: !!user && role !== "teacher",
     queryFn: async () => {
+      if (!user) return [];
       const { data, error } = await supabase
         .from("join_requests")
         .select("id, teacher_id, student_name, subject, status, created_at")
-        .neq("teacher_id", user!.id)
+        .neq("teacher_id", user.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
@@ -110,9 +112,7 @@ function TeachersPage() {
             shown.map((l) => (
               <article key={l.teacher_id} className="surface flex flex-col rounded-2xl p-5">
                 <div className="flex items-center gap-3">
-                  <span className="grid size-11 place-items-center rounded-full bg-secondary text-secondary-foreground">
-                    <UserRound className="size-5" />
-                  </span>
+                  <TeacherPhoto path={l.photo_path} name={l.display_name} />
                   <div>
                     <h2 className="font-display text-lg font-bold">{l.display_name}</h2>
                     {l.grade_levels && <p className="text-xs text-muted-foreground">{l.grade_levels}</p>}
@@ -184,12 +184,12 @@ function RequestForm({ listing, role, defaultSubject, onDone }: { listing: Listi
 
   const send = useMutation({
     mutationFn: async () => {
-      const studentId = isParent ? childId : user!.id;
+      const studentId = isParent ? childId : user.id;
       if (!studentId) throw new Error(ar ? "اختر الابن أولًا" : "Choose a child first");
       const { error } = await supabase.from("join_requests").insert({
         teacher_id: listing.teacher_id,
         student_id: studentId,
-        requested_by: user!.id,
+        requested_by: user.id,
         subject: subject || null,
         message: message.trim() || null,
       });

@@ -80,20 +80,20 @@ export function PacingPanel({ courseId }: { courseId: string }) {
   );
 }
 
-type Pres = { id: string; lesson_id: string; language: string; title: string; slides: unknown; status: string };
+type Pres = { id: string; lesson_id: string; language: string; title: string; slides: unknown; status: string; published_at: string | null };
 
 export function usePresentations(courseId: string) {
   return useQuery({
     queryKey: ["presentations", courseId],
     queryFn: async () => {
-      const { data, error } = await supabase.from("lesson_presentations").select("id, lesson_id, language, title, slides, status").eq("course_id", courseId);
+      const { data, error } = await supabase.from("lesson_presentations").select("id, lesson_id, language, title, slides, status, published_at").eq("course_id", courseId);
       if (error) throw error;
       return (data ?? []) as Pres[];
     },
   });
 }
 
-export function LessonPresentationTools({ courseId, lessonId, presentations }: { courseId: string; lessonId: string; presentations: Pres[] }) {
+export function LessonPresentationTools({ courseId, lessonId, presentations, mode = "generation" }: { courseId: string; lessonId: string; presentations: Pres[]; mode?: "generation" | "review" | "history" }) {
   const { tr, message } = useI18n();
   const qc = useQueryClient();
   const gen = useServerFn(generatePresentation);
@@ -114,11 +114,12 @@ export function LessonPresentationTools({ courseId, lessonId, presentations }: {
     onSuccess: refresh,
     onError: (e: Error) => toast.error(message(e.message)),
   });
-  const mine = presentations.filter((p) => p.lesson_id === lessonId);
+  const mine = presentations.filter(p => p.lesson_id === lessonId && (mode === "history" ? p.status === "published" || !!p.published_at : mode === "review" ? p.status !== "published" && !p.published_at : false));
+  if (mode !== "generation" && !mine.length) return null;
 
   return (
     <div className="mt-3 rounded-xl border border-border p-3 text-sm">
-      <div className="flex flex-wrap items-center gap-2">
+      {mode === "generation" && <div className="flex flex-wrap items-center gap-2">
         <Presentation className="size-4 text-primary" />
         <span className="font-medium">{tr("عرض رحلة تفاعلية")}</span>
         <select className="h-9 rounded-md border border-input bg-background px-2" value={language} onChange={(e) => setLanguage(e.target.value as "ar" | "en")}>
@@ -126,7 +127,7 @@ export function LessonPresentationTools({ courseId, lessonId, presentations }: {
         </select>
         <label className="flex items-center gap-1">{tr("سن الطالب")}<Input className="h-9 w-16" type="number" min={4} max={22} value={age} onChange={(e) => setAge(Number(e.target.value))} /></label>
         <Button size="sm" variant="outline" onClick={() => m.mutate()} disabled={m.isPending}>{m.isPending ? tr("جارٍ التوليد…") : tr("توليد العرض")}</Button>
-      </div>
+      </div>}
       {mine.map((p) => (
         <div key={p.id} className="mt-2 flex flex-wrap items-center gap-2">
           <Badge variant="outline">{p.language === "ar" ? "AR" : "EN"}</Badge>
