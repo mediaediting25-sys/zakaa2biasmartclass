@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BlockedRouteImport } from './routes/blocked'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as TeachersRouteImport } from './routes/teachers'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -34,6 +35,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlockedRoute = BlockedRouteImport.update({
+  id: '/blocked',
+  path: '/blocked',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -87,6 +93,7 @@ const AuthenticatedPlayActivityIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/blocked': typeof BlockedRoute
   '/pricing': typeof PricingRoute
   '/teachers': typeof TeachersRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -100,6 +107,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/blocked': typeof BlockedRoute
   '/pricing': typeof PricingRoute
   '/teachers': typeof TeachersRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -115,6 +123,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/blocked': typeof BlockedRoute
   '/pricing': typeof PricingRoute
   '/teachers': typeof TeachersRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
@@ -130,6 +139,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/blocked'
     | '/pricing'
     | '/teachers'
     | '/admin'
@@ -143,6 +153,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/blocked'
     | '/pricing'
     | '/teachers'
     | '/admin'
@@ -157,6 +168,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/blocked'
     | '/pricing'
     | '/teachers'
     | '/_authenticated/admin'
@@ -172,6 +184,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  BlockedRoute: typeof BlockedRoute
   PricingRoute: typeof PricingRoute
   TeachersRoute: typeof TeachersRoute
 }
@@ -197,6 +210,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blocked': {
+      id: '/blocked'
+      path: '/blocked'
+      fullPath: '/blocked'
+      preLoaderRoute: typeof BlockedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -292,6 +312,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  BlockedRoute: BlockedRoute,
   PricingRoute: PricingRoute,
   TeachersRoute: TeachersRoute,
 }
