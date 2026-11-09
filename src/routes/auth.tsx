@@ -41,6 +41,8 @@ export const Route = createFileRoute("/auth")({
 const ROLES: AppRole[] = ["teacher", "student", "parent"];
 
 async function resolveRoleAndGo(userId: string, go: (path: string) => void) {
+  const { data: blocked } = await supabase.rpc("is_account_blocked");
+  if (blocked) return go("/blocked");
   const { data: choice } = await supabase.from("role_choices").select("user_id").eq("user_id", userId).maybeSingle();
   if (!choice) return go("/onboarding");
   const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);

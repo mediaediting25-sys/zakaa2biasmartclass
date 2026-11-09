@@ -299,6 +299,24 @@ export type Database = {
           },
         ]
       }
+      blocked_accounts: {
+        Row: {
+          blocked_at: string
+          blocked_by: string
+          user_id: string
+        }
+        Insert: {
+          blocked_at?: string
+          blocked_by: string
+          user_id: string
+        }
+        Update: {
+          blocked_at?: string
+          blocked_by?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       class_members: {
         Row: {
           class_id: string
@@ -1488,6 +1506,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_list_accounts: {
+        Args: never
+        Returns: {
+          email: string
+          full_name: string
+          is_blocked: boolean
+          is_owner: boolean
+          roles: string[]
+          user_id: string
+        }[]
+      }
       admin_list_users: {
         Args: never
         Returns: {
@@ -1497,6 +1526,10 @@ export type Database = {
           roles: string[]
           user_id: string
         }[]
+      }
+      admin_set_blocked: {
+        Args: { _blocked: boolean; _user_id: string }
+        Returns: undefined
       }
       admin_set_role: {
         Args: {
@@ -1532,6 +1565,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_account_blocked: { Args: never; Returns: boolean }
       is_class_teacher: { Args: { _class_id: string }; Returns: boolean }
       is_course_teacher: { Args: { _course_id: string }; Returns: boolean }
       is_enrolled: {
