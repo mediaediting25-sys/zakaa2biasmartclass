@@ -64,6 +64,13 @@
       "when": 1794130023343,
       "tag": "0008_platform_owner_and_role_administration",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794214271745,
+      "tag": "0009_account_blocking_and_owner_admin_only",
+      "breakpoints": true
     }
   ]
 }
