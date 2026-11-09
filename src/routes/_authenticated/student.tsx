@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
+import { StudentMaterials } from "@/components/CourseMaterials";
 import { listMyAttempts, listStudentActivities, listStudentCourses } from "@/lib/api";
 
 export const Route = createFileRoute("/_authenticated/student")({
@@ -88,6 +89,7 @@ function StudentHome() {
             <h3 className="mb-1 text-lg font-semibold">{c.title}</h3>
             <p className="mb-4 text-sm text-muted-foreground">{[c.subject, c.grade_level].filter(Boolean).join(" · ")}</p>
             <CourseActivities courseId={c.id} />
+            <StudentMaterials courseId={c.id} />
           </Card>
         ))}
         {!courses.length && <p className="text-muted-foreground">{tr("لم تنضم لأي مقرر بعد. اطلب الرمز من معلمك.")}</p>}
