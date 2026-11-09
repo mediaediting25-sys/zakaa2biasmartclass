@@ -73,7 +73,7 @@ export function TeacherMaterialsPanel({ courseId }: { courseId: string }) {
       let storage_path: string | null = null;
       if (file) {
         storage_path = `${courseId}/${id}/${file.name.replace(/[^\w.\-]+/g, "_")}`;
-        const up = await supabase.storage.from(BUCKET).upload(storage_path, file, { contentType: file.type || undefined });
+        const up = await supabase.storage.from(BUCKET).upload(storage_path, file, { contentType: file.type || "application/octet-stream" });
         if (up.error) throw up.error;
       }
       const { error } = await supabase.from("course_materials").insert({ id, course_id: courseId, kind, title: title.trim(), description: description.trim() || null, storage_path, file_name: file?.name ?? null, mime_type: file?.type ?? null, size_bytes: file?.size ?? null, link_url: link.trim() || null });
