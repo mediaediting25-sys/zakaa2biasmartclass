@@ -19,6 +19,7 @@ import {
 } from "@/lib/api";
 import { processDocument, publishCourse } from "@/lib/teacher.functions";
 import { PacingPanel } from "@/components/LessonTools";
+import { TeacherMaterialsPanel } from "@/components/CourseMaterials";
 import { AssessmentWorkspace } from "@/components/AssessmentWorkspace";
 import { grantRetake, listCourseReports, setTeacherComment } from "@/lib/reports.functions";
 
@@ -180,6 +181,7 @@ const statusLabel: Record<string, string> = {
         </ul>
       </section>
 
+      <TeacherMaterialsPanel courseId={courseId} />
       <PacingPanel courseId={courseId} />
 
       {c && <AssessmentWorkspace courseId={courseId} curriculum={c} refresh={refresh} />}
