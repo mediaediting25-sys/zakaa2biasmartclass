@@ -454,6 +454,62 @@ export type Database = {
           },
         ]
       }
+      course_materials: {
+        Row: {
+          course_id: string
+          created_at: string
+          created_by: string
+          description: string | null
+          file_name: string | null
+          id: string
+          kind: string
+          link_url: string | null
+          mime_type: string | null
+          size_bytes: number | null
+          status: string
+          storage_path: string | null
+          title: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          file_name?: string | null
+          id?: string
+          kind: string
+          link_url?: string | null
+          mime_type?: string | null
+          size_bytes?: number | null
+          status?: string
+          storage_path?: string | null
+          title: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          file_name?: string | null
+          id?: string
+          kind?: string
+          link_url?: string | null
+          mime_type?: string | null
+          size_bytes?: number | null
+          status?: string
+          storage_path?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_materials_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       course_plans: {
         Row: {
           course_id: string
