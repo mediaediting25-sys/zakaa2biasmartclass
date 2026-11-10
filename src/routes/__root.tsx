@@ -133,7 +133,9 @@ function RootComponent() {
   useEffect(() => {
     try {
       const saved = localStorage.getItem("smartclass.palette");
-      document.documentElement.dataset["palette"] = saved === "dark" || saved === "light" || saved === "cyber" ? saved : "cyber";
+      const hasChosenV3 = localStorage.getItem("smartclass.cyber-default") === "chosen";
+      document.documentElement.dataset["palette"] = hasChosenV3 && (saved === "dark" || saved === "light" || saved === "cyber") ? saved : "cyber";
+      if (!hasChosenV3) localStorage.setItem("smartclass.cyber-default", "chosen");
       window.dispatchEvent(new Event("palette-change"));
     } catch { /* Default cyber palette. */ }
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {

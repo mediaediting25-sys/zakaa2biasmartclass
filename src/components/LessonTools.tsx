@@ -43,7 +43,7 @@ export function PacingPanel({ courseId }: { courseId: string }) {
   const schedule = (plan.data?.schedule ?? []) as PlanSession[];
 
   return (
-    <section className="surface mb-8 rounded-2xl p-5">
+    <section className="pacing-panel surface mb-8 rounded-2xl p-5">
       <h2 className="mb-3 flex items-center gap-2 font-display text-lg font-bold"><CalendarDays className="size-5 text-primary" />{tr("خطة توزيع المنهج")}</h2>
       <form className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5" onSubmit={(e) => { e.preventDefault(); m.mutate(); }}>
         <label className="text-sm">{tr("تاريخ البداية")}<Input type="date" value={f.start} onChange={(e) => set({ start: e.target.value })} required /></label>

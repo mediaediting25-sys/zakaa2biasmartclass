@@ -36,6 +36,7 @@ const english: Record<string, string> = {
   "الألوان الفاتحة — 2": "Light palette — 2",
   "الاستايل السياني — 3": "Cyber cyan style — 3",
   "تغيير التصميم": "Change design",
+  "إعدادات التوليد": "Generation settings",
   "العروض": "Presentations",
   "المراجعة والاعتماد": "Review and approval",
   "السجل": "History",

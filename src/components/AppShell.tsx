@@ -111,7 +111,7 @@ export function AppShell({
         )}
       </header>
 
-      <main className="mx-auto w-full max-w-6xl px-3 py-5 sm:px-4 sm:py-8">
+      <main className="app-main mx-auto w-full max-w-6xl px-3 py-5 sm:px-4 sm:py-8">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div className="min-w-0">
             <h1 className="break-words font-display text-xl font-bold sm:text-3xl">{title}</h1>

@@ -30,7 +30,7 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/70 bg-sidebar backdrop-blur">
+    <header className="site-header sticky top-0 z-40 border-b border-border/70 bg-sidebar backdrop-blur">
       <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-2 px-3 sm:h-16 sm:gap-4 sm:px-4">
         <Link to="/" className="flex min-w-0 shrink-0 items-center gap-2 font-display text-lg font-bold">
           <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground">

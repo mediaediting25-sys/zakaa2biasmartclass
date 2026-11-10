@@ -40,7 +40,7 @@ function MaterialRow({ m, children }: { m: Material; children?: React.ReactNode 
   const { tr } = useI18n();
   const Icon = KIND_ICON[m.kind as Kind] ?? BookOpen;
   return (
-    <li className="flex flex-wrap items-center gap-2 rounded-xl border border-border p-3">
+    <li className="material-row flex flex-wrap items-center gap-2 rounded-xl border border-border p-3">
       <Icon className="size-5 shrink-0 text-primary" />
       <div className="min-w-0 flex-1">
         <p className="truncate font-medium">{m.title}</p>

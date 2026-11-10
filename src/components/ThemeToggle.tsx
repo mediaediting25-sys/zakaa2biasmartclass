@@ -37,7 +37,10 @@ export function ThemeToggle() {
       onClick={() => {
         const next = palettes[(palettes.indexOf(palette) + 1) % palettes.length] ?? "cyber";
         document.documentElement.dataset["palette"] = next;
-        try { localStorage.setItem("smartclass.palette", next); } catch { /* Session choice still works. */ }
+        try {
+          localStorage.setItem("smartclass.palette", next);
+          localStorage.setItem("smartclass.cyber-default", "chosen");
+        } catch { /* Session choice still works. */ }
         window.dispatchEvent(new Event("palette-change"));
       }}
     >
