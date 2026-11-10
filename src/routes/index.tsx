@@ -192,7 +192,41 @@ function Landing() {
             </div>
           </div>
 
-
+          <div className="hero-console" aria-hidden="true">
+            <div className="hero-console-head">
+              <span className="hero-console-brand"><span className="hero-live-dot" /> Z.S.C / SMART CLASS</span>
+              <span className="hero-console-status">{ar ? "نظام تعلم ذكي" : "SMART LEARNING"}</span>
+            </div>
+            <div className="hero-console-core">
+              <div className="hero-orbit">
+                <span className="hero-orbit-ring" />
+                <span className="hero-orbit-dot" />
+                <BookOpenCheck className="size-9" />
+              </div>
+              <div>
+                <p className="hero-console-kicker">{ar ? "من الملف إلى الفهم" : "FROM FILE TO MASTERY"}</p>
+                <h2>{ar ? "رحلة تعلم متصلة" : "One connected learning journey"}</h2>
+                <p>{ar ? "محتوى موثّق، مراجعة بشرية، وتفاعل يناسب كل طالب." : "Sourced content, teacher review, and interaction for every learner."}</p>
+              </div>
+            </div>
+            <div className="hero-flow">
+              {[
+                { icon: FileText, label: ar ? "تحليل المنهج" : "Syllabus analysis", meta: "PDF / AI" },
+                { icon: ShieldCheck, label: ar ? "اعتماد المعلم" : "Teacher approval", meta: ar ? "مراجعة" : "REVIEW" },
+                { icon: LineChart, label: ar ? "تقدم حقيقي" : "Real progress", meta: ar ? "إتقان" : "MASTERY" },
+              ].map((step, index) => (
+                <div className="hero-flow-step" key={step.label}>
+                  <span className="hero-step-icon"><step.icon className="size-5" /></span>
+                  <span><strong>{step.label}</strong><small>{step.meta}</small></span>
+                  <span className="hero-step-number">0{index + 1}</span>
+                </div>
+              ))}
+            </div>
+            <div className="hero-console-foot">
+              <span>{ar ? "منهجك • طلابك • لوحة واحدة" : "YOUR CURRICULUM • YOUR STUDENTS • ONE SPACE"}</span>
+              <span className="hero-signal"><i /><i /><i /><i /><i /></span>
+            </div>
+          </div>
         </div>
       </section>
 
