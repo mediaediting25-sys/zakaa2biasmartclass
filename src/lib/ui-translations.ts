@@ -34,6 +34,8 @@ const english: Record<string, string> = {
   "رمز ربط الطالب": "Student linking code",
   "الألوان الداكنة — 1": "Dark palette — 1",
   "الألوان الفاتحة — 2": "Light palette — 2",
+  "الاستايل السياني — 3": "Cyber cyan style — 3",
+  "تغيير التصميم": "Change design",
   "العروض": "Presentations",
   "المراجعة والاعتماد": "Review and approval",
   "السجل": "History",

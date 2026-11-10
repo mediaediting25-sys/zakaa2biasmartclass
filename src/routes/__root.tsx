@@ -114,7 +114,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="ar" dir="rtl">
+    <html lang="ar" dir="rtl" data-palette="cyber">
       <head>
         <HeadContent />
       </head>
@@ -132,9 +132,10 @@ function RootComponent() {
 
   useEffect(() => {
     try {
-      document.documentElement.dataset["palette"] = localStorage.getItem("smartclass.palette") === "light" ? "light" : "dark";
+      const saved = localStorage.getItem("smartclass.palette");
+      document.documentElement.dataset["palette"] = saved === "dark" || saved === "light" || saved === "cyber" ? saved : "cyber";
       window.dispatchEvent(new Event("palette-change"));
-    } catch { /* Default dark palette. */ }
+    } catch { /* Default cyber palette. */ }
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();
