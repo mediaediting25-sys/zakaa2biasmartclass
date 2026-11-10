@@ -110,7 +110,7 @@ export function TeacherMaterialsPanel({ courseId }: { courseId: string }) {
         </label>
         <label className="text-sm">{tr("العنوان")}<Input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200} required /></label>
         <label className="text-sm sm:col-span-2">{tr("وصف (اختياري)")}<Input value={description} onChange={(e) => setDescription(e.target.value)} maxLength={2000} /></label>
-        <label className="text-sm">{tr("الملف (PDF، PowerPoint، Word، صور، فيديو)")}<Input type="file" accept=".pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx,image/*,video/*,audio/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} /></label>
+        <label className="text-sm">{tr("الملف (PDF، PowerPoint، Word، صور، فيديو)")}<Input className="material-file-input" type="file" accept=".pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx,image/*,video/*,audio/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} /></label>
         <label className="text-sm">{tr("أو رابط (يوتيوب، Google Slides…)")}<Input type="url" placeholder="https://" value={link} onChange={(e) => setLink(e.target.value)} /></label>
         <div className="sm:col-span-2"><Button type="submit" disabled={add.isPending}>{add.isPending ? tr("جارٍ الرفع…") : tr("إضافة")}</Button></div>
       </form>

@@ -77,7 +77,7 @@ function Player() {
             if (young && !result && i !== activeIndex) return null;
             const r = resById.get(q.id);
             return (
-              <Card key={q.id} className="p-5">
+              <Card key={q.id} className="activity-question p-5">
                 <p className="mb-3 font-medium">{i + 1}. {q.stem}</p>
                 <div className="grid gap-2">
                   {(q.kind === "fill_blank" || q.kind === "short_answer") && <Input aria-label={tr("إجابتك")} placeholder={tr("إجابتك")} value={choices[q.id] ?? ""} disabled={!!result || submit.isPending} onChange={e => setChoices(c => ({ ...c, [q.id]: e.target.value }))} />}

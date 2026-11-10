@@ -164,7 +164,7 @@ export function SlideViewer({ title, slides, dir, onClose }: { title: string; sl
         <Button size="icon" variant="ghost" onClick={onClose} aria-label={tr("إغلاق")}><X className="size-5" /></Button>
       </div>
       {s ? (
-        <div className="surface mx-auto w-full max-w-3xl flex-1 overflow-y-auto rounded-2xl p-6">
+        <div className="adventure-slide surface mx-auto w-full max-w-3xl flex-1 overflow-y-auto rounded-2xl p-6">
           <h3 className="mb-3 font-display text-2xl font-bold text-primary">{s.title}</h3>
           <p className="mb-4 leading-relaxed">{s.narrative}</p>
           <ul className="mb-4 list-inside list-disc space-y-1">{s.points.map((p, k) => <li key={k}>{p}</li>)}</ul>
