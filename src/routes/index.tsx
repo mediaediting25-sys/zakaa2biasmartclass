@@ -164,8 +164,8 @@ function Landing() {
     <div className="min-h-screen">
       <SiteHeader />
 
-      <section className="gradient-hero">
-        <div className="mx-auto flex min-h-[540px] w-full max-w-6xl items-center px-4 py-16 md:py-20">
+      <section className="gradient-hero hero-section">
+        <div className="mx-auto grid min-h-[620px] w-full max-w-6xl items-center gap-12 px-4 py-16 md:py-20 lg:grid-cols-[1.02fr_.98fr]">
           <div className="max-w-xl">
             <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold text-muted-foreground">
               <Sparkles className="size-3.5 text-accent" />

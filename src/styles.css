@@ -146,6 +146,55 @@
   --shadow-lift: 0 4px 8px oklch(0.3 0.03 215 / 12%), 0 24px 56px oklch(0.3 0.03 215 / 18%);
 }
 
+:root[data-palette="cyber"] {
+  color-scheme: dark;
+  --background: oklch(0.115 0.035 245);
+  --foreground: oklch(0.96 0.018 195);
+  --card: oklch(0.19 0.048 235 / 78%);
+  --card-foreground: var(--foreground);
+  --popover: oklch(0.17 0.045 240 / 96%);
+  --popover-foreground: var(--foreground);
+  --primary: oklch(0.84 0.14 190);
+  --primary-foreground: oklch(0.15 0.045 240);
+  --secondary: oklch(0.25 0.06 225 / 88%);
+  --secondary-foreground: oklch(0.94 0.035 190);
+  --muted: oklch(0.21 0.045 235 / 86%);
+  --muted-foreground: oklch(0.82 0.035 205);
+  --accent: oklch(0.78 0.15 165);
+  --accent-foreground: oklch(0.14 0.04 225);
+  --success: oklch(0.8 0.16 160);
+  --success-foreground: oklch(0.14 0.04 210);
+  --destructive: oklch(0.7 0.19 25);
+  --destructive-foreground: oklch(0.98 0.01 25);
+  --warning: oklch(0.86 0.14 85);
+  --warning-foreground: oklch(0.2 0.04 240);
+  --border: oklch(0.8 0.12 190 / 28%);
+  --input: oklch(0.8 0.12 190 / 42%);
+  --ring: oklch(0.88 0.15 190);
+  --chart-1: var(--primary);
+  --chart-2: var(--success);
+  --chart-3: var(--warning);
+  --chart-4: oklch(0.72 0.16 265);
+  --chart-5: var(--destructive);
+  --sidebar: oklch(0.13 0.04 245 / 88%);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: oklch(0.28 0.075 215 / 72%);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+  --gradient-sand: linear-gradient(135deg, oklch(0.9 0.13 190), oklch(0.68 0.16 215));
+  --gradient-bark: linear-gradient(135deg, oklch(0.3 0.08 220 / 92%), oklch(0.2 0.05 240 / 92%));
+  --gradient-forest: linear-gradient(145deg, oklch(0.24 0.065 225 / 82%), oklch(0.13 0.04 245 / 90%));
+  --app-overlay:
+    linear-gradient(90deg, oklch(0.08 0.035 250 / 52%), oklch(0.09 0.04 245 / 64%) 48%, oklch(0.08 0.035 250 / 88%)),
+    radial-gradient(circle at 22% 20%, oklch(0.72 0.17 195 / 16%), transparent 38%),
+    radial-gradient(circle at 78% 72%, oklch(0.58 0.17 235 / 15%), transparent 42%);
+  --shadow-soft: 0 0 0 1px oklch(0.82 0.14 190 / 6%), 0 14px 38px oklch(0.05 0.03 250 / 46%), inset 0 1px 0 oklch(0.9 0.1 190 / 10%);
+  --shadow-lift: 0 0 24px oklch(0.78 0.16 190 / 20%), 0 24px 58px oklch(0.04 0.03 250 / 58%), inset 0 1px 0 oklch(0.9 0.1 190 / 16%);
+}
+
 @layer base {
   html {
     overflow-x: hidden;
