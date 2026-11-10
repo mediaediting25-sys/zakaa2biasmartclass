@@ -69,7 +69,7 @@ function Player() {
         </Card>
       )}
       {data && !data.locked && (
-        <div className="mx-auto max-w-2xl space-y-4">
+        <div className="activity-player mx-auto max-w-2xl space-y-4">
           {young && <img src={learningCompanions} alt="" width={1152} height={576} className="aspect-[2/1] w-full rounded-lg object-cover" />}
           <p className="text-sm text-muted-foreground">{Object.keys(choices).length} / {data.questions.length} {tr("مكتمل")}</p>
           {data.activity.instructions && <p className="text-muted-foreground">{data.activity.instructions}</p>}

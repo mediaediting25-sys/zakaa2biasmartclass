@@ -157,7 +157,7 @@ export function SlideViewer({ title, slides, dir, onClose }: { title: string; sl
   const s = slides[i];
   const go = (n: number) => { setI(Math.min(slides.length - 1, Math.max(0, n))); setPick(null); };
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-background/95 p-4 backdrop-blur" dir={dir} role="dialog" aria-label={title}>
+    <div className="adventure-viewer fixed inset-0 z-50 flex flex-col bg-background/95 p-4 backdrop-blur" dir={dir} role="dialog" aria-label={title}>
       <div className="mb-3 flex items-center justify-between gap-2">
         <h2 className="truncate font-display text-lg font-bold">{title}</h2>
         <span className="text-sm text-muted-foreground">{i + 1} / {slides.length}</span>

@@ -99,7 +99,7 @@ export function TeacherMaterialsPanel({ courseId }: { courseId: string }) {
   });
 
   return (
-    <section className="surface mb-8 rounded-2xl p-5">
+    <section className="materials-panel surface mb-8 rounded-2xl p-5">
       <h2 className="mb-1 flex items-center gap-2 font-display text-lg font-bold"><Upload className="size-5 text-primary" />{tr("مواد خارجية للطلاب")}</h2>
       <p className="mb-3 text-sm text-muted-foreground">{tr("ارفع دروسًا أو عروضًا تقديمية أو أسئلة من عندك، ثم انشرها لتظهر لطلاب المقرر.")}</p>
       <form className="grid gap-3 sm:grid-cols-2" onSubmit={(e) => { e.preventDefault(); add.mutate(); }}>

@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useI18n } from "@/lib/i18n";
 import { generateAssessmentBatch, generateExamStyleQuestions, publishAssessment, deleteRejectedQuestion } from "@/lib/teacher.functions";
-import { Trash2 } from "lucide-react";
+import { Check, SlidersHorizontal, Sparkles, Trash2, X } from "lucide-react";
 import { loadCurriculum, setItemStatus } from "@/lib/api";
 import { assessmentSection } from "@/lib/assessment";
 import { LessonPresentationTools, usePresentations } from "./LessonTools";
