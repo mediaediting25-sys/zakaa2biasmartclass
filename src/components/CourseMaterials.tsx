@@ -40,7 +40,7 @@ function MaterialRow({ m, children }: { m: Material; children?: React.ReactNode 
   const { tr } = useI18n();
   const Icon = KIND_ICON[m.kind as Kind] ?? BookOpen;
   return (
-    <li className="flex flex-wrap items-center gap-2 rounded-xl border border-border p-3">
+    <li className="material-row flex flex-wrap items-center gap-2 rounded-xl border border-border p-3">
       <Icon className="size-5 shrink-0 text-primary" />
       <div className="min-w-0 flex-1">
         <p className="truncate font-medium">{m.title}</p>
@@ -99,7 +99,7 @@ export function TeacherMaterialsPanel({ courseId }: { courseId: string }) {
   });
 
   return (
-    <section className="surface mb-8 rounded-2xl p-5">
+    <section className="materials-panel surface mb-8 rounded-2xl p-5">
       <h2 className="mb-1 flex items-center gap-2 font-display text-lg font-bold"><Upload className="size-5 text-primary" />{tr("مواد خارجية للطلاب")}</h2>
       <p className="mb-3 text-sm text-muted-foreground">{tr("ارفع دروسًا أو عروضًا تقديمية أو أسئلة من عندك، ثم انشرها لتظهر لطلاب المقرر.")}</p>
       <form className="grid gap-3 sm:grid-cols-2" onSubmit={(e) => { e.preventDefault(); add.mutate(); }}>
@@ -110,7 +110,7 @@ export function TeacherMaterialsPanel({ courseId }: { courseId: string }) {
         </label>
         <label className="text-sm">{tr("العنوان")}<Input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200} required /></label>
         <label className="text-sm sm:col-span-2">{tr("وصف (اختياري)")}<Input value={description} onChange={(e) => setDescription(e.target.value)} maxLength={2000} /></label>
-        <label className="text-sm">{tr("الملف (PDF، PowerPoint، Word، صور، فيديو)")}<Input type="file" accept=".pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx,image/*,video/*,audio/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} /></label>
+        <label className="text-sm">{tr("الملف (PDF، PowerPoint، Word، صور، فيديو)")}<Input className="material-file-input" type="file" accept=".pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx,image/*,video/*,audio/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} /></label>
         <label className="text-sm">{tr("أو رابط (يوتيوب، Google Slides…)")}<Input type="url" placeholder="https://" value={link} onChange={(e) => setLink(e.target.value)} /></label>
         <div className="sm:col-span-2"><Button type="submit" disabled={add.isPending}>{add.isPending ? tr("جارٍ الرفع…") : tr("إضافة")}</Button></div>
       </form>

@@ -43,7 +43,7 @@ export function PacingPanel({ courseId }: { courseId: string }) {
   const schedule = (plan.data?.schedule ?? []) as PlanSession[];
 
   return (
-    <section className="surface mb-8 rounded-2xl p-5">
+    <section className="pacing-panel surface mb-8 rounded-2xl p-5">
       <h2 className="mb-3 flex items-center gap-2 font-display text-lg font-bold"><CalendarDays className="size-5 text-primary" />{tr("خطة توزيع المنهج")}</h2>
       <form className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5" onSubmit={(e) => { e.preventDefault(); m.mutate(); }}>
         <label className="text-sm">{tr("تاريخ البداية")}<Input type="date" value={f.start} onChange={(e) => set({ start: e.target.value })} required /></label>
@@ -60,7 +60,7 @@ export function PacingPanel({ courseId }: { courseId: string }) {
         </div>
       </form>
       {schedule.length > 0 && (
-        <div className="mt-4 max-h-96 overflow-auto rounded-xl border border-border">
+        <div className="pacing-schedule mt-4 max-h-96 overflow-auto rounded-xl border border-border">
           <table className="w-full text-sm">
             <thead><tr className="border-b border-border text-muted-foreground"><th className="p-2 text-start">#</th><th className="p-2 text-start">{tr("التاريخ")}</th><th className="p-2 text-start">{tr("الأسبوع")}</th><th className="p-2 text-start">{tr("المحتوى")}</th></tr></thead>
             <tbody>
@@ -157,19 +157,19 @@ export function SlideViewer({ title, slides, dir, onClose }: { title: string; sl
   const s = slides[i];
   const go = (n: number) => { setI(Math.min(slides.length - 1, Math.max(0, n))); setPick(null); };
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-background/95 p-4 backdrop-blur" dir={dir} role="dialog" aria-label={title}>
+    <div className="adventure-viewer fixed inset-0 z-50 flex flex-col bg-background/95 p-4 backdrop-blur" dir={dir} role="dialog" aria-label={title}>
       <div className="mb-3 flex items-center justify-between gap-2">
         <h2 className="truncate font-display text-lg font-bold">{title}</h2>
         <span className="text-sm text-muted-foreground">{i + 1} / {slides.length}</span>
         <Button size="icon" variant="ghost" onClick={onClose} aria-label={tr("إغلاق")}><X className="size-5" /></Button>
       </div>
       {s ? (
-        <div className="surface mx-auto w-full max-w-3xl flex-1 overflow-y-auto rounded-2xl p-6">
+        <div className="adventure-slide surface mx-auto w-full max-w-3xl flex-1 overflow-y-auto rounded-2xl p-6">
           <h3 className="mb-3 font-display text-2xl font-bold text-primary">{s.title}</h3>
           <p className="mb-4 leading-relaxed">{s.narrative}</p>
           <ul className="mb-4 list-inside list-disc space-y-1">{s.points.map((p, k) => <li key={k}>{p}</li>)}</ul>
           {s.challenge && (
-            <div className="rounded-xl border border-primary/40 p-4">
+            <div className="adventure-challenge rounded-xl border border-primary/40 p-4">
               <p className="mb-2 font-semibold">{s.challenge}</p>
               <div className="grid gap-2 sm:grid-cols-2">
                 {s.options.map((o) => (
@@ -182,6 +182,7 @@ export function SlideViewer({ title, slides, dir, onClose }: { title: string; sl
           <p className="mt-4 text-xs text-muted-foreground">{tr("المصدر ص")} {s.sourcePage}: «{s.sourceQuote}»</p>
         </div>
       ) : <p className="text-center text-muted-foreground">{tr("لا توجد شرائح")}</p>}
+      <div className="adventure-progress mx-auto mt-2 h-1.5 w-full max-w-3xl overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: `${slides.length ? ((i + 1) / slides.length) * 100 : 0}%` }} /></div>
       <div className="mt-3 flex justify-center gap-3">
         <Button variant="outline" onClick={() => go(i - 1)} disabled={i === 0}><ChevronRight className="size-4 ltr:rotate-180" />{tr("السابق")}</Button>
         <Button onClick={() => go(i + 1)} disabled={i >= slides.length - 1}>{tr("التالي")}<ChevronLeft className="size-4 ltr:rotate-180" /></Button>

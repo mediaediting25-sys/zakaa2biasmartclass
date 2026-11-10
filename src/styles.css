@@ -326,6 +326,266 @@
   background: var(--primary);
 }
 
+/* Full-screen HUD treatment shared by public, dashboard, admin and learning routes. */
+:root[data-palette="cyber"] :where(.site-header, .app-header) {
+  margin: 0.75rem auto 0;
+  padding: 0 0.75rem;
+  border: 0;
+  background: transparent;
+  backdrop-filter: none;
+}
+
+:root[data-palette="cyber"] :where(.site-header, .app-header) > div:first-child {
+  min-height: 4rem;
+  padding-inline: 0.75rem;
+  border: 1px solid color-mix(in oklab, var(--primary) 32%, transparent);
+  border-radius: 1.25rem;
+  background:
+    linear-gradient(105deg, oklch(0.82 0.14 190 / 8%), transparent 42%),
+    var(--gradient-forest);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(22px) saturate(135%);
+}
+
+:root[data-palette="cyber"] .site-header {
+  top: 0.5rem;
+}
+
+:root[data-palette="cyber"] .app-header nav {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--sidebar);
+  backdrop-filter: blur(18px);
+}
+
+:root[data-palette="cyber"] .app-main > div:first-child {
+  margin-bottom: 1.5rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid var(--border);
+  border-inline-start: 2px solid var(--primary);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(100deg, color-mix(in oklab, var(--primary) 9%, transparent), transparent 62%);
+  box-shadow: inset 0 1px 0 oklch(0.9 0.1 190 / 7%);
+}
+
+:root[data-palette="cyber"] :where(.surface, .bg-card) {
+  border-color: color-mix(in oklab, var(--primary) 27%, transparent);
+  background-image:
+    linear-gradient(125deg, oklch(0.84 0.14 190 / 6%), transparent 40%),
+    var(--gradient-forest);
+  box-shadow: var(--shadow-soft);
+}
+
+:root[data-palette="cyber"] .surface::after {
+  content: "";
+  position: absolute;
+  inset: 0.45rem;
+  border-radius: calc(var(--radius-xl) - 0.35rem);
+  background:
+    linear-gradient(var(--primary), var(--primary)) left top / 1.1rem 1px no-repeat,
+    linear-gradient(var(--primary), var(--primary)) left top / 1px 1.1rem no-repeat,
+    linear-gradient(var(--primary), var(--primary)) right bottom / 1.1rem 1px no-repeat,
+    linear-gradient(var(--primary), var(--primary)) right bottom / 1px 1.1rem no-repeat;
+  opacity: 0.38;
+  pointer-events: none;
+}
+
+:root[data-palette="cyber"] :where(a, article, form).surface {
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+:root[data-palette="cyber"] :where(a, article).surface:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in oklab, var(--primary) 58%, transparent);
+  box-shadow: var(--shadow-lift);
+}
+
+:root[data-palette="cyber"] :where(button, a[role="button"]).bg-sand,
+:root[data-palette="cyber"] label.bg-primary {
+  border: 1px solid color-mix(in oklab, var(--primary) 75%, var(--foreground));
+  box-shadow: 0 0 20px color-mix(in oklab, var(--primary) 20%, transparent), inset 0 1px 0 oklch(1 0 0 / 35%);
+}
+
+:root[data-palette="cyber"] :where(button, a[role="button"]).border-input {
+  border-color: color-mix(in oklab, var(--primary) 34%, transparent);
+  background: color-mix(in oklab, var(--secondary) 56%, transparent);
+}
+
+:root[data-palette="cyber"] [data-slot="badge"],
+:root[data-palette="cyber"] .rounded-md.border-transparent {
+  border-radius: 999px;
+}
+
+:root[data-palette="cyber"] [role="tablist"] {
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: oklch(0.13 0.04 245 / 82%);
+  box-shadow: inset 0 1px 10px oklch(0.05 0.03 250 / 30%);
+}
+
+:root[data-palette="cyber"] [role="tab"] {
+  border: 1px solid transparent;
+  border-radius: 0.75rem;
+}
+
+:root[data-palette="cyber"] [role="tab"][data-state="active"] {
+  border-color: color-mix(in oklab, var(--primary) 45%, transparent);
+  color: var(--primary-foreground);
+  background: var(--gradient-sand);
+  box-shadow: 0 0 16px color-mix(in oklab, var(--primary) 14%, transparent);
+}
+
+:root[data-palette="cyber"] :where(thead, th) {
+  color: var(--primary);
+  background: color-mix(in oklab, var(--secondary) 65%, transparent);
+}
+
+:root[data-palette="cyber"] tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+:root[data-palette="cyber"] tbody tr:hover {
+  background: color-mix(in oklab, var(--primary) 5%, transparent);
+}
+
+:root[data-palette="cyber"] details > summary {
+  color: var(--primary);
+}
+
+:root[data-palette="cyber"] input[type="checkbox"],
+:root[data-palette="cyber"] input[type="radio"] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--primary);
+}
+
+:root[data-palette="cyber"] input[type="range"] {
+  accent-color: var(--primary);
+}
+
+.assessment-generator {
+  position: relative;
+  max-width: 62rem;
+  margin-inline: auto;
+}
+
+.assessment-generator-title {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.question-review-card {
+  position: relative;
+}
+
+.question-review-card ul {
+  list-style: none;
+}
+
+:root[data-palette="cyber"] .question-review-card ul li {
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  background: color-mix(in oklab, var(--secondary) 64%, transparent);
+}
+
+:root[data-palette="cyber"] :where(.pacing-schedule, .material-row, .activity-question, .adventure-challenge) {
+  border-color: color-mix(in oklab, var(--primary) 28%, transparent);
+  background: color-mix(in oklab, var(--secondary) 52%, transparent);
+  box-shadow: inset 0 1px 0 oklch(0.9 0.1 190 / 7%);
+}
+
+:root[data-palette="cyber"] .material-row > svg {
+  box-sizing: content-box;
+  padding: 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+  background: color-mix(in oklab, var(--primary) 8%, transparent);
+}
+
+:root[data-palette="cyber"] .material-file-input {
+  min-height: 6rem;
+  padding: 1.25rem;
+  border: 1px dashed color-mix(in oklab, var(--primary) 62%, transparent);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(circle at 20% 20%, color-mix(in oklab, var(--primary) 12%, transparent), transparent 45%),
+    color-mix(in oklab, var(--secondary) 42%, transparent);
+  cursor: pointer;
+}
+
+:root[data-palette="cyber"] .material-file-input::file-selector-button {
+  margin-inline-end: 0.75rem;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--primary);
+  border-radius: 999px;
+  color: var(--primary-foreground);
+  background: var(--gradient-sand);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.adventure-viewer {
+  background-image: var(--app-overlay);
+  background-size: cover;
+  background-position: center;
+}
+
+.adventure-viewer > div:first-child {
+  width: min(100%, 56rem);
+  margin-inline: auto;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--gradient-forest);
+  box-shadow: var(--shadow-soft);
+}
+
+.adventure-slide {
+  position: relative;
+  border-color: color-mix(in oklab, var(--primary) 42%, transparent);
+  box-shadow: var(--shadow-lift);
+}
+
+.adventure-progress {
+  box-shadow: 0 0 12px color-mix(in oklab, var(--primary) 18%, transparent);
+}
+
+.activity-question {
+  border-color: color-mix(in oklab, var(--primary) 30%, transparent);
+  box-shadow: var(--shadow-soft);
+}
+
+.activity-player button[aria-pressed="true"],
+.activity-player button.bg-sand {
+  box-shadow: 0 0 18px color-mix(in oklab, var(--primary) 20%, transparent);
+}
+
+@media (max-width: 640px) {
+  :root[data-palette="cyber"] :where(.site-header, .app-header) {
+    margin-top: 0.35rem;
+    padding-inline: 0.35rem;
+  }
+
+  :root[data-palette="cyber"] :where(.site-header, .app-header) > div:first-child {
+    min-height: 3.5rem;
+    border-radius: 1rem;
+  }
+
+  :root[data-palette="cyber"] .app-main > div:first-child {
+    padding: 0.9rem;
+  }
+
+  .assessment-generator {
+    padding: 1rem;
+  }
+}
+
 .hero-section {
   position: relative;
   isolation: isolate;
