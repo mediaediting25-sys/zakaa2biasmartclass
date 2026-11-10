@@ -35,7 +35,7 @@ export function ThemeToggle() {
       title={label}
       aria-label={label}
       onClick={() => {
-        const next = palettes[(palettes.indexOf(palette) + 1) % palettes.length];
+        const next = palettes[(palettes.indexOf(palette) + 1) % palettes.length] ?? "cyber";
         document.documentElement.dataset["palette"] = next;
         try { localStorage.setItem("smartclass.palette", next); } catch { /* Session choice still works. */ }
         window.dispatchEvent(new Event("palette-change"));
