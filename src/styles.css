@@ -283,8 +283,308 @@
   &:active { transform: translateY(0) scale(0.96); }
 }
 
+/* Cyber-cyan is an optional third design, layered onto the same semantic tokens. */
+:root[data-palette="cyber"] :where(.surface, .bg-card, [role="dialog"]) {
+  border-color: color-mix(in oklab, var(--primary) 30%, transparent);
+  box-shadow: var(--shadow-soft);
+}
+
+:root[data-palette="cyber"] .surface {
+  position: relative;
+  background-image:
+    linear-gradient(115deg, oklch(0.85 0.13 190 / 5%), transparent 38%),
+    var(--gradient-forest);
+}
+
+:root[data-palette="cyber"] .surface::before {
+  content: "";
+  position: absolute;
+  inset: 0 18% auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+:root[data-palette="cyber"] :where(h1, h2, h3) {
+  text-shadow: 0 0 26px oklch(0.82 0.14 190 / 9%);
+}
+
+:root[data-palette="cyber"] :where(input, textarea, select) {
+  border-color: color-mix(in oklab, var(--primary) 24%, transparent);
+  background-color: oklch(0.13 0.04 245 / 76%);
+  box-shadow: inset 0 1px 8px oklch(0.06 0.035 250 / 30%);
+}
+
+:root[data-palette="cyber"] :where(input, textarea, select):focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px oklch(0.84 0.14 190 / 10%), 0 0 20px oklch(0.84 0.14 190 / 8%);
+}
+
+:root[data-palette="cyber"] ::selection {
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+.hero-section {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.hero-section::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background-image:
+    linear-gradient(color-mix(in oklab, var(--primary) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--primary) 7%, transparent) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(90deg, transparent, var(--foreground) 48%, transparent);
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.hero-console {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  max-width: 34rem;
+  justify-self: center;
+  overflow: hidden;
+  padding: clamp(1rem, 2.4vw, 1.5rem);
+  border: 1px solid color-mix(in oklab, var(--primary) 36%, var(--border));
+  border-radius: calc(var(--radius) + 0.75rem);
+  color: var(--card-foreground);
+  background:
+    radial-gradient(circle at 80% 0%, color-mix(in oklab, var(--primary) 14%, transparent), transparent 40%),
+    var(--gradient-forest);
+  box-shadow: var(--shadow-lift);
+  backdrop-filter: blur(24px) saturate(135%);
+  animation: console-enter 0.7s ease-out both;
+}
+
+.hero-console::before,
+.hero-console::after {
+  content: "";
+  position: absolute;
+  width: 2.5rem;
+  height: 2.5rem;
+  pointer-events: none;
+}
+
+.hero-console::before {
+  inset: 0.65rem auto auto 0.65rem;
+  border-top: 1px solid var(--primary);
+  border-left: 1px solid var(--primary);
+  border-radius: 0.5rem 0 0;
+  opacity: 0.65;
+}
+
+.hero-console::after {
+  inset: auto 0.65rem 0.65rem auto;
+  border-right: 1px solid var(--primary);
+  border-bottom: 1px solid var(--primary);
+  border-radius: 0 0 0.5rem;
+  opacity: 0.65;
+}
+
+.hero-console-head,
+.hero-console-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+}
+
+.hero-console-head {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted-foreground);
+}
+
+.hero-console-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.hero-live-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+  animation: signal-pulse 2s ease-in-out infinite;
+}
+
+.hero-console-core {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(1rem, 3vw, 1.75rem);
+  padding: clamp(1.5rem, 4vw, 2.5rem) 0.25rem;
+}
+
+.hero-console-core h2 {
+  margin-top: 0.35rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 2.6vw, 1.8rem);
+}
+
+.hero-console-core p:last-child {
+  margin-top: 0.55rem;
+  color: var(--muted-foreground);
+  font-size: 0.85rem;
+  line-height: 1.75;
+}
+
+.hero-console-kicker {
+  color: var(--primary);
+  font-size: 0.67rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.hero-orbit {
+  position: relative;
+  display: grid;
+  width: clamp(5.5rem, 10vw, 7rem);
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid color-mix(in oklab, var(--primary) 48%, transparent);
+  border-radius: 999px;
+  color: var(--primary);
+  background: radial-gradient(circle, color-mix(in oklab, var(--primary) 15%, transparent), transparent 68%);
+  box-shadow: 0 0 32px color-mix(in oklab, var(--primary) 14%, transparent), inset 0 0 20px color-mix(in oklab, var(--primary) 8%, transparent);
+}
+
+.hero-orbit-ring {
+  position: absolute;
+  inset: -0.55rem;
+  border: 1px dashed color-mix(in oklab, var(--primary) 35%, transparent);
+  border-radius: inherit;
+  animation: orbit-spin 18s linear infinite;
+}
+
+.hero-orbit-dot {
+  position: absolute;
+  top: -0.78rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--primary);
+  box-shadow: 0 0 12px var(--primary);
+}
+
+.hero-flow {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.hero-flow-step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: color-mix(in oklab, var(--secondary) 60%, transparent);
+  transition: border-color 0.25s ease, transform 0.25s ease, background-color 0.25s ease;
+}
+
+.hero-flow-step:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in oklab, var(--primary) 60%, transparent);
+  background: color-mix(in oklab, var(--secondary) 85%, transparent);
+}
+
+.hero-step-icon {
+  display: grid;
+  width: 2.4rem;
+  height: 2.4rem;
+  place-items: center;
+  border: 1px solid color-mix(in oklab, var(--primary) 30%, transparent);
+  border-radius: 0.85rem;
+  color: var(--primary);
+  background: color-mix(in oklab, var(--primary) 8%, transparent);
+}
+
+.hero-flow-step strong,
+.hero-flow-step small {
+  display: block;
+}
+
+.hero-flow-step strong {
+  font-size: 0.85rem;
+}
+
+.hero-flow-step small {
+  margin-top: 0.2rem;
+  color: var(--muted-foreground);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+}
+
+.hero-step-number {
+  color: color-mix(in oklab, var(--primary) 62%, transparent);
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.hero-console-foot {
+  padding-top: 1rem;
+  color: var(--muted-foreground);
+}
+
+.hero-signal {
+  display: inline-flex;
+  height: 1rem;
+  align-items: end;
+  gap: 0.18rem;
+  direction: ltr;
+}
+
+.hero-signal i {
+  display: block;
+  width: 0.18rem;
+  border-radius: 999px;
+  background: var(--primary);
+  box-shadow: 0 0 6px color-mix(in oklab, var(--primary) 55%, transparent);
+}
+
+.hero-signal i:nth-child(1) { height: 30%; }
+.hero-signal i:nth-child(2) { height: 55%; }
+.hero-signal i:nth-child(3) { height: 85%; }
+.hero-signal i:nth-child(4) { height: 60%; }
+.hero-signal i:nth-child(5) { height: 100%; }
+
+@keyframes console-enter {
+  from { opacity: 0; transform: translateY(18px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes orbit-spin { to { transform: rotate(360deg); } }
+@keyframes signal-pulse { 50% { opacity: 0.4; transform: scale(0.8); } }
+
+@media (max-width: 640px) {
+  .hero-console { border-radius: var(--radius-xl); }
+  .hero-console-status { display: none; }
+  .hero-console-core { gap: 1rem; }
+  .hero-console-foot { font-size: 0.56rem; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .btn-motion, .btn-motion::after { transition: none; animation: none !important; }
+  .btn-motion, .btn-motion::after,
+  .hero-console, .hero-orbit-ring, .hero-live-dot { transition: none; animation: none !important; }
 }
 
 [role="dialog"].install-prompt {
