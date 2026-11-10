@@ -60,7 +60,7 @@ export function PacingPanel({ courseId }: { courseId: string }) {
         </div>
       </form>
       {schedule.length > 0 && (
-        <div className="mt-4 max-h-96 overflow-auto rounded-xl border border-border">
+        <div className="pacing-schedule mt-4 max-h-96 overflow-auto rounded-xl border border-border">
           <table className="w-full text-sm">
             <thead><tr className="border-b border-border text-muted-foreground"><th className="p-2 text-start">#</th><th className="p-2 text-start">{tr("التاريخ")}</th><th className="p-2 text-start">{tr("الأسبوع")}</th><th className="p-2 text-start">{tr("المحتوى")}</th></tr></thead>
             <tbody>
@@ -169,7 +169,7 @@ export function SlideViewer({ title, slides, dir, onClose }: { title: string; sl
           <p className="mb-4 leading-relaxed">{s.narrative}</p>
           <ul className="mb-4 list-inside list-disc space-y-1">{s.points.map((p, k) => <li key={k}>{p}</li>)}</ul>
           {s.challenge && (
-            <div className="rounded-xl border border-primary/40 p-4">
+            <div className="adventure-challenge rounded-xl border border-primary/40 p-4">
               <p className="mb-2 font-semibold">{s.challenge}</p>
               <div className="grid gap-2 sm:grid-cols-2">
                 {s.options.map((o) => (
