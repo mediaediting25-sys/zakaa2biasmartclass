@@ -182,6 +182,7 @@ export function SlideViewer({ title, slides, dir, onClose }: { title: string; sl
           <p className="mt-4 text-xs text-muted-foreground">{tr("المصدر ص")} {s.sourcePage}: «{s.sourceQuote}»</p>
         </div>
       ) : <p className="text-center text-muted-foreground">{tr("لا توجد شرائح")}</p>}
+      <div className="adventure-progress mx-auto mt-2 h-1.5 w-full max-w-3xl overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: `${slides.length ? ((i + 1) / slides.length) * 100 : 0}%` }} /></div>
       <div className="mt-3 flex justify-center gap-3">
         <Button variant="outline" onClick={() => go(i - 1)} disabled={i === 0}><ChevronRight className="size-4 ltr:rotate-180" />{tr("السابق")}</Button>
         <Button onClick={() => go(i + 1)} disabled={i >= slides.length - 1}>{tr("التالي")}<ChevronLeft className="size-4 ltr:rotate-180" /></Button>
