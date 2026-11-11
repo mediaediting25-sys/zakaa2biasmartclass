@@ -152,7 +152,7 @@ const statusLabel: Record<string, string> = {
         </div>
         <ul className="space-y-2 text-sm">
           {docs.data?.map((d) => (
-            <li key={d.id} className="flex items-center justify-between gap-2 border-b border-border pb-2">
+            <li key={d.id} className="document-row flex items-center justify-between gap-2 border-b border-border pb-2">
               <span className="min-w-0 flex-1">
                 <span className="block truncate">{d.file_name}</span>
                 {d.processing_status === "processing" && (

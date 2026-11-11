@@ -65,7 +65,7 @@ function AdminPage() {
 
   return <AppShell title={tr("إدارة المنصة")} homeTo={access.data ? "/admin" : "/teacher"}>
     {users.isPending ? <p role="status">{tr("جارٍ التحميل…")}</p> : users.isError ? <p role="alert" className="text-destructive">{tr("هذه الصفحة متاحة لمديري المنصة فقط")}</p> : <>
-      <div className="mb-6 flex flex-wrap gap-6 border-b border-border pb-5">
+      <div className="admin-stats mb-6 flex flex-wrap gap-6 border-b border-border pb-5">
         <div className="flex items-center gap-3"><Users className="text-primary" /><span>{tr("المستخدمون")}: <b>{users.data.length}</b></span></div>
         <div className="flex items-center gap-3"><ShieldCheck className="text-success" /><span>{tr("مديرو المنصة")}: <b>{users.data.filter(u => u.roles.includes("admin")).length}</b></span></div>
         {access.data && <span className="font-bold text-primary">{tr("مالك المنصة")}</span>}

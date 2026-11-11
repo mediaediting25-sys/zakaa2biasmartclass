@@ -60,7 +60,7 @@ const OPTIONS: { role: AppRole; label: string; hint: string }[] = [
             key={o.role}
             role="button"
             onClick={() => setRole(o.role)}
-            className={`cursor-pointer p-5 transition ${role === o.role ? "border-primary ring-2 ring-primary" : ""}`}
+            className={`role-choice cursor-pointer p-5 transition ${role === o.role ? "border-primary ring-2 ring-primary" : ""}`}
           >
             <div className="text-lg font-semibold">{o.label}</div>
             <div className="mt-1 text-sm text-muted-foreground">{o.hint}</div>
