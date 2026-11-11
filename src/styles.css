@@ -546,6 +546,12 @@
   box-shadow: 0 0 24px color-mix(in oklab, var(--primary) 13%, transparent), inset 0 0 24px color-mix(in oklab, var(--primary) 5%, transparent);
 }
 
+:root[data-palette="cyber"] input[type="file"]:not(.sr-only) {
+  height: auto;
+  min-height: 2.75rem;
+  padding: 0.25rem;
+}
+
 :root[data-palette="cyber"] input[type="file"]::file-selector-button {
   margin-inline-end: 0.75rem;
   padding: 0.6rem 1rem;
