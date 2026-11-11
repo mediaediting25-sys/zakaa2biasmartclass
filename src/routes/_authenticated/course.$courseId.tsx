@@ -236,7 +236,7 @@ function StudentReports({ courseId }: { courseId: string }) {
       ) : (
         <ul className="space-y-3">
           {reports.map((r) => (
-            <li key={r.id} className="rounded-xl border border-border p-4">
+            <li key={r.id} className="report-card rounded-xl border border-border p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p className="font-semibold">{r.studentName === "طالب" ? tr("طالب") : r.studentName}</p>

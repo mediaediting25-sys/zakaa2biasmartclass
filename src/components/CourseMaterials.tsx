@@ -110,8 +110,20 @@ export function TeacherMaterialsPanel({ courseId }: { courseId: string }) {
         </label>
         <label className="text-sm">{tr("العنوان")}<Input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200} required /></label>
         <label className="text-sm sm:col-span-2">{tr("وصف (اختياري)")}<Input value={description} onChange={(e) => setDescription(e.target.value)} maxLength={2000} /></label>
-        <label className="text-sm">{tr("الملف (PDF، PowerPoint، Word، صور، فيديو)")}<Input className="material-file-input" type="file" accept=".pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx,image/*,video/*,audio/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} /></label>
-        <label className="text-sm">{tr("أو رابط (يوتيوب، Google Slides…)")}<Input type="url" placeholder="https://" value={link} onChange={(e) => setLink(e.target.value)} /></label>
+        <label
+          className="material-upload text-sm sm:col-span-2"
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={(e) => { e.preventDefault(); setFile(e.dataTransfer.files[0] ?? null); }}
+        >
+          {tr("الملف (PDF، PowerPoint، Word، صور، فيديو)")}
+          <span className="material-file-input">
+            <Upload className="size-7 text-primary" aria-hidden="true" />
+            <strong>{file?.name ?? tr("اسحب الملف هنا أو اضغط للاختيار")}</strong>
+            <small>{tr("حتى 500 ميجابايت")}</small>
+            <input className="sr-only" type="file" accept=".pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx,image/*,video/*,audio/*" disabled={add.isPending} onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+          </span>
+        </label>
+        <label className="text-sm sm:col-span-2">{tr("أو رابط (يوتيوب، Google Slides…)")}<Input type="url" placeholder="https://" value={link} onChange={(e) => setLink(e.target.value)} /></label>
         <div className="sm:col-span-2"><Button type="submit" disabled={add.isPending}>{add.isPending ? tr("جارٍ الرفع…") : tr("إضافة")}</Button></div>
       </form>
       <ul className="mt-4 space-y-2">
