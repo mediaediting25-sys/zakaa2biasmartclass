@@ -70,7 +70,7 @@ function AdminPage() {
         <div className="flex items-center gap-3"><ShieldCheck className="text-success" /><span>{tr("مديرو المنصة")}: <b>{users.data.filter(u => u.roles.includes("admin")).length}</b></span></div>
         {access.data && <span className="font-bold text-primary">{tr("مالك المنصة")}</span>}
       </div>
-      <div className="mb-6 flex flex-wrap gap-3">
+      <div className="admin-toolbar surface mb-6 flex flex-wrap gap-3 p-3">
         <label className="relative min-w-0 flex-1"><Search className="absolute start-3 top-3 size-4 text-muted-foreground" /><Input className="ps-10" aria-label={tr("البحث بالاسم أو البريد")} placeholder={tr("البحث بالاسم أو البريد")} value={search} onChange={e => setSearch(e.target.value)} /></label>
         <select aria-label={tr("الصلاحية")} className="rounded-md border border-input px-3" value={filter} onChange={e => setFilter(e.target.value)}><option value="all">{tr("الكل")}</option>{managedRoles.map(r => <option key={r} value={r}>{labels[r]}</option>)}</select>
       </div>

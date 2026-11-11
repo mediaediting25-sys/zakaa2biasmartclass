@@ -263,7 +263,7 @@
 @utility bg-bark { background-image: var(--gradient-bark); }
 @utility bg-forest { background-image: var(--gradient-forest); }
 
-@keyframes btn-shine { from { transform: translateX(-120%) skewX(-20deg); } to { transform: translateX(220%) skewX(-20deg); } }
+@keyframes btn-shine { from { transform: translateX(-160%) skewX(-20deg); } to { transform: translateX(350%) skewX(-20deg); } }
 
 @utility btn-motion {
   position: relative;
@@ -272,14 +272,17 @@
   &::after {
     content: "";
     position: absolute;
-    inset: 0;
+    top: 0;
+    bottom: 0;
+    left: 0;
     width: 40%;
+    opacity: 0;
     background: linear-gradient(90deg, transparent, oklch(1 0 0 / 0.35), transparent);
-    transform: translateX(-120%) skewX(-20deg);
+    transform: translateX(-160%) skewX(-20deg);
     pointer-events: none;
   }
   &:hover { transform: translateY(-2px) scale(1.03); box-shadow: var(--shadow-lift); filter: brightness(1.05); }
-  &:hover::after { animation: btn-shine 0.8s ease; }
+  &:hover::after { opacity: 1; animation: btn-shine 0.8s ease; }
   &:active { transform: translateY(0) scale(0.96); }
 }
 
