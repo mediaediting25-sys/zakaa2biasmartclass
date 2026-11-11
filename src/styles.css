@@ -406,7 +406,7 @@
 }
 
 :root[data-palette="cyber"] :where(button, a[role="button"]).bg-sand,
-:root[data-palette="cyber"] label.bg-primary {
+:root[data-palette="cyber"] :where(button, a[role="button"], label).bg-primary {
   border: 1px solid color-mix(in oklab, var(--primary) 75%, var(--foreground));
   box-shadow: 0 0 20px color-mix(in oklab, var(--primary) 20%, transparent), inset 0 1px 0 oklch(1 0 0 / 35%);
 }
