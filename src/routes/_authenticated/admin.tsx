@@ -65,16 +65,16 @@ function AdminPage() {
 
   return <AppShell title={tr("إدارة المنصة")} homeTo={access.data ? "/admin" : "/teacher"}>
     {users.isPending ? <p role="status">{tr("جارٍ التحميل…")}</p> : users.isError ? <p role="alert" className="text-destructive">{tr("هذه الصفحة متاحة لمديري المنصة فقط")}</p> : <>
-      <div className="mb-6 flex flex-wrap gap-6 border-b border-border pb-5">
+      <div className="admin-stats surface mb-6 flex flex-wrap gap-6 p-5">
         <div className="flex items-center gap-3"><Users className="text-primary" /><span>{tr("المستخدمون")}: <b>{users.data.length}</b></span></div>
         <div className="flex items-center gap-3"><ShieldCheck className="text-success" /><span>{tr("مديرو المنصة")}: <b>{users.data.filter(u => u.roles.includes("admin")).length}</b></span></div>
         {access.data && <span className="font-bold text-primary">{tr("مالك المنصة")}</span>}
       </div>
-      <div className="mb-6 flex flex-wrap gap-3">
+      <div className="admin-toolbar surface mb-6 flex flex-wrap gap-3 p-3">
         <label className="relative min-w-0 flex-1"><Search className="absolute start-3 top-3 size-4 text-muted-foreground" /><Input className="ps-10" aria-label={tr("البحث بالاسم أو البريد")} placeholder={tr("البحث بالاسم أو البريد")} value={search} onChange={e => setSearch(e.target.value)} /></label>
         <select aria-label={tr("الصلاحية")} className="rounded-md border border-input px-3" value={filter} onChange={e => setFilter(e.target.value)}><option value="all">{tr("الكل")}</option>{managedRoles.map(r => <option key={r} value={r}>{labels[r]}</option>)}</select>
       </div>
-      <div className="divide-y divide-border">{rows.map(u => <article key={u.user_id} className="flex flex-wrap items-center justify-between gap-4 py-5">
+      <div className="space-y-3">{rows.map(u => <article key={u.user_id} className="admin-user-row surface flex flex-wrap items-center justify-between gap-4 p-4">
         <div className="min-w-0">
           <h2 className="font-semibold">{u.full_name || tr("مستخدم")}{u.is_owner && <span className="ms-3 text-sm text-primary">{tr("مالك المنصة")}</span>}{u.is_blocked && <span className="ms-3 text-sm text-destructive">{tr("محظور")}</span>}</h2>
           <p dir="ltr" className="break-all text-sm text-muted-foreground">{u.email}</p>

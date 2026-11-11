@@ -152,7 +152,7 @@ const statusLabel: Record<string, string> = {
         </div>
         <ul className="space-y-2 text-sm">
           {docs.data?.map((d) => (
-            <li key={d.id} className="flex items-center justify-between gap-2 border-b border-border pb-2">
+            <li key={d.id} className="document-row flex items-center justify-between gap-2 border-b border-border pb-2">
               <span className="min-w-0 flex-1">
                 <span className="block truncate">{d.file_name}</span>
                 {d.processing_status === "processing" && (
@@ -236,7 +236,7 @@ function StudentReports({ courseId }: { courseId: string }) {
       ) : (
         <ul className="space-y-3">
           {reports.map((r) => (
-            <li key={r.id} className="rounded-xl border border-border p-4">
+            <li key={r.id} className="report-card rounded-xl border border-border p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p className="font-semibold">{r.studentName === "طالب" ? tr("طالب") : r.studentName}</p>

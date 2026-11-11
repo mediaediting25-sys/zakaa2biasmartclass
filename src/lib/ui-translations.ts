@@ -37,6 +37,8 @@ const english: Record<string, string> = {
   "الاستايل السياني — 3": "Cyber cyan style — 3",
   "تغيير التصميم": "Change design",
   "إعدادات التوليد": "Generation settings",
+  "اسحب الملف هنا أو اضغط للاختيار": "Drop a file here or tap to choose",
+  "حتى 500 ميجابايت": "Up to 500 MB",
   "العروض": "Presentations",
   "المراجعة والاعتماد": "Review and approval",
   "السجل": "History",

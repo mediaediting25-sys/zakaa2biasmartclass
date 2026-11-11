@@ -263,7 +263,7 @@
 @utility bg-bark { background-image: var(--gradient-bark); }
 @utility bg-forest { background-image: var(--gradient-forest); }
 
-@keyframes btn-shine { from { transform: translateX(-120%) skewX(-20deg); } to { transform: translateX(220%) skewX(-20deg); } }
+@keyframes btn-shine { from { transform: translateX(-160%) skewX(-20deg); } to { transform: translateX(350%) skewX(-20deg); } }
 
 @utility btn-motion {
   position: relative;
@@ -272,14 +272,17 @@
   &::after {
     content: "";
     position: absolute;
-    inset: 0;
+    top: 0;
+    bottom: 0;
+    left: 0;
     width: 40%;
+    opacity: 0;
     background: linear-gradient(90deg, transparent, oklch(1 0 0 / 0.35), transparent);
-    transform: translateX(-120%) skewX(-20deg);
+    transform: translateX(-160%) skewX(-20deg);
     pointer-events: none;
   }
   &:hover { transform: translateY(-2px) scale(1.03); box-shadow: var(--shadow-lift); filter: brightness(1.05); }
-  &:hover::after { animation: btn-shine 0.8s ease; }
+  &:hover::after { opacity: 1; animation: btn-shine 0.8s ease; }
   &:active { transform: translateY(0) scale(0.96); }
 }
 
@@ -403,7 +406,7 @@
 }
 
 :root[data-palette="cyber"] :where(button, a[role="button"]).bg-sand,
-:root[data-palette="cyber"] label.bg-primary {
+:root[data-palette="cyber"] :where(button, a[role="button"], label).bg-primary {
   border: 1px solid color-mix(in oklab, var(--primary) 75%, var(--foreground));
   box-shadow: 0 0 20px color-mix(in oklab, var(--primary) 20%, transparent), inset 0 1px 0 oklch(1 0 0 / 35%);
 }
@@ -507,18 +510,49 @@
   background: color-mix(in oklab, var(--primary) 8%, transparent);
 }
 
-:root[data-palette="cyber"] .material-file-input {
-  min-height: 6rem;
+.material-file-input {
+  display: flex;
+  min-height: 8.5rem;
+  margin-top: 0.5rem;
   padding: 1.25rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
   border: 1px dashed color-mix(in oklab, var(--primary) 62%, transparent);
   border-radius: var(--radius-xl);
   background:
-    radial-gradient(circle at 20% 20%, color-mix(in oklab, var(--primary) 12%, transparent), transparent 45%),
+    radial-gradient(circle at 50% 0%, color-mix(in oklab, var(--primary) 13%, transparent), transparent 60%),
     color-mix(in oklab, var(--secondary) 42%, transparent);
+  text-align: center;
   cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-:root[data-palette="cyber"] .material-file-input::file-selector-button {
+.material-file-input strong {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  color: var(--foreground);
+  font-size: 0.9rem;
+}
+
+.material-file-input small {
+  color: var(--muted-foreground);
+}
+
+.material-upload:hover .material-file-input,
+.material-upload:focus-within .material-file-input {
+  border-color: var(--primary);
+  box-shadow: 0 0 24px color-mix(in oklab, var(--primary) 13%, transparent), inset 0 0 24px color-mix(in oklab, var(--primary) 5%, transparent);
+}
+
+:root[data-palette="cyber"] input[type="file"]:not(.sr-only) {
+  height: auto;
+  min-height: 2.75rem;
+  padding: 0.25rem;
+}
+
+:root[data-palette="cyber"] input[type="file"]::file-selector-button {
   margin-inline-end: 0.75rem;
   padding: 0.6rem 1rem;
   border: 1px solid var(--primary);
@@ -564,6 +598,160 @@
 .activity-player button[aria-pressed="true"],
 .activity-player button.bg-sand {
   box-shadow: 0 0 18px color-mix(in oklab, var(--primary) 20%, transparent);
+}
+
+/* Cards, overlays and compact records share the same illuminated frame language. */
+:root[data-palette="cyber"] [data-slot="card"] {
+  position: relative;
+  border-color: color-mix(in oklab, var(--primary) 27%, transparent);
+  background-image:
+    linear-gradient(125deg, oklch(0.84 0.14 190 / 6%), transparent 40%),
+    var(--gradient-forest);
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+:root[data-palette="cyber"] [data-slot="card"]::after {
+  content: "";
+  position: absolute;
+  inset: 0.4rem;
+  border-radius: calc(var(--radius-xl) - 0.35rem);
+  background:
+    linear-gradient(var(--primary), var(--primary)) left top / 0.9rem 1px no-repeat,
+    linear-gradient(var(--primary), var(--primary)) left top / 1px 0.9rem no-repeat,
+    linear-gradient(var(--primary), var(--primary)) right bottom / 0.9rem 1px no-repeat,
+    linear-gradient(var(--primary), var(--primary)) right bottom / 1px 0.9rem no-repeat;
+  opacity: 0.28;
+  pointer-events: none;
+}
+
+:root[data-palette="cyber"] :where(.role-choice, [data-slot="card"]:has(a), [data-slot="card"]:has(> button)):hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in oklab, var(--primary) 58%, transparent);
+  box-shadow: var(--shadow-lift);
+}
+
+:root[data-palette="cyber"] :where([data-slot="dialog-content"], [data-slot="popover-content"], [data-sonner-toast]) {
+  border: 1px solid color-mix(in oklab, var(--primary) 38%, transparent) !important;
+  color: var(--popover-foreground);
+  background-color: oklch(0.15 0.04 245 / 96%) !important;
+  background-image:
+    linear-gradient(125deg, oklch(0.84 0.14 190 / 9%), transparent 45%),
+    var(--gradient-forest) !important;
+  box-shadow: var(--shadow-lift) !important;
+  backdrop-filter: blur(24px) saturate(140%);
+}
+
+:root[data-palette="cyber"] [data-slot="dialog-content"] {
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+}
+
+:root[data-palette="cyber"] [data-slot="dialog-close"] {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--foreground);
+  background: var(--secondary);
+  opacity: 1;
+}
+
+:root[data-palette="cyber"] [data-slot="popover-content"] {
+  border-radius: 1rem;
+}
+
+:root[data-palette="cyber"] [data-slot="popover-content"] > div {
+  border: 1px solid transparent;
+  border-radius: 0.75rem;
+}
+
+:root[data-palette="cyber"] [data-slot="popover-content"] > div:hover {
+  border-color: var(--border);
+  background: color-mix(in oklab, var(--primary) 7%, transparent);
+}
+
+:root[data-palette="cyber"] :where(.report-card, .document-row, .join-request-row) {
+  border-color: color-mix(in oklab, var(--primary) 22%, transparent);
+  background: color-mix(in oklab, var(--secondary) 46%, transparent);
+}
+
+:root[data-palette="cyber"] :where(.report-card, .document-row) {
+  padding: 0.85rem;
+  border: 1px solid color-mix(in oklab, var(--primary) 22%, transparent);
+  border-radius: 0.9rem;
+}
+
+:root[data-palette="cyber"] .join-request-row {
+  margin-block: 0.5rem;
+  padding: 0.85rem;
+  border-radius: 0.9rem;
+}
+
+:root[data-palette="cyber"] .admin-stats > div {
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--secondary) 65%, transparent);
+}
+
+:root[data-palette="cyber"] :where(.admin-toolbar, .admin-user-row) {
+  backdrop-filter: blur(18px);
+}
+
+:root[data-palette="cyber"] :where(button, a[role="button"]).bg-success {
+  border: 1px solid color-mix(in oklab, var(--success) 70%, var(--foreground));
+  box-shadow: 0 0 18px color-mix(in oklab, var(--success) 18%, transparent);
+}
+
+:root[data-palette="cyber"] :where(button, a[role="button"]).bg-destructive {
+  border: 1px solid color-mix(in oklab, var(--destructive) 72%, var(--foreground));
+  box-shadow: 0 0 18px color-mix(in oklab, var(--destructive) 15%, transparent);
+}
+
+:root[data-palette="cyber"] :where(button, a[role="button"]):focus-visible,
+:root[data-palette="cyber"] summary:focus-visible,
+:root[data-palette="cyber"] [role="button"]:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+:root[data-palette="cyber"] :where(.bg-muted, .bg-secondary):has(> .bg-primary) {
+  box-shadow: inset 0 0 8px oklch(0.05 0.03 250 / 35%);
+}
+
+:root[data-palette="cyber"] ::-webkit-scrollbar {
+  width: 0.65rem;
+  height: 0.65rem;
+}
+
+:root[data-palette="cyber"] ::-webkit-scrollbar-track {
+  background: var(--secondary);
+}
+
+:root[data-palette="cyber"] ::-webkit-scrollbar-thumb {
+  border: 2px solid var(--secondary);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--primary) 55%, var(--secondary));
+}
+
+@media (max-width: 640px) {
+  :root[data-palette="cyber"] body {
+    --app-overlay:
+      linear-gradient(180deg, oklch(0.08 0.035 250 / 58%), oklch(0.09 0.04 245 / 84%)),
+      radial-gradient(circle at 20% 12%, oklch(0.72 0.17 195 / 15%), transparent 42%);
+  }
+
+  :root[data-palette="cyber"] .admin-stats {
+    gap: 0.65rem;
+  }
+
+  :root[data-palette="cyber"] .admin-stats > div {
+    padding: 0.5rem 0.7rem;
+    font-size: 0.8rem;
+  }
 }
 
 @media (max-width: 640px) {

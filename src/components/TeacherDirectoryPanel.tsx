@@ -109,7 +109,7 @@ export function TeacherDirectoryPanel({ userId, courses }: { userId: string; cou
         ) : (
           <div className="mt-3 divide-y divide-border">
             {requests.data.map((r) => (
-              <div key={r.id} className="grid gap-2 py-3 text-sm">
+              <div key={r.id} className="join-request-row grid gap-2 py-3 text-sm">
                 <div>
                   <b>{r.student_name || (ar ? "طالب" : "Student")}</b>
                   {r.subject && <span className="text-muted-foreground"> · {subjectLabel(r.subject, locale)}</span>}

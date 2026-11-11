@@ -173,7 +173,7 @@ export function SlideViewer({ title, slides, dir, onClose }: { title: string; sl
               <p className="mb-2 font-semibold">{s.challenge}</p>
               <div className="grid gap-2 sm:grid-cols-2">
                 {s.options.map((o) => (
-                  <Button key={o} variant={pick === o ? (o === s.correctAnswer ? "default" : "destructive") : "outline"} onClick={() => setPick(o)}>{o}</Button>
+                  <Button key={o} variant={pick === o ? (o === s.correctAnswer ? "success" : "destructive") : "outline"} onClick={() => setPick(o)}>{o}</Button>
                 ))}
               </div>
               {pick && <p className="mt-2 text-sm">{pick === s.correctAnswer ? "✓ " : "✗ "}{s.explanation}</p>}
