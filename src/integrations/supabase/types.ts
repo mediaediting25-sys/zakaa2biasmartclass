@@ -80,6 +80,35 @@ export type Database = {
           },
         ]
       }
+      admin_permissions: {
+        Row: {
+          granted_by: string
+          permission: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          granted_by: string
+          permission: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          granted_by?: string
+          permission?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_permissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_feedback: {
         Row: {
           course_id: string
@@ -1614,6 +1643,7 @@ export type Database = {
         Returns: undefined
       }
       get_my_link_code: { Args: { _regenerate?: boolean }; Returns: string }
+      has_admin_permission: { Args: { _permission: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1652,6 +1682,10 @@ export type Database = {
         }[]
       }
       redeem_link_code: { Args: { _code: string }; Returns: string }
+      set_admin_permission: {
+        Args: { _grant: boolean; _permission: string; _user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "teacher" | "student" | "parent"
