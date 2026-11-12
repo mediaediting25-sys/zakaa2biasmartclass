@@ -1,6 +1,18 @@
 import type { Locale } from "./i18n";
 
 const english: Record<string, string> = {
+  "الأقسام الإدارية": "Administrative sections",
+  "إدارة المستخدمين والحظر": "User management and blocking",
+  "إدارة أدوار المستخدمين": "User role management",
+  "إدارة الأسعار والباقات": "Pricing and plans management",
+  "إدارة الأخبار والتحديثات": "News and updates management",
+  "إدارة النصوص والإعدادات": "Text and settings management",
+  "إدارة الاشتراكات والمدد المجانية": "Subscriptions and free periods management",
+  "تأكيد تغيير القسم الإداري لهذا المدير؟": "Change this administrator's section permission?",
+  "تعذر حفظ الأقسام الإدارية": "Unable to save administrative permissions",
+  "لم يُمنح حسابك صلاحية إدارة المستخدمين أو الأدوار": "Your account has not been granted user or role management permission",
+  "تعذر تحميل الصلاحيات": "Unable to load permissions",
+  "هذه الأقسام قيد التجهيز": "These sections are being prepared",
   "إدارة المنصة": "Platform administration",
   "مالك المنصة": "Platform owner",
   "المستخدمون": "Users",

@@ -8,11 +8,11 @@ export const setAccountBlocked = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ userId: z.string().uuid(), blocked: z.boolean() }).parse(input))
   .handler(async ({ data, context }) => {
-    const [{ data: isOwner, error: ownerError }, { data: isAdmin, error: adminError }] = await Promise.all([
+    const [{ data: isOwner, error: ownerError }, { data: allowed, error: permissionError }] = await Promise.all([
       context.supabase.rpc("is_platform_owner"),
-      context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" }),
+      context.supabase.rpc("has_admin_permission", { _permission: "users" }),
     ]);
-    if (ownerError || adminError || (!isOwner && !isAdmin)) throw new Error("Forbidden");
+    if (ownerError || permissionError || !allowed) throw new Error("Forbidden");
 
     const { data: accounts, error: listError } = await context.supabase.rpc("admin_list_accounts");
     if (listError) throw new Error("Forbidden");
