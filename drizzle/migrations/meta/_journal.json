@@ -78,6 +78,13 @@
       "when": 1794215901271,
       "tag": "0010_course_materials",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794472212252,
+      "tag": "0011_scoped_administrator_permissions",
+      "breakpoints": true
     }
   ]
 }

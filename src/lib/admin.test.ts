@@ -1,5 +1,16 @@
 import { expect, it } from "vitest";
-import { canManageBlock, canManageRoles } from "./admin";
+import { administrativePermissions, canManageBlock, canManageRoles, canUseAdminSection } from "./admin";
+it("allows the owner to access every administrative section without grants", () => {
+  for (const permission of administrativePermissions) expect(canUseAdminSection(true, [], permission)).toBe(true);
+});
+it("separates news administration from pricing and user administration", () => {
+  expect(canUseAdminSection(false, ["news"], "news")).toBe(true);
+  expect(canUseAdminSection(false, ["news"], "pricing")).toBe(false);
+  expect(canUseAdminSection(false, ["news"], "users")).toBe(false);
+});
+it("does not give an administrator any section by default", () => {
+  for (const permission of administrativePermissions) expect(canUseAdminSection(false, [], permission)).toBe(false);
+});
 it("protects the owner's roles from all administrators", () => {
   expect(canManageRoles(true, { is_owner: true, roles: ["admin"] }, "admin")).toBe(false);
   expect(canManageRoles(false, { is_owner: true, roles: ["admin"] }, "teacher")).toBe(false);

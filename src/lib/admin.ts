@@ -1,4 +1,9 @@
 export const managedRoles = ["admin", "teacher", "student", "parent"] as const;
+export const administrativePermissions = ["users", "roles", "pricing", "news", "settings", "subscriptions"] as const;
+export type AdministrativePermission = typeof administrativePermissions[number];
+export function canUseAdminSection(owner: boolean, permissions: readonly string[], section: AdministrativePermission) {
+  return owner || permissions.includes(section);
+}
 export function canManageRoles(actorIsOwner: boolean, target: { is_owner: boolean; roles: string[] }, role: string) {
   return !target.is_owner && (actorIsOwner || (role !== "admin" && !target.roles.includes("admin")));
 }
