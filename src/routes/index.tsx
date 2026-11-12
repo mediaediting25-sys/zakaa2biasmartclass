@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { TeacherPhoto } from "@/components/TeacherPhoto";
 import { SUBJECTS, subjectLabel } from "@/lib/subjects";
+import learningCompanions from "@/assets/learning-companions.webp";
 
 function FeaturedTeachers({ ar }: { ar: boolean }) {
   const { locale } = useI18n();
@@ -245,6 +246,7 @@ function Landing() {
       </section>
 
       <section className="mx-auto w-full max-w-6xl px-4 py-12">
+        <img src={learningCompanions} width={1152} height={576} loading="lazy" decoding="async" alt={ar ? "روبوت ذكاؤبيا ورفيقه النبات يقرآن كتابًا تعليميًا في رحلة التعلم التفاعلي" : "Zakaa2obia robot and plant companion reading a book on an interactive learning journey"} className="mb-8 aspect-[2/1] w-full rounded-lg object-cover" />
         <h2 className="font-display text-2xl font-extrabold sm:text-3xl">{ar ? "تنظيم المنهج ومتابعة مستوى الطلاب في مكان واحد" : "Curriculum planning and student progress in one place"}</h2>
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           {[
