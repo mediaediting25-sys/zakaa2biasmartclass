@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { GraduationCap, Languages, LogOut } from "lucide-react";
 
 import { NotificationBell } from "@/components/NotificationBell";
@@ -10,10 +10,13 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { homeForRole, useProfile, useRole, useSession } from "@/hooks/useSession";
 import { useI18n } from "@/lib/i18n";
+import { publicPlatformOptions } from "@/lib/platform";
 import { ThemeToggle } from "./ThemeToggle";
 
 export function SiteHeader() {
-  const { t, tr, toggleLocale } = useI18n();
+  const { t, tr, toggleLocale, locale } = useI18n();
+  const platform = useQuery(publicPlatformOptions);
+  const announcement = locale === "ar" ? platform.data?.settings?.announcement_ar : platform.data?.settings?.announcement_en;
   const { user, loading } = useSession();
   const { data: role } = useRole(user);
   const { data: profile } = useProfile(user);
@@ -49,6 +52,7 @@ export function SiteHeader() {
           <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
             <Link to="/pricing">{tr("الباقات والأسعار")}</Link>
           </Button>
+          <Button asChild variant="ghost" size="sm"><Link to="/news">{tr("الأخبار")}</Link></Button>
           <Button variant="ghost" size="sm" onClick={toggleLocale} aria-label={t("nav.language")} title={t("nav.language")}>
             <Languages className="size-4" />
             <span className="hidden sm:inline">{t("nav.language")}</span>
@@ -77,6 +81,7 @@ export function SiteHeader() {
           )}
         </div>
       </div>
+      {announcement && <p className="border-t border-border bg-secondary px-4 py-2 text-center text-sm text-secondary-foreground break-words">{announcement}</p>}
     </header>
   );
 }
