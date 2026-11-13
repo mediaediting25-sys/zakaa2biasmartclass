@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Ban, RotateCcw, ShieldCheck, Users, Search } from "lucide-react";
 import { toast } from "sonner";
 
+import { PlatformEditors } from "@/components/PlatformEditors";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,11 +38,11 @@ function AdminPage() {
   const updateBlock = useServerFn(setAccountBlocked);
   const labels = { admin: tr("مدير"), teacher: tr("معلم"), student: tr("طالب"), parent: tr("ولي أمر") };
   const sectionLabels: Record<AdministrativePermission, string> = {
-    users: tr("إدارة المستخدمين والحظر"), roles: tr("إدارة أدوار المستخدمين"),
+    general_admin: tr("الإدارة العامة"), users: tr("إدارة المستخدمين والحظر"), roles: tr("إدارة أدوار المستخدمين"),
     pricing: tr("إدارة الأسعار والباقات"), news: tr("إدارة الأخبار والتحديثات"),
     settings: tr("إدارة النصوص والإعدادات"), subscriptions: tr("إدارة الاشتراكات والمدد المجانية"),
   };
-  const access = useQuery({ queryKey: ["admin-access"], queryFn: async () => {
+  const access = useQuery({ queryKey: ["admin-access", user?.id], queryFn: async () => {
     const { data, error } = await supabase.rpc("is_platform_owner");
     if (error) throw error;
     return data;
@@ -52,6 +53,7 @@ function AdminPage() {
     return data ?? [];
   } });
   const mine = (permissions.data ?? []).filter(p => p.user_id === user?.id).map(p => p.permission);
+  const visibleSections = administrativePermissions.filter(p => canUseAdminSection(access.data === true, mine, p));
   const manageUsers = !permissions.isError && canUseAdminSection(access.data === true, mine, "users");
   const manageRoles = !permissions.isError && canUseAdminSection(access.data === true, mine, "roles");
   const users = useQuery({ queryKey: ["admin-users", user?.id], enabled: manageUsers || manageRoles, retry: false, queryFn: async () => {
@@ -88,8 +90,8 @@ function AdminPage() {
   return <AppShell title={tr("إدارة المنصة")} homeTo={access.data ? "/admin" : "/teacher"}>
     {access.isError || permissions.isError ? <p role="alert" className="text-destructive">{tr("تعذر تحميل الصلاحيات")}</p> : access.isPending || permissions.isPending ? <p role="status">{tr("جارٍ التحميل…")}</p> : !(manageUsers || manageRoles) ? <>
       <p>{tr("لم يُمنح حسابك صلاحية إدارة المستخدمين أو الأدوار")}</p>
-      <ul className="mt-4 space-y-2">{administrativePermissions.filter(p => mine.includes(p)).map(p => <li key={p}>{sectionLabels[p]}</li>)}</ul>
-      {mine.some(p => !["users", "roles"].includes(p)) && <p className="mt-4 text-muted-foreground">{tr("هذه الأقسام قيد التجهيز")}</p>}
+      <ul className="mt-4 space-y-2">{visibleSections.map(p => <li key={p}>{sectionLabels[p]}</li>)}</ul>
+      
     </> : users.isPending ? <p role="status">{tr("جارٍ التحميل…")}</p> : users.isError ? <p role="alert" className="text-destructive">{tr("هذه الصفحة متاحة لمديري المنصة فقط")}</p> : <>
       <div className="admin-stats surface mb-6 flex flex-wrap gap-6 p-5">
         <div className="flex items-center gap-3"><Users className="text-primary" /><span>{tr("المستخدمون")}: <b>{users.data.length}</b></span></div>
@@ -140,5 +142,6 @@ function AdminPage() {
       </article>)}</div>
       {!rows.length && <p className="py-8 text-muted-foreground">{tr("لا توجد نتائج")}</p>}
     </>}
+    {!access.isPending && !access.isError && !permissions.isPending && !permissions.isError && user && visibleSections.some(p => ["pricing", "news", "settings"].includes(p)) && <div className="mt-10 border-t border-border pt-8"><PlatformEditors sections={visibleSections} userId={user.id} /></div>}
   </AppShell>;
 }

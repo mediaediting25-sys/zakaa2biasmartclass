@@ -1,12 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BadgeCheck, Crown, Rocket, Sparkles, Users } from "lucide-react";
+import { BadgeCheck } from "lucide-react";
 import { useState } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { PLANS } from "@/lib/plans";
+import { publicPlatformOptions, annualPrice } from "@/lib/platform";
 
 import { SiteHeader } from "@/components/SiteHeader";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/pricing")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(publicPlatformOptions),
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
@@ -37,119 +41,6 @@ const CURRENCIES: { id: Currency; ar: string; en: string }[] = [
   { id: "usd", ar: "دولار", en: "USD" },
 ];
 
-const PLANS = [
-  {
-    id: "starter",
-    icon: Rocket,
-    price: { egp: 0, sar: 0, usd: 0 },
-    popular: false,
-    ar: {
-      name: "باقة التجربة",
-      blurb: "جرّب المنصة كاملة قبل أي اشتراك",
-      cta: "ابدأ مجانًا",
-      features: [
-        "مقرر واحد فقط",
-        "حتى 10 طلاب",
-        "ملف PDF واحد بالذكاء الاصطناعي شهريًا",
-        "تقارير أساسية",
-      ],
-    },
-    en: {
-      name: "Starter",
-      blurb: "Try the full platform before subscribing",
-      cta: "Start free",
-      features: ["1 course only", "Up to 10 students", "1 AI PDF per month", "Basic reports"],
-    },
-  },
-  {
-    id: "pro",
-    icon: Sparkles,
-    price: { egp: 290, sar: 79, usd: 21 },
-    popular: true,
-    ar: {
-      name: "المعلم الفردي",
-      blurb: "لمدرس الدروس الخصوصية والمجموعات",
-      cta: "اشترك الآن",
-      features: [
-        "حتى 3 مقررات",
-        "حتى 70 طالبًا",
-        "10 ملفات PDF بالذكاء الاصطناعي شهريًا",
-        "ربط أولياء الأمور وتقارير تفصيلية",
-        "منع إعادة حل النشاط إلا بإذنك",
-      ],
-    },
-    en: {
-      name: "Pro Teacher",
-      blurb: "For tutors and small groups",
-      cta: "Subscribe now",
-      features: [
-        "Up to 3 courses",
-        "Up to 70 students",
-        "10 AI PDFs per month",
-        "Parent linking and detailed reports",
-        "Retake requires teacher permission",
-      ],
-    },
-  },
-  {
-    id: "elite",
-    icon: Crown,
-    price: { egp: 590, sar: 169, usd: 45 },
-    popular: false,
-    ar: {
-      name: "المعلم المتميز",
-      blurb: "للمدرس الأكثر شعبية أو متعدد المراحل",
-      cta: "اشترك الآن",
-      features: [
-        "مقررات غير محدودة",
-        "حتى 250 طالبًا",
-        "30 ملف PDF بالذكاء الاصطناعي شهريًا",
-        "تنبيهات متقدمة وتعليقات فورية",
-        "دعم فني عبر واتساب",
-      ],
-    },
-    en: {
-      name: "Elite Teacher",
-      blurb: "For popular teachers across grade levels",
-      cta: "Subscribe now",
-      features: [
-        "Unlimited courses",
-        "Up to 250 students",
-        "30 AI PDFs per month",
-        "Advanced alerts and instant feedback",
-        "WhatsApp support",
-      ],
-    },
-  },
-  {
-    id: "center",
-    icon: Users,
-    price: { egp: 1490, sar: 449, usd: 120 },
-    popular: false,
-    ar: {
-      name: "السناتر والمدارس",
-      blurb: "للمراكز التعليمية والمدارس الخاصة",
-      cta: "اشترك الآن",
-      features: [
-        "حسابات لـ 5 معلمين",
-        "حتى 800 طالب",
-        "رفع مفتوح للمذكرات بالذكاء الاصطناعي",
-        "لوحة تحكم مجمعة للإدارة",
-      ],
-    },
-    en: {
-      name: "Center / School",
-      blurb: "For centers and private schools",
-      cta: "Subscribe now",
-      features: [
-        "5 teacher seats",
-        "Up to 800 students",
-        "Open AI syllabus uploads",
-        "Combined admin dashboard",
-      ],
-    },
-  },
-] as const;
 
 const ADDONS = {
   egp: { ar: "50 ج.م = 5 مذكرات إضافية", en: "EGP 50 = 5 extra uploads" },
@@ -159,11 +50,12 @@ const ADDONS = {
 
 function PricingPage() {
   const { locale } = useI18n();
+  const { data } = useSuspenseQuery(publicPlatformOptions);
   const ar = locale === "ar";
   const [period, setPeriod] = useState<"monthly" | "yearly">("monthly");
   const [currency, setCurrency] = useState<Currency>("egp");
 
-  const symbol = CURRENCIES.find((c) => c.id === currency)![ar ? "ar" : "en"];
+  const symbol = CURRENCIES.find((c) => c.id === currency)?.[ar ? "ar" : "en"] ?? "EGP";
 
   return (
     <div className="min-h-screen">
@@ -184,7 +76,7 @@ function PricingPage() {
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <div className="flex rounded-full border border-border bg-card p-1">
             {(["monthly", "yearly"] as const).map((p) => (
-              <button
+              <Button
                 key={p}
                 type="button"
                 onClick={() => setPeriod(p)}
@@ -196,12 +88,12 @@ function PricingPage() {
                 }
               >
                 {p === "monthly" ? (ar ? "شهري" : "Monthly") : ar ? "سنوي — وفّر شهرين" : "Yearly — 2 months free"}
-              </button>
+              </Button>
             ))}
           </div>
           <div className="flex rounded-full border border-border bg-card p-1">
             {CURRENCIES.map((c) => (
-              <button
+              <Button
                 key={c.id}
                 type="button"
                 onClick={() => setCurrency(c.id)}
@@ -213,14 +105,18 @@ function PricingPage() {
                 }
               >
                 {c[ar ? "ar" : "en"]}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
 
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {PLANS.map((plan) => {
-            const price = period === "yearly" ? plan.price[currency] * 10 : plan.price[currency];
+            const override = data.plans.find(p => p.id === plan.id);
+            const monthly = override?.[`price_${currency}`] ?? plan.price[currency];
+            const price = period === "yearly" ? annualPrice(monthly) : monthly;
+            const name = (ar ? override?.name_ar : override?.name_en) || plan[ar ? "ar" : "en"].name;
+            const features = override ? (ar ? override.features_ar : override.features_en) : plan[ar ? "ar" : "en"].features;
             return (
               <article
                 key={plan.id}
@@ -237,7 +133,7 @@ function PricingPage() {
                 <span className="grid size-10 place-items-center rounded-xl bg-secondary text-secondary-foreground">
                   <plan.icon className="size-5" />
                 </span>
-                <h2 className="mt-4 font-display text-lg font-bold">{plan[ar ? "ar" : "en"].name}</h2>
+                <h2 className="mt-4 font-display text-lg font-bold">{name}</h2>
                 <p className="mt-1 text-sm text-muted-foreground">{plan[ar ? "ar" : "en"].blurb}</p>
                 <p className="mt-4 flex items-baseline gap-1" dir="ltr">
                   <span className="font-display text-3xl font-extrabold">{price}</span>
@@ -246,7 +142,7 @@ function PricingPage() {
                   </span>
                 </p>
                 <ul className="mt-5 flex-1 space-y-2.5 text-sm">
-                  {plan[ar ? "ar" : "en"].features.map((f) => (
+                  {features.map((f) => (
                     <li key={f} className="flex items-start gap-2">
                       <BadgeCheck className="mt-0.5 size-4 shrink-0 text-accent" />
                       <span>{f}</span>

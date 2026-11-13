@@ -1,5 +1,13 @@
 import { expect, it } from "vitest";
 import { administrativePermissions, canManageBlock, canManageRoles, canUseAdminSection } from "./admin";
+it("gives general administration access to all seven sections", () => {
+  expect(administrativePermissions).toHaveLength(7);
+  for (const permission of administrativePermissions) expect(canUseAdminSection(false, ["general_admin"], permission)).toBe(true);
+});
+it("general administrators still cannot change or block other administrators", () => {
+  expect(canManageRoles(false, { is_owner: false, roles: ["admin"] }, "teacher")).toBe(false);
+  expect(canManageBlock(false, "general", { user_id: "other", is_owner: false, roles: ["admin"] })).toBe(false);
+});
 it("allows the owner to access every administrative section without grants", () => {
   for (const permission of administrativePermissions) expect(canUseAdminSection(true, [], permission)).toBe(true);
 });

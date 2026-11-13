@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BlockedRouteImport } from './routes/blocked'
+import { Route as NewsRouteImport } from './routes/news'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as TeachersRouteImport } from './routes/teachers'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -40,6 +41,11 @@ const AuthRoute = AuthRouteImport.update({
 const BlockedRoute = BlockedRouteImport.update({
   id: '/blocked',
   path: '/blocked',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewsRoute = NewsRouteImport.update({
+  id: '/news',
+  path: '/news',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/blocked': typeof BlockedRoute
+  '/news': typeof NewsRoute
   '/pricing': typeof PricingRoute
   '/teachers': typeof TeachersRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/blocked': typeof BlockedRoute
+  '/news': typeof NewsRoute
   '/pricing': typeof PricingRoute
   '/teachers': typeof TeachersRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -124,6 +132,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/blocked': typeof BlockedRoute
+  '/news': typeof NewsRoute
   '/pricing': typeof PricingRoute
   '/teachers': typeof TeachersRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
@@ -140,6 +149,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/blocked'
+    | '/news'
     | '/pricing'
     | '/teachers'
     | '/admin'
@@ -154,6 +164,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/blocked'
+    | '/news'
     | '/pricing'
     | '/teachers'
     | '/admin'
@@ -169,6 +180,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/blocked'
+    | '/news'
     | '/pricing'
     | '/teachers'
     | '/_authenticated/admin'
@@ -185,6 +197,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   BlockedRoute: typeof BlockedRoute
+  NewsRoute: typeof NewsRoute
   PricingRoute: typeof PricingRoute
   TeachersRoute: typeof TeachersRoute
 }
@@ -217,6 +230,13 @@ declare module '@tanstack/react-router' {
       path: '/blocked'
       fullPath: '/blocked'
       preLoaderRoute: typeof BlockedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/news': {
+      id: '/news'
+      path: '/news'
+      fullPath: '/news'
+      preLoaderRoute: typeof NewsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -313,6 +333,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   BlockedRoute: BlockedRoute,
+  NewsRoute: NewsRoute,
   PricingRoute: PricingRoute,
   TeachersRoute: TeachersRoute,
 }
