@@ -1148,6 +1148,42 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_news: {
+        Row: {
+          body_ar: string
+          body_en: string
+          category: string
+          created_at: string
+          id: string
+          published: boolean
+          title_ar: string
+          title_en: string
+          updated_at: string
+        }
+        Insert: {
+          body_ar: string
+          body_en?: string
+          category?: string
+          created_at?: string
+          id?: string
+          published?: boolean
+          title_ar: string
+          title_en?: string
+          updated_at?: string
+        }
+        Update: {
+          body_ar?: string
+          body_en?: string
+          category?: string
+          created_at?: string
+          id?: string
+          published?: boolean
+          title_ar?: string
+          title_en?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       platform_owners: {
         Row: {
           created_at: string
@@ -1160,6 +1196,63 @@ export type Database = {
         Update: {
           created_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      platform_plan_overrides: {
+        Row: {
+          features_ar: string[]
+          features_en: string[]
+          id: string
+          name_ar: string
+          name_en: string
+          price_egp: number
+          price_sar: number
+          price_usd: number
+          updated_at: string
+        }
+        Insert: {
+          features_ar?: string[]
+          features_en?: string[]
+          id: string
+          name_ar?: string
+          name_en?: string
+          price_egp?: number
+          price_sar?: number
+          price_usd?: number
+          updated_at?: string
+        }
+        Update: {
+          features_ar?: string[]
+          features_en?: string[]
+          id?: string
+          name_ar?: string
+          name_en?: string
+          price_egp?: number
+          price_sar?: number
+          price_usd?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      platform_settings: {
+        Row: {
+          announcement_ar: string
+          announcement_en: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          announcement_ar?: string
+          announcement_en?: string
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          announcement_ar?: string
+          announcement_en?: string
+          id?: string
+          updated_at?: string
         }
         Relationships: []
       }
