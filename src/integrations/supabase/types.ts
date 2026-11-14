@@ -1565,6 +1565,57 @@ export type Database = {
         }
         Relationships: []
       }
+      teacher_access_periods: {
+        Row: {
+          created_at: string
+          ends_at: string
+          granted_by: string
+          id: string
+          kind: string
+          plan_id: string
+          reason: string
+          starts_at: string
+          teacher_id: string
+        }
+        Insert: {
+          created_at?: string
+          ends_at: string
+          granted_by: string
+          id?: string
+          kind: string
+          plan_id: string
+          reason?: string
+          starts_at: string
+          teacher_id: string
+        }
+        Update: {
+          created_at?: string
+          ends_at?: string
+          granted_by?: string
+          id?: string
+          kind?: string
+          plan_id?: string
+          reason?: string
+          starts_at?: string
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_access_periods_granted_by_fkey"
+            columns: ["granted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teacher_access_periods_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       teacher_listings: {
         Row: {
           bio: string | null
@@ -1600,6 +1651,61 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      teacher_renewal_requests: {
+        Row: {
+          access_period_id: string | null
+          created_at: string
+          id: string
+          plan_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          teacher_id: string
+        }
+        Insert: {
+          access_period_id?: string | null
+          created_at?: string
+          id?: string
+          plan_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          teacher_id: string
+        }
+        Update: {
+          access_period_id?: string | null
+          created_at?: string
+          id?: string
+          plan_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_renewal_requests_access_period_id_fkey"
+            columns: ["access_period_id"]
+            isOneToOne: false
+            referencedRelation: "teacher_access_periods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teacher_renewal_requests_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teacher_renewal_requests_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       units: {
         Row: {
@@ -1717,6 +1823,14 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_subscription_teachers: {
+        Args: never
+        Returns: {
+          email: string
+          full_name: string
+          user_id: string
+        }[]
+      }
       can_read_course_content: {
         Args: { _course_id: string }
         Returns: boolean
@@ -1736,6 +1850,16 @@ export type Database = {
         Returns: undefined
       }
       get_my_link_code: { Args: { _regenerate?: boolean }; Returns: string }
+      grant_teacher_access: {
+        Args: {
+          _days: number
+          _kind: string
+          _plan_id: string
+          _reason: string
+          _teacher_id: string
+        }
+        Returns: string
+      }
       has_admin_permission: { Args: { _permission: string }; Returns: boolean }
       has_role: {
         Args: {
@@ -1775,6 +1899,17 @@ export type Database = {
         }[]
       }
       redeem_link_code: { Args: { _code: string }; Returns: string }
+      request_teacher_renewal: { Args: { _plan_id: string }; Returns: string }
+      review_teacher_renewal: {
+        Args: {
+          _approve: boolean
+          _days: number
+          _kind: string
+          _reason: string
+          _request_id: string
+        }
+        Returns: undefined
+      }
       set_admin_permission: {
         Args: { _grant: boolean; _permission: string; _user_id: string }
         Returns: undefined
