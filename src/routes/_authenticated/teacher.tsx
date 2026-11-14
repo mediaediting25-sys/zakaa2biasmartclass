@@ -13,6 +13,8 @@ import { useSession } from "@/hooks/useSession";
 import { createCourse, listMyCourses } from "@/lib/api";
 import { getTeacherDashboard } from "@/lib/teacher-dashboard.functions";
 import { TeacherDirectoryPanel } from "@/components/TeacherDirectoryPanel";
+import { TeacherSubscription } from "@/components/SubscriptionManager";
+import { useRole } from "@/hooks/useSession";
 
 export const Route = createFileRoute("/_authenticated/teacher")({
   head: () => ({
@@ -31,6 +33,7 @@ export const Route = createFileRoute("/_authenticated/teacher")({
 function TeacherHome() {
   const { tr, locale, message } = useI18n();
   const { user } = useSession();
+  const role = useRole(user);
   const qc = useQueryClient();
   const courses = useQuery({ queryKey: ["courses"], queryFn: listMyCourses });
   const dashboard = useQuery({ queryKey: ["teacher-dashboard"], queryFn: () => getTeacherDashboard() });
@@ -61,6 +64,7 @@ function TeacherHome() {
 
   return (
     <AppShell title={tr("لوحة المعلم")} subtitle={tr("مقرراتك ومحتواها المعتمد")} homeTo="/teacher">
+      {user && role.data === "teacher" && <TeacherSubscription userId={user.id} />}
       <form
         className="surface mb-8 grid gap-3 rounded-2xl p-4 sm:grid-cols-[2fr_1fr_1fr_auto]"
         onSubmit={(e) => {

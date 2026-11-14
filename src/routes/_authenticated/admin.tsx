@@ -6,6 +6,7 @@ import { Ban, RotateCcw, ShieldCheck, Users, Search } from "lucide-react";
 import { toast } from "sonner";
 
 import { PlatformEditors } from "@/components/PlatformEditors";
+import { SubscriptionManager } from "@/components/SubscriptionManager";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -143,5 +144,6 @@ function AdminPage() {
       {!rows.length && <p className="py-8 text-muted-foreground">{tr("لا توجد نتائج")}</p>}
     </>}
     {!access.isPending && !access.isError && !permissions.isPending && !permissions.isError && user && visibleSections.some(p => ["pricing", "news", "settings"].includes(p)) && <div className="mt-10 border-t border-border pt-8"><PlatformEditors sections={visibleSections} userId={user.id} /></div>}
+    {!access.isPending && !access.isError && !permissions.isPending && !permissions.isError && user && visibleSections.includes("subscriptions") && <div className="mt-10 border-t border-border pt-8"><SubscriptionManager userId={user.id} /></div>}
   </AppShell>;
 }
