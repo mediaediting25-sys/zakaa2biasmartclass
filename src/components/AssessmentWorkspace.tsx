@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -7,10 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useI18n } from "@/lib/i18n";
-import { generateAssessmentBatch, generateExamStyleQuestions, publishAssessment, deleteRejectedQuestion } from "@/lib/teacher.functions";
-import { Check, SlidersHorizontal, Sparkles, Trash2, X } from "lucide-react";
+import { setQuestionImage, generateAssessmentBatch, generateExamStyleQuestions, publishAssessment, deleteRejectedQuestion } from "@/lib/teacher.functions";
+import { ImagePlus, Check, SlidersHorizontal, Sparkles, Trash2, X } from "lucide-react";
 import { loadCurriculum, setItemStatus } from "@/lib/api";
 import { assessmentSection } from "@/lib/assessment";
+import { supabase } from "@/integrations/supabase/client";
 import { LessonPresentationTools, usePresentations } from "./LessonTools";
 
 type Curriculum = Awaited<ReturnType<typeof loadCurriculum>>;
@@ -31,6 +32,8 @@ export function AssessmentWorkspace({ courseId, curriculum, refresh }: { courseI
   const publish = useServerFn(publishAssessment);
   const deleteQuestion = useServerFn(deleteRejectedQuestion);
   const deletion = useMutation({ mutationFn: (questionId: string) => deleteQuestion({ data: { questionId } }), onSuccess: refresh, onError: (e: Error) => toast.error(message(e.message)) });
+  const imageFn = useServerFn(setQuestionImage);
+  const imaging = useMutation({ mutationFn: (a: { questionId: string; remove?: boolean }) => imageFn({ data: a }), onSuccess: () => { toast.success(tr("تم تحديث صورة السؤال — راجعها ثم اعتمد السؤال")); refresh(); }, onError: (e: Error) => toast.error(message(e.message)) });
   const pres = usePresentations(courseId);
   const generation = useMutation({
     mutationFn: () => tab === "exam" ? exam({ data: { lessonId, topic, count, age, grade, language } }) : generate({ data: { courseId, unitId: unitId || undefined, lessonId: lessonId || undefined, topic, count, age, grade, language, kind: tab === "homework" ? "homework" : "practice" } }),
@@ -49,7 +52,7 @@ export function AssessmentWorkspace({ courseId, curriculum, refresh }: { courseI
     {!batches(section).length && <p className="py-8 text-muted-foreground">{tr("لا توجد دفعات هنا بعد.")}</p>}
     {batches(section).map(a => <article key={a.id} className="surface p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div><h3 className="font-bold">{a.title}</h3><p className="text-sm text-muted-foreground">{new Date(a.created_at).toLocaleString(locale)} · {questionList(a.id).length} {tr("سؤال")} · {a.target_age ? `${tr("سن الطالب")}: ${a.target_age}` : ""}</p>{a.target_topic && <p className="text-sm">{a.target_topic}</p>}</div><Button disabled={publication.isPending} onClick={() => publication.mutate({ activityId: a.id, publish: a.status !== "published" })}>{a.status === "published" ? tr("إلغاء النشر") : section === "history" ? tr("إعادة النشر") : tr("نشر للطلاب")}</Button></div>
-      <details open={section === "review"}><summary className="cursor-pointer py-2 font-medium">{tr("عرض الأسئلة")}</summary><ul className="space-y-3">{questionList(a.id).map(q => <li key={q.id} className="question-review-card surface p-4"><div className="flex flex-wrap justify-between gap-2"><p className="font-medium">{q.stem}</p><Badge variant="secondary">{tr(q.status === "published" ? "منشور" : q.status === "approved" ? "معتمد" : q.status === "rejected" ? "مرفوض" : "يحتاج مراجعة")}</Badge></div><ul className="mt-2 list-inside list-disc text-sm">{(Array.isArray(q.options) ? q.options : []).map((o, i) => <li key={i}>{String(o)}</li>)}</ul><p className="mt-2 text-sm text-primary">{tr("الإجابة الصحيحة")}: {String((q.correct_answer as { value?: unknown } | null)?.value ?? "")}</p><p className="mt-2 text-xs text-muted-foreground">{tr("المصدر ص")} {q.source_page}: {q.source_quote}</p>{q.status === "rejected" && <Button className="mt-3" size="icon" variant="outline" title={tr("حذف السؤال المرفوض")} aria-label={tr("حذف السؤال المرفوض")} disabled={deletion.isPending} onClick={() => { if (window.confirm(tr("هل تريد حذف السؤال المرفوض نهائيًا؟"))) deletion.mutate(q.id); }}><Trash2 className="size-4" /></Button>}{q.status === "draft" && <div className="mt-3 flex gap-2"><Button size="sm" variant="success" disabled={approve.isPending} onClick={() => approve.mutate({ id: q.id, status: "approved" })}><Check className="size-4" />{tr("اعتماد")}</Button><Button size="sm" variant="destructive" disabled={approve.isPending} onClick={() => approve.mutate({ id: q.id, status: "rejected" })}><X className="size-4" />{tr("رفض")}</Button></div>}</li>)}</ul></details>
+      <details open={section === "review"}><summary className="cursor-pointer py-2 font-medium">{tr("عرض الأسئلة")}</summary><ul className="space-y-3">{questionList(a.id).map(q => <li key={q.id} className="question-review-card surface p-4"><div className="flex flex-wrap justify-between gap-2"><p className="font-medium">{q.stem}</p><Badge variant="secondary">{tr(q.status === "published" ? "منشور" : q.status === "approved" ? "معتمد" : q.status === "rejected" ? "مرفوض" : "يحتاج مراجعة")}</Badge></div><ul className="mt-2 list-inside list-disc text-sm">{(Array.isArray(q.options) ? q.options : []).map((o, i) => <li key={i}>{String(o)}</li>)}</ul><p className="mt-2 text-sm text-primary">{tr("الإجابة الصحيحة")}: {String((q.correct_answer as { value?: unknown } | null)?.value ?? "")}</p>{q.image_path && <QuestionImage path={q.image_path} alt={tr("صورة توضيحية للسؤال")} />}{q.status !== "published" && <div className="mt-2 flex flex-wrap gap-2"><Button size="sm" variant="outline" disabled={imaging.isPending} onClick={() => imaging.mutate({ questionId: q.id })}><ImagePlus className="size-4" />{tr(q.image_path ? "توليد صورة أخرى" : "توليد صورة للسؤال")}</Button>{q.image_path && <Button size="sm" variant="ghost" disabled={imaging.isPending} onClick={() => imaging.mutate({ questionId: q.id, remove: true })}>{tr("إزالة الصورة")}</Button>}</div>}<p className="mt-2 text-xs text-muted-foreground">{tr("المصدر ص")} {q.source_page}: {q.source_quote}</p>{q.status === "rejected" && <Button className="mt-3" size="icon" variant="outline" title={tr("حذف السؤال المرفوض")} aria-label={tr("حذف السؤال المرفوض")} disabled={deletion.isPending} onClick={() => { if (window.confirm(tr("هل تريد حذف السؤال المرفوض نهائيًا؟"))) deletion.mutate(q.id); }}><Trash2 className="size-4" /></Button>}{q.status === "draft" && <div className="mt-3 flex gap-2"><Button size="sm" variant="success" disabled={approve.isPending} onClick={() => approve.mutate({ id: q.id, status: "approved" })}><Check className="size-4" />{tr("اعتماد")}</Button><Button size="sm" variant="destructive" disabled={approve.isPending} onClick={() => approve.mutate({ id: q.id, status: "rejected" })}><X className="size-4" />{tr("رفض")}</Button></div>}</li>)}</ul></details>
     </article>)}
     {section === "history" && curriculum.lessons.map(l => <LessonPresentationTools key={l.id} courseId={courseId} lessonId={l.id} presentations={pres.data ?? []} mode="history" />)}
   </div>;
@@ -71,4 +74,9 @@ export function AssessmentWorkspace({ courseId, curriculum, refresh }: { courseI
     <TabsContent value="history" className="py-6">{renderBatches("history")}</TabsContent>
     {warnings.length > 0 && <ul role="status" className="mt-4 list-inside list-disc text-sm text-muted-foreground">{warnings.map((w, i) => <li key={i}>{message(w)}</li>)}</ul>}
   </Tabs>;
+}
+function QuestionImage({ path, alt }: { path: string; alt: string }) {
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => { let live = true; supabase.storage.from("question-images").createSignedUrl(path, 3600).then(({ data }) => { if (live) setUrl(data?.signedUrl ?? null); }); return () => { live = false; }; }, [path]);
+  return url ? <img src={url} alt={alt} loading="lazy" className="mt-3 max-h-60 w-full rounded-lg object-contain" /> : null;
 }

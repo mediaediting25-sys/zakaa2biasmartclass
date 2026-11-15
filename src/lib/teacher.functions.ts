@@ -259,3 +259,46 @@ export const publishAssessment = createServerFn({ method: "POST" })
     if (ce) throw ce;
     return { published: questions.length };
   });
+
+/** Generate an educational illustration for a question; it returns to draft for teacher review. */
+export const setQuestionImage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ questionId: z.string().uuid(), remove: z.boolean().optional() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: q, error } = await context.supabase.from("questions").select("course_id, status, stem, image_path").eq("id", data.questionId).single();
+    if (error || !q) throw new Error("السؤال غير موجود");
+    await assertTeacher(context.supabase, q.course_id);
+    if (q.status === "published") throw new Error("ألغِ نشر النشاط قبل تعديل صورة السؤال");
+    const { data: active } = await context.supabase.rpc("teacher_access_active");
+    if (!active) throw new Error("انتهى اشتراكك — جدّد الباقة لتوليد الصور");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    let path: string | null = null;
+    if (!data.remove) {
+      const key = process.env["LOVABLE_API_KEY"];
+      if (!key) throw new Error("AI is not configured");
+      const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash-image",
+          modalities: ["image", "text"],
+          messages: [{ role: "user", content: `Create a clear, friendly, accurate educational illustration for this school question. Do not write the answer and avoid any text in the image. Question: ${q.stem}` }],
+        }),
+      });
+      if (res.status === 402) throw new Error("رصيد الذكاء الاصطناعي انتهى — AI credits exhausted");
+      if (res.status === 429) throw new Error("ضغط كبير على الخدمة، حاول بعد قليل");
+      if (!res.ok) throw new Error("تعذر توليد الصورة");
+      const body = (await res.json()) as any;
+      const url: string | undefined = body?.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+      const m = url?.match(/^data:(image\/\w+);base64,(.+)$/);
+      if (!m) throw new Error("تعذر توليد الصورة");
+      const bytes = Uint8Array.from(atob(m[2]), (c) => c.charCodeAt(0));
+      path = `${q.course_id}/${data.questionId}-${Date.now()}.${m[1].split("/")[1]}`;
+      const up = await supabaseAdmin.storage.from("question-images").upload(path, bytes, { contentType: m[1] });
+      if (up.error) throw new Error("تعذر حفظ الصورة");
+    }
+    const { error: updateError } = await context.supabase.from("questions").update({ image_path: path, status: "draft" }).eq("id", data.questionId);
+    if (updateError) throw new Error("تعذر حفظ الصورة");
+    if (q.image_path) await supabaseAdmin.storage.from("question-images").remove([q.image_path]);
+    return { imagePath: path };
+  });

@@ -25,7 +25,7 @@ export const getStudentActivity = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: qs, error } = await supabaseAdmin
       .from("questions")
-      .select("id, stem, kind, options, points, position")
+      .select("id, stem, kind, options, points, position, image_path")
       .eq("activity_id", activity.id)
       .eq("status", "published")
       .order("position");
@@ -51,10 +51,16 @@ export const getStudentActivity = createServerFn({ method: "POST" })
       locked = !grant;
     }
 
+    const images = new Map<string, string>();
+    for (const q of qs ?? []) {
+      if (!q.image_path) continue;
+      const { data: signed } = await supabaseAdmin.storage.from("question-images").createSignedUrl(q.image_path, 3600);
+      if (signed?.signedUrl) images.set(q.id, signed.signedUrl);
+    }
     return {
       activity,
       locked,
-      questions: (qs ?? []).map((q) => ({ ...q, options: (q.options as string[] | null) ?? [] })),
+      questions: (qs ?? []).map(({ image_path: _p, ...q }) => ({ ...q, imageUrl: images.get(q.id) ?? null, options: (q.options as string[] | null) ?? [] })),
     };
   });
 
