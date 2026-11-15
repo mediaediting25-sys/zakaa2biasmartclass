@@ -288,7 +288,7 @@ export const setQuestionImage = createServerFn({ method: "POST" })
         if (e instanceof GatewayError && e.httpStatus === 429) throw new Error("ضغط كبير على الخدمة، حاول بعد قليل");
         throw new Error("تعذر توليد الصورة");
       }
-      const m = b64 ? ["", "image/webp", b64] : null;
+      const m = b64 ? (["", "image/webp", b64] as const) : null;
       if (!m) throw new Error("تعذر توليد الصورة");
       const bytes = Uint8Array.from(atob(m[2]), (c) => c.charCodeAt(0));
       path = `${q.course_id}/${data.questionId}-${Date.now()}.${m[1].split("/")[1]}`;
