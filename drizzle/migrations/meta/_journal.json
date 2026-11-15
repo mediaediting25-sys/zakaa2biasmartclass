@@ -99,6 +99,13 @@
       "when": 1794656845710,
       "tag": "0013_teacher_access_periods_and_renewal_requests",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1794730433503,
+      "tag": "0014_tighten_public_reads",
+      "breakpoints": true
     }
   ]
 }
