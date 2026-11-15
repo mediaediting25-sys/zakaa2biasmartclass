@@ -1914,6 +1914,7 @@ export type Database = {
         Args: { _grant: boolean; _permission: string; _user_id: string }
         Returns: undefined
       }
+      teacher_access_active: { Args: never; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "teacher" | "student" | "parent"
