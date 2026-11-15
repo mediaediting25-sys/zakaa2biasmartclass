@@ -1,0 +1,3 @@
+ALTER TABLE public.questions ADD COLUMN image_path text;
+CREATE POLICY "question images teacher read" ON storage.objects FOR SELECT TO authenticated USING (bucket_id='question-images' AND public.is_course_teacher(((storage.foldername(name))[1])::uuid));
+CREATE POLICY "question images teacher delete" ON storage.objects FOR DELETE TO authenticated USING (bucket_id='question-images' AND public.is_course_teacher(((storage.foldername(name))[1])::uuid));
