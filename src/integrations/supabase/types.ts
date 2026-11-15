@@ -1296,6 +1296,7 @@ export type Database = {
           difficulty: string
           explanation: string | null
           id: string
+          image_path: string | null
           kind: string
           objective_id: string | null
           options: Json | null
@@ -1318,6 +1319,7 @@ export type Database = {
           difficulty?: string
           explanation?: string | null
           id?: string
+          image_path?: string | null
           kind?: string
           objective_id?: string | null
           options?: Json | null
@@ -1340,6 +1342,7 @@ export type Database = {
           difficulty?: string
           explanation?: string | null
           id?: string
+          image_path?: string | null
           kind?: string
           objective_id?: string | null
           options?: Json | null
