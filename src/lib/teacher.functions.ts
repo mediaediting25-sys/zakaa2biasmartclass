@@ -4,10 +4,12 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { questionIssues } from "./lesson-tools";
 import { assessmentOptions, batchReadyForPublication, distributeQuestionCount, canDeleteQuestion } from "./assessment";
+import { requireTeacherAccess } from "./teacher-access";
 
 async function assertTeacher(supabase: any, courseId: string) {
   const { data, error } = await supabase.rpc("is_course_teacher", { _course_id: courseId });
   if (error || !data) throw new Error("غير مصرح — not the course teacher");
+  await requireTeacherAccess(supabase);
 }
 
 /** Index a PDF and extract a grounded curriculum draft (never auto-published). */
@@ -269,8 +271,6 @@ export const setQuestionImage = createServerFn({ method: "POST" })
     if (error || !q) throw new Error("السؤال غير موجود");
     await assertTeacher(context.supabase, q.course_id);
     if (q.status === "published") throw new Error("ألغِ نشر النشاط قبل تعديل صورة السؤال");
-    const { data: active } = await context.supabase.rpc("teacher_access_active");
-    if (!active) throw new Error("انتهى اشتراكك — جدّد الباقة لتوليد الصور");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let path: string | null = null;
     if (!data.remove) {

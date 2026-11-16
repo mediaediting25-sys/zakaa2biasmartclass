@@ -5,7 +5,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { PLANS } from "@/lib/plans";
-import { accessStatus } from "@/lib/subscriptions";
+import { accessStatus, teacherAccessStatus } from "@/lib/subscriptions";
+import { TEACHER_ACCESS_EXPIRED } from "@/lib/teacher-access";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
@@ -84,25 +85,28 @@ export function TeacherSubscription({ userId }: { userId: string }) {
   const qc = useQueryClient();
   const [plan, setPlan] = useState("pro");
   const data = useQuery({ queryKey: ["teacher-subscription", userId], queryFn: async () => {
-    const [periods, requests] = await Promise.all([
+    const [periods, requests, profile, access] = await Promise.all([
       supabase.from("teacher_access_periods").select("*").eq("teacher_id", userId).order("ends_at", { ascending: false }),
       supabase.from("teacher_renewal_requests").select("*").eq("teacher_id", userId).order("created_at", { ascending: false }),
+      supabase.from("profiles").select("created_at").eq("id", userId).single(),
+      supabase.rpc("teacher_access_active"),
     ]);
-    if (periods.error || requests.error) throw new Error("Unable to load subscriptions");
-    return { periods: periods.data ?? [], requests: requests.data ?? [] };
-  } });
+    if (periods.error || requests.error || profile.error || access.error) throw new Error("Unable to load subscriptions");
+    return { periods: periods.data ?? [], requests: requests.data ?? [], createdAt: profile.data.created_at, active: access.data === true };
+  }, refetchInterval: 60_000 });
   const request = useMutation({ mutationFn: async () => {
     const { error } = await supabase.rpc("request_teacher_renewal", { _plan_id: plan });
     if (error) throw error;
   }, onSuccess: async () => { await qc.invalidateQueries({ queryKey: ["teacher-subscription", userId] }); toast.success(tr("تم إرسال طلب التجديد")); }, onError: () => toast.error(tr("تعذر إرسال طلب التجديد")) });
   if (data.isPending) return <p role="status">{tr("جارٍ التحميل…")}</p>;
   if (data.isError) return <p role="alert" className="text-destructive">{tr("تعذر تحميل الاشتراكات")}</p>;
-  const status = accessStatus(data.data.periods);
+  const status = teacherAccessStatus(data.data.periods, data.data.createdAt);
   const pending = data.data.requests.some(r => r.status === "pending");
   const labels = { active: tr("مدة سارية"), expired: tr("انتهت المدة"), upcoming: tr("مدة قادمة"), unset: tr("لم تُحدد مدة بعد") };
   return <section aria-label={tr("اشتراكي")} className="mb-8 border-b border-border pb-6">
     <h2 className="mb-3 flex items-center gap-2 text-lg font-bold"><CalendarClock className="size-5 text-primary" />{tr("اشتراكي")}</h2>
-    <p className={status.status === "expired" ? "text-destructive" : "text-primary"}>{labels[status.status]}</p>
+    <p className={!data.data.active ? "text-destructive" : "text-primary"}>{data.data.active ? status.period?.plan_id === "starter" ? tr("تجربة مجانية — 30 يومًا") : tr("مدة سارية") : labels[status.status]}</p>
+    {!data.data.active && <p role="alert" className="mt-3 text-destructive">{tr(TEACHER_ACCESS_EXPIRED)}</p>}
     {status.period && <p className="mt-2 text-sm">{PLANS.find(p => p.id === status.period?.plan_id)?.[locale].name} · {tr("نهاية المدة")}: {new Date(status.period.ends_at).toLocaleString(locale === "ar" ? "ar-EG" : "en-GB")}</p>}
     {pending ? <p className="mt-3 text-muted-foreground">{tr("طلب التجديد قيد المراجعة")}</p> : <form className="mt-4 flex flex-wrap gap-3" onSubmit={e => { e.preventDefault(); request.mutate(); }}><select aria-label={tr("الباقة")} value={plan} onChange={e => setPlan(e.target.value)} className="min-w-0 max-w-full rounded-md border border-input bg-background p-2">{PLANS.map(p => <option key={p.id} value={p.id}>{p[locale].name}</option>)}</select><Button type="submit" disabled={request.isPending}><CalendarClock className="size-4" />{tr("طلب تجديد الاشتراك")}</Button></form>}
     {data.data.requests[0]?.status === "rejected" && !pending && <p className="mt-2 text-destructive">{tr("لم يُقبل طلب التجديد السابق")}</p>}
