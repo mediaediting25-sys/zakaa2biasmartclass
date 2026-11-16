@@ -27,6 +27,12 @@ describe("teacher access periods", () => {
   it("shows the latest active end when a trial overlaps a grant", () => {
     expect(teacherAccessStatus([period], "2026-11-01T00:00:00Z", Date.parse("2026-11-15T00:00:00Z")).period?.ends_at).toBe("2026-12-01T00:00:00.000Z");
   });
+  it("does not label an explicitly granted starter period as the automatic 30-day trial", () => {
+    const grant = { starts_at: "2026-11-14T12:06:46Z", ends_at: "2027-11-14T12:06:46Z", plan_id: "starter" };
+    const status = teacherAccessStatus([grant], "2026-10-29T14:04:38Z", Date.parse("2026-11-16T00:00:00Z"));
+    expect(status.period?.ends_at).toBe("2027-11-14T12:06:46Z");
+    expect(status.period?.isTrial).not.toBe(true);
+  });
   const sql = readFileSync("drizzle/migrations/0013_teacher_access_periods_and_renewal_requests.sql", "utf8");
   it("requires subscriptions permission to grant access", () => {
     const grant = sql.split("CREATE FUNCTION public.grant_teacher_access")[1]?.split("CREATE FUNCTION public.request_teacher_renewal")[0];

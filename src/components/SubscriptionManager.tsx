@@ -105,7 +105,7 @@ export function TeacherSubscription({ userId }: { userId: string }) {
   const labels = { active: tr("مدة سارية"), expired: tr("انتهت المدة"), upcoming: tr("مدة قادمة"), unset: tr("لم تُحدد مدة بعد") };
   return <section aria-label={tr("اشتراكي")} className="mb-8 border-b border-border pb-6">
     <h2 className="mb-3 flex items-center gap-2 text-lg font-bold"><CalendarClock className="size-5 text-primary" />{tr("اشتراكي")}</h2>
-    <p className={!data.data.active ? "text-destructive" : "text-primary"}>{data.data.active ? status.period?.plan_id === "starter" ? tr("تجربة مجانية — 30 يومًا") : tr("مدة سارية") : labels[status.status]}</p>
+    <p className={!data.data.active ? "text-destructive" : "text-primary"}>{data.data.active ? status.period?.isTrial ? tr("تجربة مجانية — 30 يومًا") : tr("مدة سارية") : labels[status.status]}</p>
     {!data.data.active && <p role="alert" className="mt-3 text-destructive">{tr(TEACHER_ACCESS_EXPIRED)}</p>}
     {status.period && <p className="mt-2 text-sm">{PLANS.find(p => p.id === status.period?.plan_id)?.[locale].name} · {tr("نهاية المدة")}: {new Date(status.period.ends_at).toLocaleString(locale === "ar" ? "ar-EG" : "en-GB")}</p>}
     {pending ? <p className="mt-3 text-muted-foreground">{tr("طلب التجديد قيد المراجعة")}</p> : <form className="mt-4 flex flex-wrap gap-3" onSubmit={e => { e.preventDefault(); request.mutate(); }}><select aria-label={tr("الباقة")} value={plan} onChange={e => setPlan(e.target.value)} className="min-w-0 max-w-full rounded-md border border-input bg-background p-2">{PLANS.map(p => <option key={p.id} value={p.id}>{p[locale].name}</option>)}</select><Button type="submit" disabled={request.isPending}><CalendarClock className="size-4" />{tr("طلب تجديد الاشتراك")}</Button></form>}
