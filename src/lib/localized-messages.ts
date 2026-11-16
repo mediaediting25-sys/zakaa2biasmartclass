@@ -2,6 +2,8 @@ import type { Locale } from "./i18n";
 
 // Fixed system wording only; names, answers, source quotes and teacher comments stay unchanged.
 const phrases: Record<string, string> = {
+  "انتهت مدة التجربة أو الاشتراك. يمكنك قراءة مقرراتك وتقاريرك، وطلب التجديد لاستئناف الإنشاء والتوليد والنشر.": "Your trial or subscription has ended. You can read your courses and reports, and request renewal to resume creating, generating and publishing.",
+  "تعذر التحقق من الاشتراك؛ حاول مرة أخرى.": "Unable to verify your subscription. Please try again.",
   "النشاط غير متاح — activity not available": "Activity not available",
   "لا يمكنك إعادة حل هذا النشاط إلا بإذن المعلم": "You can only retake this activity with your teacher's permission",
   "غير مصرح — not the course teacher": "Only the course teacher can perform this action",

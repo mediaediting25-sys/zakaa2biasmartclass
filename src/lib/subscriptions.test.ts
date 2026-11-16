@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
-import { accessStatus } from "./subscriptions";
+import { accessStatus, teacherAccessStatus } from "./subscriptions";
 
 describe("teacher access periods", () => {
   const period = { starts_at: "2026-11-14T00:00:00Z", ends_at: "2026-11-21T00:00:00Z", plan_id: "pro" };
@@ -13,6 +13,19 @@ describe("teacher access periods", () => {
   });
   it("does not activate a future grant early", () => {
     expect(accessStatus([period], Date.parse("2026-11-13T00:00:00Z")).status).toBe("upcoming");
+  });
+  it("shows the teacher's trial for exactly 30 days from profile creation", () => {
+    const created = "2026-11-01T09:30:00Z";
+    const end = Date.parse("2026-12-01T09:30:00Z");
+    expect(teacherAccessStatus([], created, end - 1).status).toBe("active");
+    expect(teacherAccessStatus([], created, end).status).toBe("expired");
+    expect(teacherAccessStatus([], created, end).period?.ends_at).toBe("2026-12-01T09:30:00.000Z");
+  });
+  it("keeps a granted period active after the trial expires", () => {
+    expect(teacherAccessStatus([period], "2026-09-01T00:00:00Z", Date.parse("2026-11-15T00:00:00Z")).status).toBe("active");
+  });
+  it("shows the latest active end when a trial overlaps a grant", () => {
+    expect(teacherAccessStatus([period], "2026-11-01T00:00:00Z", Date.parse("2026-11-15T00:00:00Z")).period?.ends_at).toBe("2026-12-01T00:00:00.000Z");
   });
   const sql = readFileSync("drizzle/migrations/0013_teacher_access_periods_and_renewal_requests.sql", "utf8");
   it("requires subscriptions permission to grant access", () => {

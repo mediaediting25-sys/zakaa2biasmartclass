@@ -2,12 +2,14 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { buildPlan } from "./pacing";
+import { requireTeacherAccess } from "./teacher-access";
 
 export const saveCoursePlan = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ courseId: z.string().uuid(), start: z.string().date(), end: z.string().date(), perPeriod: z.number().int().min(1).max(30), period: z.enum(["week", "month"]), reviewPerUnit: z.boolean() }).refine(d => d.end >= d.start && d.perPeriod <= (d.period === "week" ? 7 : 30), "Invalid plan dates or frequency").parse(d))
   .handler(async ({ data, context }) => {
     const { data: allowed, error } = await context.supabase.rpc("is_course_teacher", { _course_id: data.courseId });
     if (error || !allowed) throw new Error("غير مصرح");
+    await requireTeacherAccess(context.supabase);
     const [units, lessons] = await Promise.all([
       context.supabase.from("units").select("id, title").eq("course_id", data.courseId).neq("status", "rejected").order("position"),
       context.supabase.from("lessons").select("id, unit_id, title").eq("course_id", data.courseId).neq("status", "rejected").order("position"),
@@ -27,6 +29,7 @@ export const generatePresentation = createServerFn({ method: "POST" }).middlewar
     if (!lesson) throw new Error("الدرس غير موجود");
     const { data: allowed } = await context.supabase.rpc("is_course_teacher", { _course_id: lesson.course_id });
     if (!allowed) throw new Error("غير مصرح");
+    await requireTeacherAccess(context.supabase);
     const { buildPresentation } = await import("@/server/ai/presentations.server");
     const languages: ("ar" | "en")[] = data.language === "both" ? ["ar", "en"] : [data.language];
     const rows = [];
