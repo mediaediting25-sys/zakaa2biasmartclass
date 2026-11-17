@@ -17,7 +17,7 @@ export const getPublicPlatform = createServerFn({ method: "GET" }).handler(async
   });
   const [plans, settings, news] = await Promise.all([
     client.from("platform_plan_overrides").select("id,price_egp,price_sar,price_usd,name_ar,name_en,features_ar,features_en"),
-    client.from("platform_settings").select("announcement_ar,announcement_en").eq("id", "public").maybeSingle(),
+    client.from("platform_settings").select("announcement_ar,announcement_en,hero_tagline_ar,hero_tagline_en,hero_body_ar,hero_body_en").eq("id", "public").maybeSingle(),
     client.from("platform_news").select("id,title_ar,title_en,body_ar,body_en,category,created_at").eq("published", true).order("created_at", { ascending: false }).limit(50),
   ]);
   if (plans.error || settings.error || news.error) throw new Error("Unable to load platform content");
