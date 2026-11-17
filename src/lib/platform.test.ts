@@ -2,8 +2,8 @@ import { expect, it } from "vitest";
 import { annualPrice } from "./platform";
 import { PLANS } from "./plans";
 
-it("keeps the current individual teacher prices until the owner changes them", () => {
-  expect(PLANS.find(p => p.id === "pro")?.price).toEqual({ egp: 290, sar: 79, usd: 21 });
+it("uses the approved individual teacher prices", () => {
+  expect(PLANS.find(p => p.id === "pro")?.price).toEqual({ egp: 349, sar: 99, usd: 25 });
 });
 it("charges ten monthly payments for a year with two months free", () => {
   expect(annualPrice(290)).toBe(2900);
