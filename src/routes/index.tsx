@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { TeacherPhoto } from "@/components/TeacherPhoto";
 import { SUBJECTS, subjectLabel } from "@/lib/subjects";
+import { getPublicPlatform } from "@/lib/platform.functions";
 import learningCompanions from "@/assets/learning-companions.webp";
 
 function FeaturedTeachers({ ar }: { ar: boolean }) {
@@ -161,6 +162,10 @@ function Landing() {
     },
   ];
 
+  const platform = useQuery({ queryKey: ["public-platform"], queryFn: () => getPublicPlatform(), staleTime: 300_000 });
+  const st = platform.data?.settings;
+  const tagline = (ar ? st?.hero_tagline_ar : st?.hero_tagline_en)?.trim();
+  const body = (ar ? st?.hero_body_ar : st?.hero_body_en)?.trim();
   return (
     <div className="min-h-screen">
       <SiteHeader />
@@ -176,12 +181,12 @@ function Landing() {
               {ar ? "ذكاؤبيا سمارت كلاس" : "Zakaa2obia Smart class"}
             </h1>
             <p className="mt-3 font-display text-xl font-bold text-primary sm:text-2xl">
-              {ar ? "منصة للمعلم تحوّل ملفات المنهج إلى دروس وأسئلة تفاعلية" : "A teacher platform that turns syllabus files into interactive lessons and questions"}
+              {tagline || (ar ? "منصة للمعلم تحوّل ملفات المنهج إلى دروس وأسئلة تفاعلية" : "A teacher platform that turns syllabus files into interactive lessons and questions")}
             </p>
             <p className="mt-5 max-w-xl text-base text-muted-foreground sm:text-lg">
-              {ar
+              {body || (ar
                 ? "ارفع ملف المنهج والامتحانات السابقة، واحصل على وحدات ودروس وأهداف وأسئلة مقترحة تعتمدها بنفسك قبل أن يراها أي طالب."
-                : "Upload your syllabus and past exams, then review and approve every generated unit, lesson and question before students see it."}
+                : "Upload your syllabus and past exams, then review and approve every generated unit, lesson and question before students see it.")}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild size="lg">

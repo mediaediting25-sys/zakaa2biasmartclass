@@ -40,7 +40,7 @@ export function PlatformEditors({ sections, userId }: { sections: Administrative
   }, onSuccess: refresh, onError: fail });
   const saveSettings = useMutation({ mutationFn: async (form: HTMLFormElement) => {
     const f = new FormData(form);
-    const { error } = await supabase.from("platform_settings").upsert({ id: "public", announcement_ar: String(f.get("ar")), announcement_en: String(f.get("en")) });
+    const { error } = await supabase.from("platform_settings").upsert({ id: "public", announcement_ar: String(f.get("ar")), announcement_en: String(f.get("en")), hero_tagline_ar: String(f.get("hta")), hero_tagline_en: String(f.get("hte")), hero_body_ar: String(f.get("hba")), hero_body_en: String(f.get("hbe")) });
     if (error) throw error;
   }, onSuccess: refresh, onError: fail });
   const saveNews = useMutation({ mutationFn: async (form: HTMLFormElement) => {
@@ -76,7 +76,12 @@ export function PlatformEditors({ sections, userId }: { sections: Administrative
       <form key={data.data.settings?.updated_at ?? "settings"} className="max-w-3xl space-y-3" onSubmit={e => { e.preventDefault(); saveSettings.mutate(e.currentTarget); }}>
         <label className="block">{tr("إعلان المنصة بالعربية")}<Textarea name="ar" maxLength={1000} defaultValue={data.data.settings?.announcement_ar} /></label>
         <label className="block">{tr("إعلان المنصة بالإنجليزية")}<Textarea name="en" maxLength={1000} defaultValue={data.data.settings?.announcement_en} /></label>
-        <Button disabled={saveSettings.isPending} type="submit"><Save className="size-4" />{tr("حفظ الإعلان")}</Button>
+        <label className="block">{tr("شعار الصفحة الرئيسية بالعربية")}<Input name="hta" maxLength={200} defaultValue={data.data.settings?.hero_tagline_ar} /></label>
+        <label className="block">{tr("شعار الصفحة الرئيسية بالإنجليزية")}<Input name="hte" maxLength={200} defaultValue={data.data.settings?.hero_tagline_en} /></label>
+        <label className="block">{tr("وصف الصفحة الرئيسية بالعربية")}<Textarea name="hba" maxLength={600} defaultValue={data.data.settings?.hero_body_ar} /></label>
+        <label className="block">{tr("وصف الصفحة الرئيسية بالإنجليزية")}<Textarea name="hbe" maxLength={600} defaultValue={data.data.settings?.hero_body_en} /></label>
+        <p className="text-sm text-muted-foreground">{tr("اترك الحقل فارغًا لعرض النص الافتراضي")}</p>
+        <Button disabled={saveSettings.isPending} type="submit"><Save className="size-4" />{tr("حفظ النصوص")}</Button>
       </form>
     </section>}
     {sections.includes("news") && <section aria-label={tr("إدارة الأخبار والتحديثات")}>

@@ -1239,18 +1239,30 @@ export type Database = {
         Row: {
           announcement_ar: string
           announcement_en: string
+          hero_body_ar: string
+          hero_body_en: string
+          hero_tagline_ar: string
+          hero_tagline_en: string
           id: string
           updated_at: string
         }
         Insert: {
           announcement_ar?: string
           announcement_en?: string
+          hero_body_ar?: string
+          hero_body_en?: string
+          hero_tagline_ar?: string
+          hero_tagline_en?: string
           id: string
           updated_at?: string
         }
         Update: {
           announcement_ar?: string
           announcement_en?: string
+          hero_body_ar?: string
+          hero_body_en?: string
+          hero_tagline_ar?: string
+          hero_tagline_en?: string
           id?: string
           updated_at?: string
         }
