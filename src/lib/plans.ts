@@ -27,7 +27,7 @@ export const PLANS = [
   {
     id: "pro",
     icon: Sparkles,
-    price: { egp: 290, sar: 79, usd: 21 },
+    price: { egp: 349, sar: 99, usd: 25 },
     popular: true,
     ar: {
       name: "المعلم الفردي",
@@ -57,7 +57,7 @@ export const PLANS = [
   {
     id: "elite",
     icon: Crown,
-    price: { egp: 590, sar: 169, usd: 45 },
+    price: { egp: 699, sar: 199, usd: 49 },
     popular: false,
     ar: {
       name: "المعلم المتميز",
@@ -87,7 +87,7 @@ export const PLANS = [
   {
     id: "center",
     icon: Users,
-    price: { egp: 1490, sar: 449, usd: 120 },
+    price: { egp: 1999, sar: 599, usd: 149 },
     popular: false,
     ar: {
       name: "السناتر والمدارس",
