@@ -127,6 +127,13 @@
       "when": 1794905556470,
       "tag": "0017_owner_bound_teacher_photo_read",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1794905835579,
+      "tag": "0018_editable_home_text",
+      "breakpoints": true
     }
   ]
 }

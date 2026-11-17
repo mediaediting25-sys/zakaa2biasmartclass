@@ -1,0 +1,1 @@
+ALTER TABLE public.platform_settings ADD COLUMN IF NOT EXISTS hero_tagline_ar text NOT NULL DEFAULT '', ADD COLUMN IF NOT EXISTS hero_tagline_en text NOT NULL DEFAULT '', ADD COLUMN IF NOT EXISTS hero_body_ar text NOT NULL DEFAULT '', ADD COLUMN IF NOT EXISTS hero_body_en text NOT NULL DEFAULT '';
