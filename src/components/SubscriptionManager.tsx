@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { PLANS } from "@/lib/plans";
-import { accessStatus, teacherAccessStatus } from "@/lib/subscriptions";
+import { accessStatus, teacherAccessStatus, subscriptionEnd } from "@/lib/subscriptions";
 import { TEACHER_ACCESS_EXPIRED } from "@/lib/teacher-access";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -16,7 +16,9 @@ export function SubscriptionManager({ userId }: { userId: string }) {
   const { tr, locale } = useI18n();
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
-  const [editing, setEditing] = useState<{ teacherId: string; name: string; requestId?: string; planId?: string } | null>(null);
+  const [editing, setEditing] = useState<{ teacherId: string; name: string; requestId?: string; planId?: string; cycle?: string } | null>(null);
+  const [kind, setKind] = useState("complimentary");
+  const [grantCycle, setGrantCycle] = useState<"monthly" | "yearly">("monthly");
   const data = useQuery({ queryKey: ["subscription-admin", userId], queryFn: async () => {
     const [teachers, periods, requests] = await Promise.all([
       supabase.rpc("admin_subscription_teachers"),
@@ -35,10 +37,13 @@ export function SubscriptionManager({ userId }: { userId: string }) {
     const f = new FormData(form);
     const days = Number(f.get("days"));
     const kind = String(f.get("kind"));
+    const cycle = editing.cycle ?? String(f.get("cycle"));
     const reason = String(f.get("reason"));
     const result = editing.requestId
-      ? await supabase.rpc("review_teacher_renewal", { _request_id: editing.requestId, _approve: true, _days: days, _kind: kind, _reason: reason })
-      : await supabase.rpc("grant_teacher_access", { _teacher_id: editing.teacherId, _plan_id: String(f.get("plan")), _days: days, _kind: kind, _reason: reason });
+      ? await supabase.rpc("review_teacher_subscription", { _request_id: editing.requestId, _approve: true, _days: days, _kind: kind, _reason: reason })
+      : kind === "manual_subscription"
+        ? await supabase.rpc("grant_teacher_subscription", { _teacher_id: editing.teacherId, _plan_id: String(f.get("plan")), _billing_cycle: cycle, _reason: reason })
+        : await supabase.rpc("grant_teacher_access", { _teacher_id: editing.teacherId, _plan_id: String(f.get("plan")), _days: days, _kind: kind, _reason: reason });
     if (result.error) throw result.error;
   }, onSuccess: async () => { setEditing(null); await refresh(); }, onError: () => toast.error(tr("تعذر حفظ المدة")) });
   const reject = useMutation({ mutationFn: async (id: string) => {
@@ -68,12 +73,13 @@ export function SubscriptionManager({ userId }: { userId: string }) {
     {!pending.length && <p className="text-muted-foreground">{tr("لا توجد طلبات تجديد معلقة")}</p>}
     {pending.map(r => {
       const teacher = data.data.teachers.find(t => t.user_id === r.teacher_id);
-      return <article key={r.id} className="surface flex flex-wrap items-center justify-between gap-3 p-4"><div><h4 className="font-bold">{teacher?.full_name || tr("معلم")}</h4><p className="text-sm">{PLANS.find(p => p.id === r.plan_id)?.[locale].name} · {date(r.created_at)}</p></div><div className="flex gap-2"><Button onClick={() => setEditing({ teacherId: r.teacher_id, name: teacher?.full_name || tr("معلم"), requestId: r.id, planId: r.plan_id })}><Check className="size-4" />{tr("اعتماد")}</Button><Button variant="destructive" disabled={reject.isPending} onClick={() => { if (window.confirm(tr("رفض طلب التجديد؟"))) reject.mutate(r.id); }}><X className="size-4" />{tr("رفض")}</Button></div></article>;
+      return <article key={r.id} className="surface flex flex-wrap items-center justify-between gap-3 p-4"><div><h4 className="font-bold">{teacher?.full_name || tr("معلم")}</h4><p className="text-sm">{PLANS.find(p => p.id === r.plan_id)?.[locale].name} · {date(r.created_at)} · {tr(r.billing_cycle === "yearly" ? "سنة كاملة — بسعر عشرة أشهر" : "شهر كامل")}</p></div><div className="flex gap-2"><Button onClick={() => setEditing({ teacherId: r.teacher_id, name: teacher?.full_name || tr("معلم"), requestId: r.id, planId: r.plan_id, cycle: r.billing_cycle })}><Check className="size-4" />{tr("اعتماد")}</Button><Button variant="destructive" disabled={reject.isPending} onClick={() => { if (window.confirm(tr("رفض طلب التجديد؟"))) reject.mutate(r.id); }}><X className="size-4" />{tr("رفض")}</Button></div></article>;
     })}
     <Dialog open={!!editing} onOpenChange={open => { if (!open && !save.isPending) setEditing(null); }}><DialogContent className="max-h-[85dvh] overflow-y-auto"><DialogHeader><DialogTitle>{tr("إضافة مدة")} — {editing?.name}</DialogTitle></DialogHeader>{editing && <form className="space-y-4" onSubmit={e => { e.preventDefault(); save.mutate(e.currentTarget); }}>
       <label className="block">{tr("الباقة")}<select name="plan" defaultValue={editing.planId ?? "pro"} disabled={!!editing.requestId} className="mt-1 w-full rounded-md border border-input bg-background p-2">{PLANS.map(p => <option key={p.id} value={p.id}>{p[locale].name}</option>)}</select></label>
-      <label className="block">{tr("نوع المدة")}<select name="kind" className="mt-1 w-full rounded-md border border-input bg-background p-2"><option value="complimentary">{tr("مدة مجانية")}</option><option value="manual_subscription">{tr("اشتراك يدوي")}</option></select></label>
-      <label className="block">{tr("عدد الأيام")}<Input name="days" type="number" min={1} max={3650} step={1} required /></label>
+      <label className="block">{tr("نوع المدة")}<select name="kind" value={kind} onChange={e => setKind(e.target.value)} className="mt-1 w-full rounded-md border border-input bg-background p-2"><option value="complimentary">{tr("مدة مجانية")}</option><option value="manual_subscription">{tr("اشتراك يدوي")}</option></select></label>
+      {kind === "complimentary" ? <label className="block">{tr("عدد الأيام")}<Input name="days" type="number" min={1} max={3650} step={1} required /></label> : <label className="block">{tr("دورة الاشتراك")}<select name="cycle" defaultValue={editing.cycle ?? "monthly"} disabled={!!editing.requestId} className="mt-1 w-full rounded-md border border-input bg-background p-2"><option value="monthly">{tr("شهر كامل")}</option><option value="yearly">{tr("سنة كاملة — بسعر عشرة أشهر")}</option></select></label>}
+      {kind === "manual_subscription" && <p className="text-sm text-muted-foreground">{tr("نهاية المدة المتوقعة")}: {date(subscriptionEnd(data.data.periods.find(p => p.teacher_id === editing.teacherId && Date.parse(p.ends_at) > Date.now())?.ends_at ?? new Date().toISOString(), editing.cycle === "yearly" || (!editing.requestId && grantCycle === "yearly") ? "yearly" : "monthly"))}</p>}
       <label className="block">{tr("سبب الإضافة")}<Textarea name="reason" maxLength={1000} /></label>
       <Button disabled={save.isPending} type="submit"><Save className="size-4" />{tr("حفظ المدة")}</Button>
     </form>}</DialogContent></Dialog>
@@ -84,6 +90,7 @@ export function TeacherSubscription({ userId }: { userId: string }) {
   const { tr, locale } = useI18n();
   const qc = useQueryClient();
   const [plan, setPlan] = useState("pro");
+  const [cycle, setCycle] = useState("monthly");
   const data = useQuery({ queryKey: ["teacher-subscription", userId], queryFn: async () => {
     const [periods, requests, profile, access] = await Promise.all([
       supabase.from("teacher_access_periods").select("*").eq("teacher_id", userId).order("ends_at", { ascending: false }),
@@ -95,7 +102,7 @@ export function TeacherSubscription({ userId }: { userId: string }) {
     return { periods: periods.data ?? [], requests: requests.data ?? [], createdAt: profile.data.created_at, active: access.data === true };
   }, refetchInterval: 60_000 });
   const request = useMutation({ mutationFn: async () => {
-    const { error } = await supabase.rpc("request_teacher_renewal", { _plan_id: plan });
+    const { error } = await supabase.rpc("request_teacher_subscription", { _plan_id: plan, _billing_cycle: cycle });
     if (error) throw error;
   }, onSuccess: async () => { await qc.invalidateQueries({ queryKey: ["teacher-subscription", userId] }); toast.success(tr("تم إرسال طلب التجديد")); }, onError: () => toast.error(tr("تعذر إرسال طلب التجديد")) });
   if (data.isPending) return <p role="status">{tr("جارٍ التحميل…")}</p>;
@@ -108,7 +115,7 @@ export function TeacherSubscription({ userId }: { userId: string }) {
     <p className={!data.data.active ? "text-destructive" : "text-primary"}>{data.data.active ? status.period?.isTrial ? tr("تجربة مجانية — 30 يومًا") : tr("مدة سارية") : labels[status.status]}</p>
     {!data.data.active && <p role="alert" className="mt-3 text-destructive">{tr(TEACHER_ACCESS_EXPIRED)}</p>}
     {status.period && <p className="mt-2 text-sm">{PLANS.find(p => p.id === status.period?.plan_id)?.[locale].name} · {tr("نهاية المدة")}: {new Date(status.period.ends_at).toLocaleString(locale === "ar" ? "ar-EG" : "en-GB")}</p>}
-    {pending ? <p className="mt-3 text-muted-foreground">{tr("طلب التجديد قيد المراجعة")}</p> : <form className="mt-4 flex flex-wrap gap-3" onSubmit={e => { e.preventDefault(); request.mutate(); }}><select aria-label={tr("الباقة")} value={plan} onChange={e => setPlan(e.target.value)} className="min-w-0 max-w-full rounded-md border border-input bg-background p-2">{PLANS.map(p => <option key={p.id} value={p.id}>{p[locale].name}</option>)}</select><Button type="submit" disabled={request.isPending}><CalendarClock className="size-4" />{tr("طلب تجديد الاشتراك")}</Button></form>}
+    {pending ? <p className="mt-3 text-muted-foreground">{tr("طلب التجديد قيد المراجعة")} · {tr(data.data.requests.find(r => r.status === "pending")?.billing_cycle === "yearly" ? "سنة كاملة — بسعر عشرة أشهر" : "شهر كامل")}</p> : <form className="mt-4 flex flex-wrap gap-3" onSubmit={e => { e.preventDefault(); request.mutate(); }}><select aria-label={tr("الباقة")} value={plan} onChange={e => setPlan(e.target.value)} className="min-w-0 max-w-full rounded-md border border-input bg-background p-2">{PLANS.filter(p => p.id !== "starter").map(p => <option key={p.id} value={p.id}>{p[locale].name}</option>)}</select><select aria-label={tr("دورة الاشتراك")} value={cycle} onChange={e => setCycle(e.target.value)} className="min-w-0 max-w-full rounded-md border border-input bg-background p-2"><option value="monthly">{tr("شهر كامل")}</option><option value="yearly">{tr("سنة كاملة — بسعر عشرة أشهر")}</option></select><Button type="submit" disabled={request.isPending}><CalendarClock className="size-4" />{tr("طلب تجديد الاشتراك")}</Button></form>}
     {data.data.requests[0]?.status === "rejected" && !pending && <p className="mt-2 text-destructive">{tr("لم يُقبل طلب التجديد السابق")}</p>}
   </section>;
 }

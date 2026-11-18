@@ -15,6 +15,7 @@
 - Store public plan overrides, announcements, and published news separately with section-scoped RLS; public loaders read only public fields while administrator editors retain draft reads.
 - Load homepage platform content through the shared public query options in its route loader so saved wording is ready at first render and shares cache freshness with the header.
 - Record teacher access as immutable dated periods and approve renewal requests atomically in subscription-scoped RPCs; explicit grants extend existing periods without inventing automatic trials or payment verification.
+- Paid subscription RPCs calculate calendar-month/year expiry in PostgreSQL; day-based grants are complimentary only, keeping paid duration enforcement independent of browser inputs.
 - Check teacher_access_active before all teacher generation and publishing server actions; display trial dates separately without treating browser-calculated dates as authorization, preventing billed work after expiry.
 - Theme shared surfaces and button fills through semantic CSS tokens; this keeps contrast consistent without changing individual workflows.
 - Localize fixed UI wording through useI18n and browser-safe translation modules; preserve authored names, curriculum content, answers, and teacher comments to avoid rewriting educational data.

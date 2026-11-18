@@ -1,6 +1,10 @@
 import type { Locale } from "./i18n";
 
 const english: Record<string, string> = {
+  "دورة الاشتراك": "Subscription cycle",
+  "نهاية المدة المتوقعة": "Expected period end",
+  "شهر كامل": "One calendar month",
+  "سنة كاملة — بسعر عشرة أشهر": "One full year — priced at ten months",
   "تجربة مجانية — 30 يومًا": "Free trial — 30 days",
   "انتهت مدة التجربة أو الاشتراك. يمكنك قراءة مقرراتك وتقاريرك، وطلب التجديد لاستئناف الإنشاء والتوليد والنشر.": "Your trial or subscription has ended. You can read your courses and reports, and request renewal to resume creating, generating and publishing.",
   "مدة سارية": "Active period",

@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
-import { accessStatus, teacherAccessStatus } from "./subscriptions";
+import { accessStatus, teacherAccessStatus, subscriptionEnd } from "./subscriptions";
+
+it("grants one calendar month, clamping the last day of January", () => {
+  expect(subscriptionEnd("2026-01-31T10:00:00Z", "monthly")).toBe("2026-02-28T10:00:00.000Z");
+});
+it("grants one full calendar year, clamping leap day", () => {
+  expect(subscriptionEnd("2028-02-29T10:00:00Z", "yearly")).toBe("2029-02-28T10:00:00.000Z");
+});
 
 describe("teacher access periods", () => {
   const period = { starts_at: "2026-11-14T00:00:00Z", ends_at: "2026-11-21T00:00:00Z", plan_id: "pro" };

@@ -1582,6 +1582,7 @@ export type Database = {
       }
       teacher_access_periods: {
         Row: {
+          billing_cycle: string | null
           created_at: string
           ends_at: string
           granted_by: string
@@ -1593,6 +1594,7 @@ export type Database = {
           teacher_id: string
         }
         Insert: {
+          billing_cycle?: string | null
           created_at?: string
           ends_at: string
           granted_by: string
@@ -1604,6 +1606,7 @@ export type Database = {
           teacher_id: string
         }
         Update: {
+          billing_cycle?: string | null
           created_at?: string
           ends_at?: string
           granted_by?: string
@@ -1670,6 +1673,7 @@ export type Database = {
       teacher_renewal_requests: {
         Row: {
           access_period_id: string | null
+          billing_cycle: string
           created_at: string
           id: string
           plan_id: string
@@ -1680,6 +1684,7 @@ export type Database = {
         }
         Insert: {
           access_period_id?: string | null
+          billing_cycle?: string
           created_at?: string
           id?: string
           plan_id: string
@@ -1690,6 +1695,7 @@ export type Database = {
         }
         Update: {
           access_period_id?: string | null
+          billing_cycle?: string
           created_at?: string
           id?: string
           plan_id?: string
@@ -1875,6 +1881,15 @@ export type Database = {
         }
         Returns: string
       }
+      grant_teacher_subscription: {
+        Args: {
+          _billing_cycle: string
+          _plan_id: string
+          _reason: string
+          _teacher_id: string
+        }
+        Returns: string
+      }
       has_admin_permission: { Args: { _permission: string }; Returns: boolean }
       has_role: {
         Args: {
@@ -1915,7 +1930,21 @@ export type Database = {
       }
       redeem_link_code: { Args: { _code: string }; Returns: string }
       request_teacher_renewal: { Args: { _plan_id: string }; Returns: string }
+      request_teacher_subscription: {
+        Args: { _billing_cycle: string; _plan_id: string }
+        Returns: string
+      }
       review_teacher_renewal: {
+        Args: {
+          _approve: boolean
+          _days: number
+          _kind: string
+          _reason: string
+          _request_id: string
+        }
+        Returns: undefined
+      }
+      review_teacher_subscription: {
         Args: {
           _approve: boolean
           _days: number

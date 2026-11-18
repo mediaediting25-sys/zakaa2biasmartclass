@@ -134,6 +134,13 @@
       "when": 1794905835579,
       "tag": "0018_editable_home_text",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1794976692379,
+      "tag": "0019_calendar_subscription_cycles",
+      "breakpoints": true
     }
   ]
 }
