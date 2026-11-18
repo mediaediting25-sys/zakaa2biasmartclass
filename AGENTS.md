@@ -13,6 +13,7 @@
 - Store administrative section grants separately from account roles, require them in RPCs and server functions, and clear grants on administrator removal; this prevents cross-section privilege escalation and stale access on reappointment.
 - General administration grants access to all sections through the shared permission function, never platform ownership; owner-only administrator protections remain unchanged.
 - Store public plan overrides, announcements, and published news separately with section-scoped RLS; public loaders read only public fields while administrator editors retain draft reads.
+- Load homepage platform content through the shared public query options in its route loader so saved wording is ready at first render and shares cache freshness with the header.
 - Record teacher access as immutable dated periods and approve renewal requests atomically in subscription-scoped RPCs; explicit grants extend existing periods without inventing automatic trials or payment verification.
 - Check teacher_access_active before all teacher generation and publishing server actions; display trial dates separately without treating browser-calculated dates as authorization, preventing billed work after expiry.
 - Theme shared surfaces and button fills through semantic CSS tokens; this keeps contrast consistent without changing individual workflows.

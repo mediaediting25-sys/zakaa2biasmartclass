@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { BookOpenCheck, FileText, LineChart, ShieldCheck, Sparkles, UserRound, Users } from "lucide-react";
 
 import { SiteHeader } from "@/components/SiteHeader";
@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { TeacherPhoto } from "@/components/TeacherPhoto";
 import { SUBJECTS, subjectLabel } from "@/lib/subjects";
-import { getPublicPlatform } from "@/lib/platform.functions";
+import { publicPlatformOptions } from "@/lib/platform";
 import learningCompanions from "@/assets/learning-companions.webp";
 
 function FeaturedTeachers({ ar }: { ar: boolean }) {
@@ -54,6 +54,7 @@ function FeaturedTeachers({ ar }: { ar: boolean }) {
 }
 
 export const Route = createFileRoute("/")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(publicPlatformOptions),
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
@@ -162,7 +163,7 @@ function Landing() {
     },
   ];
 
-  const platform = useQuery({ queryKey: ["public-platform"], queryFn: () => getPublicPlatform(), staleTime: 300_000 });
+  const platform = useSuspenseQuery(publicPlatformOptions);
   const st = platform.data?.settings;
   const tagline = (ar ? st?.hero_tagline_ar : st?.hero_tagline_en)?.trim();
   const body = (ar ? st?.hero_body_ar : st?.hero_body_en)?.trim();
