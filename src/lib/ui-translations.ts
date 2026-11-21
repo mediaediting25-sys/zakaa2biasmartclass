@@ -1,6 +1,18 @@
 import type { Locale } from "./i18n";
 
 const english: Record<string, string> = {
+  "طرق الاشتراك": "Subscription methods",
+  "التواصل عبر واتساب": "Contact via WhatsApp",
+  "الدفع عبر إنستاباي": "Pay via InstaPay",
+  "الدفع عبر فودافون كاش": "Pay via Vodafone Cash",
+  "أرغب في الاشتراك في باقة": "I would like to subscribe to the plan",
+  "فتح واتساب": "Open WhatsApp",
+  "نسخ بيانات التحويل": "Copy transfer details",
+  "تم النسخ": "Copied",
+  "تعذر النسخ": "Unable to copy",
+  "إرسال إثبات التحويل عبر واتساب": "Send transfer receipt via WhatsApp",
+  "بيانات هذه الوسيلة غير متاحة حاليًا؛ لا تُرسل أي تحويل قبل تأكيد بيانات الاستلام.": "Receiving details are not available yet. Do not transfer money before confirming the receiving details.",
+  "تفعيل الاشتراك بعد مراجعة التحويل من الإدارة. أرسل إثبات التحويل وبيانات حسابك عبر واتساب.": "Your subscription is activated after the administrator reviews your transfer. Send your receipt and account details via WhatsApp.",
   "دورة الاشتراك": "Subscription cycle",
   "نهاية المدة المتوقعة": "Expected period end",
   "شهر كامل": "One calendar month",

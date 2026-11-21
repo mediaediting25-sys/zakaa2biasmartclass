@@ -3,9 +3,9 @@ export type ManualPaymentMethod = typeof manualPaymentMethods[number];
 
 // Public receiving details only. Leave unset until supplied by the owner.
 export const manualPaymentDetails: Record<ManualPaymentMethod, string> = {
-  whatsapp: "",
-  instapay: "",
-  vodafone_cash: "",
+  whatsapp: "+201000779704",
+  instapay: "01000779704",
+  vodafone_cash: "01000779704",
 };
 
 export function whatsappSubscriptionUrl(number: string, message: string): string | null {

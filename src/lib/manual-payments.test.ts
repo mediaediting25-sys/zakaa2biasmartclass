@@ -1,8 +1,13 @@
 import { expect, it } from "vitest";
-import { manualPaymentMethods, whatsappSubscriptionUrl } from "./manual-payments";
+import { manualPaymentMethods, manualPaymentDetails, whatsappSubscriptionUrl } from "./manual-payments";
 
 it("offers only WhatsApp, InstaPay and Vodafone Cash", () => {
   expect([...manualPaymentMethods]).toEqual(["whatsapp", "instapay", "vodafone_cash"]);
+});
+it("uses the owner's supplied subscription receiving details", () => {
+  expect(manualPaymentDetails.whatsapp).toBe("+201000779704");
+  expect(manualPaymentDetails.instapay).toBe("01000779704");
+  expect(manualPaymentDetails.vodafone_cash).toBe("01000779704");
 });
 it("does not open a contact link without a valid receiving number", () => {
   expect(whatsappSubscriptionUrl("", "test")).toBeNull();

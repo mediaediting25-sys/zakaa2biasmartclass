@@ -11,6 +11,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { SubscriptionPaymentDialog } from "./SubscriptionPaymentDialog";
 
 export function SubscriptionManager({ userId }: { userId: string }) {
   const { tr, locale } = useI18n();
@@ -96,6 +97,7 @@ export function TeacherSubscription({ userId }: { userId: string }) {
   const qc = useQueryClient();
   const [plan, setPlan] = useState("pro");
   const [cycle, setCycle] = useState("monthly");
+  const [paymentOpen, setPaymentOpen] = useState(false);
   const data = useQuery({ queryKey: ["teacher-subscription", userId], queryFn: async () => {
     const [periods, requests, profile, access] = await Promise.all([
       supabase.from("teacher_access_periods").select("*").eq("teacher_id", userId).order("ends_at", { ascending: false }),
@@ -109,7 +111,7 @@ export function TeacherSubscription({ userId }: { userId: string }) {
   const request = useMutation({ mutationFn: async () => {
     const { error } = await supabase.rpc("request_teacher_subscription", { _plan_id: plan, _billing_cycle: cycle });
     if (error) throw error;
-  }, onSuccess: async () => { await qc.invalidateQueries({ queryKey: ["teacher-subscription", userId] }); toast.success(tr("تم إرسال طلب التجديد")); }, onError: () => toast.error(tr("تعذر إرسال طلب التجديد")) });
+  }, onSuccess: async () => { setPaymentOpen(false); await qc.invalidateQueries({ queryKey: ["teacher-subscription", userId] }); toast.success(tr("تم إرسال طلب التجديد")); }, onError: () => toast.error(tr("تعذر إرسال طلب التجديد")) });
   if (data.isPending) return <p role="status">{tr("جارٍ التحميل…")}</p>;
   if (data.isError) return <p role="alert" className="text-destructive">{tr("تعذر تحميل الاشتراكات")}</p>;
   const status = teacherAccessStatus(data.data.periods, data.data.createdAt);
@@ -120,7 +122,8 @@ export function TeacherSubscription({ userId }: { userId: string }) {
     <p className={!data.data.active ? "text-destructive" : "text-primary"}>{data.data.active ? status.period?.isTrial ? tr("تجربة مجانية — 30 يومًا") : tr("مدة سارية") : labels[status.status]}</p>
     {!data.data.active && <p role="alert" className="mt-3 text-destructive">{tr(TEACHER_ACCESS_EXPIRED)}</p>}
     {status.period && <p className="mt-2 text-sm">{PLANS.find(p => p.id === status.period?.plan_id)?.[locale].name} · {tr("نهاية المدة")}: {new Date(status.period.ends_at).toLocaleString(locale === "ar" ? "ar-EG" : "en-GB")}</p>}
-    {pending ? <p className="mt-3 text-muted-foreground">{tr("طلب التجديد قيد المراجعة")} · {tr(data.data.requests.find(r => r.status === "pending")?.billing_cycle === "yearly" ? "سنة كاملة — بسعر عشرة أشهر" : "شهر كامل")}</p> : <form className="mt-4 flex flex-wrap gap-3" onSubmit={e => { e.preventDefault(); request.mutate(); }}><select aria-label={tr("الباقة")} value={plan} onChange={e => setPlan(e.target.value)} className="min-w-0 max-w-full rounded-md border border-input bg-background p-2">{PLANS.filter(p => p.id !== "starter").map(p => <option key={p.id} value={p.id}>{p[locale].name}</option>)}</select><select aria-label={tr("دورة الاشتراك")} value={cycle} onChange={e => setCycle(e.target.value)} className="min-w-0 max-w-full rounded-md border border-input bg-background p-2"><option value="monthly">{tr("شهر كامل")}</option><option value="yearly">{tr("سنة كاملة — بسعر عشرة أشهر")}</option></select><Button type="submit" disabled={request.isPending}><CalendarClock className="size-4" />{tr("طلب تجديد الاشتراك")}</Button></form>}
+    {pending ? <div className="mt-3 space-y-3"><p className="text-muted-foreground">{tr("طلب التجديد قيد المراجعة")} · {tr(data.data.requests.find(r => r.status === "pending")?.billing_cycle === "yearly" ? "سنة كاملة — بسعر عشرة أشهر" : "شهر كامل")}</p><Button variant="outline" onClick={() => setPaymentOpen(true)}>{tr("طرق الاشتراك")}</Button></div> : <form className="mt-4 flex flex-wrap gap-3" onSubmit={e => { e.preventDefault(); setPaymentOpen(true); }}><select aria-label={tr("الباقة")} value={plan} onChange={e => setPlan(e.target.value)} className="min-w-0 max-w-full rounded-md border border-input bg-background p-2">{PLANS.filter(p => p.id !== "starter").map(p => <option key={p.id} value={p.id}>{p[locale].name}</option>)}</select><select aria-label={tr("دورة الاشتراك")} value={cycle} onChange={e => setCycle(e.target.value)} className="min-w-0 max-w-full rounded-md border border-input bg-background p-2"><option value="monthly">{tr("شهر كامل")}</option><option value="yearly">{tr("سنة كاملة — بسعر عشرة أشهر")}</option></select><Button type="submit" disabled={request.isPending}><CalendarClock className="size-4" />{tr("طلب تجديد الاشتراك")}</Button></form>}
+    <SubscriptionPaymentDialog open={paymentOpen} onOpenChange={setPaymentOpen} planName={PLANS.find(p => p.id === (pending ? data.data.requests.find(r => r.status === "pending")?.plan_id : plan))?.[locale].name ?? ""} cycle={pending ? data.data.requests.find(r => r.status === "pending")?.billing_cycle ?? "monthly" : cycle} {...(!pending ? { onRequest: () => request.mutate() } : {})} requestPending={request.isPending} />
     {data.data.requests[0]?.status === "rejected" && !pending && <p className="mt-2 text-destructive">{tr("لم يُقبل طلب التجديد السابق")}</p>}
   </section>;
 }

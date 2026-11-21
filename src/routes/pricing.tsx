@@ -8,6 +8,7 @@ import { publicPlatformOptions, annualPrice } from "@/lib/platform";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
+import { SubscriptionPaymentDialog } from "@/components/SubscriptionPaymentDialog";
 
 export const Route = createFileRoute("/pricing")({
   loader: ({ context }) => context.queryClient.ensureQueryData(publicPlatformOptions),
@@ -54,6 +55,7 @@ function PricingPage() {
   const ar = locale === "ar";
   const [period, setPeriod] = useState<"monthly" | "yearly">("monthly");
   const [currency, setCurrency] = useState<Currency>("egp");
+  const [selectedPlan, setSelectedPlan] = useState<{ name: string; amount: string; cycle: string } | null>(null);
 
   const symbol = CURRENCIES.find((c) => c.id === currency)?.[ar ? "ar" : "en"] ?? "EGP";
 
@@ -149,9 +151,9 @@ function PricingPage() {
                     </li>
                   ))}
                 </ul>
-                <Button asChild className="mt-6 w-full" variant={plan.popular ? "default" : "outline"}>
+                {plan.id === "starter" ? <Button asChild className="mt-6 w-full" variant="outline">
                   <Link to="/auth" search={{ mode: "signup" }}>{plan[ar ? "ar" : "en"].cta}</Link>
-                </Button>
+                </Button> : <Button className="mt-6 w-full" variant={plan.popular ? "default" : "outline"} onClick={() => setSelectedPlan({ name, amount: `${price} ${symbol}`, cycle: period })}>{plan[ar ? "ar" : "en"].cta}</Button>}
               </article>
             );
           })}
@@ -178,6 +180,7 @@ function PricingPage() {
           </Button>
         </div>
       </main>
+      {selectedPlan && <SubscriptionPaymentDialog open onOpenChange={open => { if (!open) setSelectedPlan(null); }} planName={selectedPlan.name} amount={selectedPlan.amount} cycle={selectedPlan.cycle} />}
 
       <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
         {ar ? "ذكاؤبيا سمارت كلاس — تعليم مبني على الأدلة" : "Zakaa2obia Smart class — evidence-based teaching"}
