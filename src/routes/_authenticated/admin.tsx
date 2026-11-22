@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { PlatformEditors } from "@/components/PlatformEditors";
 import { SubscriptionManager } from "@/components/SubscriptionManager";
+import { SubjectManager } from "@/components/SubjectManager";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,13 +43,14 @@ function AdminPage() {
     general_admin: tr("الإدارة العامة"), users: tr("إدارة المستخدمين والحظر"), roles: tr("إدارة أدوار المستخدمين"),
     pricing: tr("إدارة الأسعار والباقات"), news: tr("إدارة الأخبار والتحديثات"),
     settings: tr("إدارة النصوص والإعدادات"), subscriptions: tr("إدارة الاشتراكات والمدد المجانية"),
+    subjects: tr("إدارة المواد الدراسية"),
   };
-  const access = useQuery({ queryKey: ["admin-access", user?.id], queryFn: async () => {
+  const access = useQuery({ queryKey: ["admin-access", user?.id], refetchInterval: 5_000, refetchOnWindowFocus: "always", queryFn: async () => {
     const { data, error } = await supabase.rpc("is_platform_owner");
     if (error) throw error;
     return data;
   } });
-  const permissions = useQuery({ queryKey: ["admin-permissions", user?.id], enabled: !!user, queryFn: async () => {
+  const permissions = useQuery({ queryKey: ["admin-permissions", user?.id], enabled: !!user, refetchInterval: 5_000, refetchOnWindowFocus: "always", queryFn: async () => {
     const { data, error } = await supabase.from("admin_permissions").select("user_id, permission");
     if (error) throw error;
     return data ?? [];
@@ -145,5 +147,6 @@ function AdminPage() {
     </>}
     {!access.isPending && !access.isError && !permissions.isPending && !permissions.isError && user && visibleSections.some(p => ["pricing", "news", "settings"].includes(p)) && <div className="mt-10 border-t border-border pt-8"><PlatformEditors sections={visibleSections} userId={user.id} /></div>}
     {!access.isPending && !access.isError && !permissions.isPending && !permissions.isError && user && visibleSections.includes("subscriptions") && <div className="mt-10 border-t border-border pt-8"><SubscriptionManager userId={user.id} /></div>}
+    {!access.isPending && !access.isError && !permissions.isPending && !permissions.isError && user && visibleSections.includes("subjects") && <div className="mt-10 border-t border-border pt-8"><SubjectManager userId={user.id} /></div>}
   </AppShell>;
 }

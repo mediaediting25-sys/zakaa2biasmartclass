@@ -7,12 +7,14 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { TeacherPhoto } from "@/components/TeacherPhoto";
-import { SUBJECTS, subjectLabel } from "@/lib/subjects";
+import { subjectLabel } from "@/lib/subjects";
+import { publicSubjectsOptions } from "@/lib/subject-catalog";
 import { publicPlatformOptions } from "@/lib/platform";
 import learningCompanions from "@/assets/learning-companions.webp";
 
 function FeaturedTeachers({ ar }: { ar: boolean }) {
   const { locale } = useI18n();
+  const catalog = useSuspenseQuery(publicSubjectsOptions);
   const q = useQuery({
     queryKey: ["teacher-listings-home"],
     queryFn: async () => {
@@ -43,7 +45,7 @@ function FeaturedTeachers({ ar }: { ar: boolean }) {
               <TeacherPhoto path={t.photo_path} name={t.display_name} />
               <div>
                 <div className="font-display font-bold">{t.display_name}</div>
-                <div className="text-xs text-muted-foreground">{t.subjects.map((s) => subjectLabel(s, locale)).join(" · ") || t.grade_levels}</div>
+                <div className="text-xs text-muted-foreground">{t.subjects.map((s) => subjectLabel(s, locale, catalog.data)).join(" · ") || t.grade_levels}</div>
               </div>
             </Link>
           ))
@@ -54,7 +56,7 @@ function FeaturedTeachers({ ar }: { ar: boolean }) {
 }
 
 export const Route = createFileRoute("/")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(publicPlatformOptions),
+  loader: ({ context }) => Promise.all([context.queryClient.ensureQueryData(publicPlatformOptions), context.queryClient.ensureQueryData(publicSubjectsOptions)]),
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
@@ -117,6 +119,7 @@ function FaqSection() {
 function Landing() {
   const { locale } = useI18n();
   const ar = locale === "ar";
+  const catalog = useSuspenseQuery(publicSubjectsOptions);
 
   const features = [
     {
@@ -312,9 +315,9 @@ function Landing() {
         <h2 className="font-display text-2xl font-extrabold sm:text-3xl">{ar ? "المواد الدراسية" : "Subjects"}</h2>
         <p className="mt-2 text-muted-foreground">{ar ? "اختر مادة لترى المدرسين المتاحين لها على المنصة." : "Pick a subject to see its available teachers."}</p>
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {SUBJECTS.map((s) => (
-            <Link key={s.ar} to="/teachers" search={{ subject: s.ar }} className="surface rounded-2xl p-4 text-center font-display font-bold transition-shadow hover:shadow-lg">
-              {ar ? s.ar : s.en}
+          {catalog.data.map((s) => (
+            <Link key={s.subject_key} to="/teachers" search={{ subject: s.subject_key }} className="surface rounded-2xl p-4 text-center font-display font-bold transition-shadow hover:shadow-lg">
+              {ar ? s.name_ar : s.name_en}
             </Link>
           ))}
         </div>

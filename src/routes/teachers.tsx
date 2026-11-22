@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { Send, UserRound } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -12,11 +12,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRole, useSession } from "@/hooks/useSession";
 import { useI18n } from "@/lib/i18n";
 import { TeacherPhoto } from "@/components/TeacherPhoto";
-import { SUBJECTS, subjectLabel } from "@/lib/subjects";
+import { subjectLabel } from "@/lib/subjects";
+import { publicSubjectsOptions } from "@/lib/subject-catalog";
 
 type Search = { subject?: string | undefined };
 
 export const Route = createFileRoute("/teachers")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(publicSubjectsOptions),
   validateSearch: (s: Record<string, unknown>): Search => ({
     subject: typeof s["subject"] === "string" && s["subject"] ? s["subject"] : undefined,
   }),
@@ -39,6 +41,7 @@ type Listing = { photo_path: string | null; teacher_id: string; display_name: st
 
 function TeachersPage() {
   const { locale } = useI18n();
+  const catalog = useSuspenseQuery(publicSubjectsOptions);
   const ar = locale === "ar";
   const { subject } = Route.useSearch();
   const navigate = Route.useNavigate();
@@ -94,9 +97,9 @@ function TeachersPage() {
           <Button size="sm" variant={!subject ? "default" : "outline"} onClick={() => navigate({ search: {} })}>
             {ar ? "كل المواد" : "All subjects"}
           </Button>
-          {SUBJECTS.map((s) => (
-            <Button key={s.ar} size="sm" variant={subject === s.ar ? "default" : "outline"} onClick={() => navigate({ search: { subject: s.ar } })}>
-              {ar ? s.ar : s.en}
+          {catalog.data.map((s) => (
+            <Button key={s.subject_key} size="sm" variant={subject === s.subject_key ? "default" : "outline"} onClick={() => navigate({ search: { subject: s.subject_key } })}>
+              {ar ? s.name_ar : s.name_en}
             </Button>
           ))}
         </div>
@@ -121,7 +124,7 @@ function TeachersPage() {
                 {l.bio && <p className="mt-3 text-sm text-muted-foreground">{l.bio}</p>}
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {l.subjects.map((s) => (
-                    <Badge key={s} variant="secondary">{subjectLabel(s, locale)}</Badge>
+                    <Badge key={s} variant="secondary">{subjectLabel(s, locale, catalog.data)}</Badge>
                   ))}
                 </div>
                 <div className="mt-auto pt-4">
@@ -148,7 +151,7 @@ function TeachersPage() {
                 <div key={r.id} className="flex flex-wrap items-center justify-between gap-2 p-4 text-sm">
                   <span>
                     <b>{nameOf(r.teacher_id)}</b>
-                    {r.subject && ` · ${subjectLabel(r.subject, locale)}`}
+                    {r.subject && ` · ${subjectLabel(r.subject, locale, catalog.data)}`}
                     {r.student_name && ` · ${r.student_name}`}
                   </span>
                   <Badge variant={r.status === "approved" ? "default" : "outline"}>{statusLabel(r.status)}</Badge>
@@ -164,6 +167,7 @@ function TeachersPage() {
 
 function RequestForm({ listing, role, defaultSubject, onDone }: { listing: Listing; role?: string | undefined; defaultSubject?: string | undefined; onDone: () => void }) {
   const { locale } = useI18n();
+  const catalog = useSuspenseQuery(publicSubjectsOptions);
   const ar = locale === "ar";
   const { user } = useSession();
   const qc = useQueryClient();
@@ -219,7 +223,7 @@ function RequestForm({ listing, role, defaultSubject, onDone }: { listing: Listi
       )}
       {listing.subjects.length > 0 && (
         <select className={selectCls} value={subject} onChange={(e) => setSubject(e.target.value)}>
-          {listing.subjects.map((s) => <option key={s} value={s}>{subjectLabel(s, locale)}</option>)}
+          {listing.subjects.map((s) => <option key={s} value={s}>{subjectLabel(s, locale, catalog.data)}</option>)}
         </select>
       )}
       <Textarea rows={2} placeholder={ar ? "رسالة للمدرس (اختياري): الصف، المدرسة…" : "Message (optional): grade, school…"} value={message} onChange={(e) => setMessage(e.target.value)} />

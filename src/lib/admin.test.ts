@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
 import { administrativePermissions, canManageBlock, canManageRoles, canUseAdminSection } from "./admin";
-it("gives general administration access to all seven sections", () => {
-  expect(administrativePermissions).toHaveLength(7);
+it("gives general administration access to all eight sections", () => {
+  expect(administrativePermissions).toHaveLength(8);
   for (const permission of administrativePermissions) expect(canUseAdminSection(false, ["general_admin"], permission)).toBe(true);
 });
 it("general administrators still cannot change or block other administrators", () => {
@@ -18,6 +18,12 @@ it("separates news administration from pricing and user administration", () => {
 });
 it("does not give an administrator any section by default", () => {
   for (const permission of administrativePermissions) expect(canUseAdminSection(false, [], permission)).toBe(false);
+});
+it("grants subjects separately and removes access when the grant is revoked", () => {
+  expect(canUseAdminSection(false, ["subjects"], "subjects")).toBe(true);
+  expect(canUseAdminSection(false, ["subjects"], "pricing")).toBe(false);
+  expect(canUseAdminSection(false, ["pricing"], "subjects")).toBe(false);
+  expect(canUseAdminSection(false, [], "subjects")).toBe(false);
 });
 it("protects the owner's roles from all administrators", () => {
   expect(canManageRoles(true, { is_owner: true, roles: ["admin"] }, "admin")).toBe(false);

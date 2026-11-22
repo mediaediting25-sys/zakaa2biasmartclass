@@ -1,6 +1,21 @@
 import type { Locale } from "./i18n";
 
 const english: Record<string, string> = {
+  "إدارة المواد الدراسية": "Subject management",
+  "إضافة مادة": "Add subject",
+  "تعديل المادة": "Edit subject",
+  "أسماء المواد بالعربية والإنجليزية": "Subject names in Arabic and English",
+  "ترتيب العرض": "Display order",
+  "حفظ المادة": "Save subject",
+  "تم حفظ المادة": "Subject saved",
+  "تعذر تحميل المواد": "Unable to load subjects",
+  "تعذر حفظ المادة؛ تحقق من الصلاحية وعدم تكرار الاسم": "Unable to save the subject. Check your permission and use a unique name.",
+  "ظاهرة": "Visible",
+  "مخفية": "Hidden",
+  "إخفاء": "Hide",
+  "إظهار": "Show",
+  "إخفاء هذه المادة من القائمة العامة؟": "Hide this subject from the public catalog?",
+  "إخفاء المادة يزيلها من القائمة العامة دون حذف مقررات المعلمين أو بيانات الطلاب.": "Hiding a subject removes it from the public catalog without deleting teacher courses or student data.",
   "طرق الاشتراك": "Subscription methods",
   "التواصل عبر واتساب": "Contact via WhatsApp",
   "الدفع عبر إنستاباي": "Pay via InstaPay",

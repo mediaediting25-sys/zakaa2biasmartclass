@@ -14,7 +14,11 @@ export const SUBJECTS: { ar: string; en: string }[] = [
   { ar: "الحاسب الآلي", en: "Computer science" },
 ];
 
-export function subjectLabel(ar: string, locale: string) {
-  if (locale === "ar") return ar;
-  return SUBJECTS.find((s) => s.ar === ar)?.en ?? ar;
+export type CatalogSubject = { subject_key: string; name_ar: string; name_en: string };
+
+export function subjectLabel(key: string, locale: string, catalog: readonly CatalogSubject[] = []) {
+  const subject = catalog.find(s => s.subject_key === key);
+  if (subject) return locale === "ar" ? subject.name_ar : subject.name_en;
+  if (locale === "ar") return key;
+  return SUBJECTS.find((s) => s.ar === key)?.en ?? key;
 }

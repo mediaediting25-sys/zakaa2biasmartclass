@@ -13,6 +13,8 @@
 - Store administrative section grants separately from account roles, require them in RPCs and server functions, and clear grants on administrator removal; this prevents cross-section privilege escalation and stale access on reappointment.
 - General administration grants access to all sections through the shared permission function, never platform ownership; owner-only administrator protections remain unchanged.
 - Store public plan overrides, announcements, and published news separately with section-scoped RLS; public loaders read only public fields while administrator editors retain draft reads.
+- Keep subject catalog identifiers immutable and separate from editable bilingual labels; public loaders select active subjects and subject-scoped RLS controls edits, while hiding preserves historic course and listing assignments.
+- Refresh open administrative permission queries every five seconds and on focus; database authorization remains authoritative on every write so revocation blocks stale forms immediately.
 - Load homepage platform content through the shared public query options in its route loader so saved wording is ready at first render and shares cache freshness with the header.
 - Record teacher access as immutable dated periods and approve renewal requests atomically in subscription-scoped RPCs; explicit grants extend existing periods without inventing automatic trials or payment verification.
 - Paid subscription RPCs calculate calendar-month/year expiry in PostgreSQL; day-based grants are complimentary only, keeping paid duration enforcement independent of browser inputs.

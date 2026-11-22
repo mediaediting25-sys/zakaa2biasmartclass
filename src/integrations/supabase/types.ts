@@ -1268,6 +1268,36 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_subjects: {
+        Row: {
+          active: boolean
+          id: string
+          name_ar: string
+          name_en: string
+          position: number
+          subject_key: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          id?: string
+          name_ar: string
+          name_en: string
+          position?: number
+          subject_key: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          id?: string
+          name_ar?: string
+          name_en?: string
+          position?: number
+          subject_key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

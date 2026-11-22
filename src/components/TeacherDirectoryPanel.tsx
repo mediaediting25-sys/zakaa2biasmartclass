@@ -10,12 +10,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { TeacherPhoto } from "./TeacherPhoto";
-import { SUBJECTS, subjectLabel } from "@/lib/subjects";
+import { subjectLabel } from "@/lib/subjects";
+import { publicSubjectsOptions } from "@/lib/subject-catalog";
 
 export function TeacherDirectoryPanel({ userId, courses }: { userId: string; courses: { id: string; title: string }[] }) {
   const { locale } = useI18n();
   const ar = locale === "ar";
   const qc = useQueryClient();
+  const catalog = useQuery(publicSubjectsOptions);
 
   const listing = useQuery({
     queryKey: ["my-listing", userId],
@@ -112,7 +114,7 @@ export function TeacherDirectoryPanel({ userId, courses }: { userId: string; cou
               <div key={r.id} className="join-request-row grid gap-2 py-3 text-sm">
                 <div>
                   <b>{r.student_name || (ar ? "طالب" : "Student")}</b>
-                  {r.subject && <span className="text-muted-foreground"> · {subjectLabel(r.subject, locale)}</span>}
+                  {r.subject && <span className="text-muted-foreground"> · {subjectLabel(r.subject, locale, catalog.data)}</span>}
                 </div>
                 {r.message && <p className="text-muted-foreground">{r.message}</p>}
                 <div className="flex flex-wrap gap-2">
@@ -143,11 +145,11 @@ export function TeacherDirectoryPanel({ userId, courses }: { userId: string; cou
         <Input placeholder={ar ? "الصفوف (مثال: الصف الأول الثانوي)" : "Grades taught"} value={grades} onChange={(e) => setGrades(e.target.value)} />
         <Textarea rows={2} placeholder={ar ? "نبذة قصيرة عنك" : "Short bio"} value={bio} onChange={(e) => setBio(e.target.value)} />
         <div className="flex flex-wrap gap-1.5">
-          {SUBJECTS.map((s) => {
-            const on = subjects.includes(s.ar);
+          {(catalog.data ?? []).map((s) => {
+            const on = subjects.includes(s.subject_key);
             return (
-              <Button key={s.ar} type="button" size="sm" variant={on ? "default" : "outline"} onClick={() => setSubjects(on ? subjects.filter((x) => x !== s.ar) : [...subjects, s.ar])}>
-                {ar ? s.ar : s.en}
+              <Button key={s.subject_key} type="button" size="sm" variant={on ? "default" : "outline"} onClick={() => setSubjects(on ? subjects.filter((x) => x !== s.subject_key) : [...subjects, s.subject_key])}>
+                {ar ? s.name_ar : s.name_en}
               </Button>
             );
           })}
