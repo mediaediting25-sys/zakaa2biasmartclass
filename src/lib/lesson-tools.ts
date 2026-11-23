@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { livingBookSchema } from "./living-book";
 
 export const slideSchema = z.object({
   title: z.string().min(1),
@@ -10,6 +11,7 @@ export const slideSchema = z.object({
   explanation: z.string(),
   sourcePage: z.number().int().positive(),
   sourceQuote: z.string().min(1),
+  livingBook: livingBookSchema.optional(),
 });
 export const presentationSchema = z.object({ title: z.string().min(1), slides: z.array(slideSchema).min(3).max(16) });
 export type LessonSlide = z.infer<typeof slideSchema>;
