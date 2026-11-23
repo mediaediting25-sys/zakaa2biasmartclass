@@ -247,7 +247,6 @@ const english: Record<string, string> = {
   "متاح للإعادة": "Retake allowed",
   "لا توجد أنشطة جديدة الآن.": "No new activities right now.",
   "إخفاء السجل": "Hide history",
-  "السجل": "History",
   "تم الانتهاء ✓": "Completed ✓",
   "رمز غير صحيح أو المقرر غير منشور": "Invalid code or the course is not published",
   "تم الانضمام للمقرر": "Joined the course",
