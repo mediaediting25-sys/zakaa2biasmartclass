@@ -1,6 +1,6 @@
 import { useI18n } from "@/lib/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 import { AppShell } from "@/components/AppShell";
@@ -35,7 +35,9 @@ function Player() {
     queryKey: ["play", activityId],
     queryFn: () => getStudentActivity({ data: { activityId } }),
   });
+  const qc = useQueryClient();
   const submit = useMutation({
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["my-attempts"] }); qc.invalidateQueries({ queryKey: ["my-retake-grants"] }); },
     mutationFn: () =>
       submitAttempt({
         data: {

@@ -27,23 +27,73 @@ export const Route = createFileRoute("/_authenticated/student")({
 });
 
 function CourseActivities({ courseId }: { courseId: string }) {
-  const { tr, locale, message } = useI18n();
+  const { tr, locale } = useI18n();
+  const [showHistory, setShowHistory] = useState(false);
   const { data = [] } = useQuery({
     queryKey: ["student-activities", courseId],
     queryFn: () => listStudentActivities(courseId),
   });
+  const { data: attempts = [] } = useQuery({ queryKey: ["my-attempts"], queryFn: () => listMyAttempts() });
+  const { data: grants = [] } = useQuery({
+    queryKey: ["my-retake-grants"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("retake_grants").select("activity_id").is("consumed_at", null);
+      if (error) throw error;
+      return data ?? [];
+    },
+    refetchOnWindowFocus: true,
+  });
   if (!data.length) return <p className="text-sm text-muted-foreground">{tr("لا توجد أنشطة منشورة بعد.")}</p>;
+  const granted = new Set(grants.map((g) => g.activity_id));
+  const latest = new Map<string, (typeof attempts)[number]>();
+  for (const a of attempts) if (a.submitted_at && !latest.has(a.activity_id)) latest.set(a.activity_id, a);
+  const current = data.filter((a) => !latest.has(a.id) || granted.has(a.id));
+  const done = data.filter((a) => latest.has(a.id));
   return (
-    <ul className="space-y-2">
-      {data.map((a) => (
-        <li key={a.id} className="flex items-center justify-between gap-3">
-          <span>{a.title}</span>
-          <Button asChild size="sm">
-            <Link to="/play/$activityId" params={{ activityId: a.id }}>{tr("ابدأ")}</Link>
+    <div className="space-y-3">
+      {current.length ? (
+        <ul className="space-y-2">
+          {current.map((a) => (
+            <li key={a.id} className="flex items-center justify-between gap-3">
+              <span>{a.title}{granted.has(a.id) && <span className="ms-2 rounded-full bg-primary/15 px-2 py-0.5 text-xs text-primary">{tr("متاح للإعادة")}</span>}</span>
+              <Button asChild size="sm">
+                <Link to="/play/$activityId" params={{ activityId: a.id }}>{tr("ابدأ")}</Link>
+              </Button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-sm text-muted-foreground">{tr("لا توجد أنشطة جديدة الآن.")}</p>
+      )}
+      {done.length > 0 && (
+        <div>
+          <Button variant="outline" size="sm" onClick={() => setShowHistory((v) => !v)}>
+            {showHistory ? tr("إخفاء السجل") : tr("السجل")} ({done.length})
           </Button>
-        </li>
-      ))}
-    </ul>
+          {showHistory && (
+            <ul className="mt-2 space-y-2">
+              {done.map((a) => {
+                const at = latest.get(a.id)!;
+                const retake = granted.has(a.id);
+                return (
+                  <li key={a.id} className="flex items-center justify-between gap-3 text-sm">
+                    <span>
+                      {a.title}
+                      <span className="ms-2 text-xs text-muted-foreground">{at.score} / {at.max_score} · {new Date(at.submitted_at!).toLocaleDateString(locale)}</span>
+                    </span>
+                    {retake ? (
+                      <Button asChild size="sm"><Link to="/play/$activityId" params={{ activityId: a.id }}>{tr("ابدأ")}</Link></Button>
+                    ) : (
+                      <span className="rounded-full bg-muted px-3 py-1 text-xs">{tr("تم الانتهاء ✓")}</span>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
