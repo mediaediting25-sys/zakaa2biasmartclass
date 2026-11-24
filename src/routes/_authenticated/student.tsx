@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { StudentMaterials } from "@/components/CourseMaterials";
 import { listMyAttempts, listStudentActivities, listStudentCourses } from "@/lib/api";
+import { displayActivityTitle } from "@/lib/assessment";
 
 export const Route = createFileRoute("/_authenticated/student")({
   head: () => ({
@@ -55,7 +56,7 @@ function CourseActivities({ courseId }: { courseId: string }) {
         <ul className="space-y-2">
           {current.map((a) => (
             <li key={a.id} className="flex items-center justify-between gap-3">
-              <span>{a.title}{granted.has(a.id) && <span className="ms-2 rounded-full bg-primary/15 px-2 py-0.5 text-xs text-primary">{tr("متاح للإعادة")}</span>}</span>
+              <span>{displayActivityTitle(a.title)}{granted.has(a.id) && <span className="ms-2 rounded-full bg-primary/15 px-2 py-0.5 text-xs text-primary">{tr("متاح للإعادة")}</span>}</span>
               <Button asChild size="sm">
                 <Link to="/play/$activityId" params={{ activityId: a.id }}>{tr("ابدأ")}</Link>
               </Button>
@@ -78,7 +79,7 @@ function CourseActivities({ courseId }: { courseId: string }) {
                 return (
                   <li key={a.id} className="flex items-center justify-between gap-3 text-sm">
                     <span>
-                      {a.title}
+                      {displayActivityTitle(a.title)}
                       <span className="ms-2 text-xs text-muted-foreground">{at.score} / {at.max_score} · {new Date(at.submitted_at!).toLocaleDateString(locale)}</span>
                     </span>
                     {retake ? (
