@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { isRepeatedQuestion, type AssessmentOptions } from "@/lib/assessment";
+import { buildActivityTitle, isDuplicateQuestion, type AssessmentOptions } from "@/lib/assessment";
 import { extractText, getDocumentProxy } from "unpdf";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -384,6 +384,9 @@ export async function generateLessonQuestions(
   const { data: previousQuestions, error: previousError } = await admin.from("questions").select("stem").eq("course_id", lesson.course_id);
   if (previousError) throw previousError;
   const previousStems = (previousQuestions ?? []).map(q => q.stem);
+  const previousQs = previousStems.map(stem => ({ stem, correct_answer: null as string | null }));
+  // Ask for a few extra questions so duplicates removed by the server check do not leave the set short.
+  const requested = opts.count + Math.min(3, Math.ceil(opts.count / 3));
 
   // Few-shot from teacher-approved questions (continuous improvement without training)
   const { data: examples } = await admin
@@ -415,6 +418,7 @@ Quality rules:
 - multiple_choice: exactly 4 options, one unambiguous correct answer copied exactly into correct_answer, plausible distractors that are clearly wrong per the source.
 - true_false: options must be the two words for true/false in the content language.
 - fill_blank: use "____" in the stem; accepted_answers lists all acceptable spellings.
+- Within this set, every question must test a DIFFERENT fact or sentence from the source. Never ask the same fact twice, not even with different wording or in a different format (for example as multiple choice and again as true/false). Before answering, check that no two questions share the same answer or the same source_quote.
 - Mix difficulty (about 40% easy, 40% medium, 20% challenge). No trick questions, no "all of the above".
 - fill_blank and short_answer: options must be empty; include a concise correct_answer and accepted_answers.
 - Explanation cites why, using only the source.${GROUNDING_RULES}
@@ -426,7 +430,7 @@ ${rejected?.length ? `\nAVOID these problems the teacher rejected before:\n${rej
 ${opts.homework ? `\nHOMEWORK MODE: This is an interactive homework set. Stay strictly inside this lesson's content and objectives. Do NOT copy the book's own exercises or questions word-for-word; write NEW questions in the same context with different wording, examples and situations from the source. Vary formats (multiple_choice, true_false, fill_blank, short_answer) and cover every objective.\n` : ""}
 ${opts.topic ? `TARGET TOPIC (only this part of the lesson, never invent missing material): ${opts.topic}\n` : ""}
 DO NOT REPEAT any of these existing questions, including rephrased versions:\n${JSON.stringify(previousStems.slice(-250))}
-Generate exactly ${opts.count} questions.\n\nSOURCE:\n${source}`,
+Generate exactly ${requested} questions, all different from each other.\n\nSOURCE:\n${source}`,
   });
   const gen = z.object({ questions: z.array(z.unknown()), warnings: z.array(z.string()) }).parse(raw);
   const warnings = [...gen.warnings];
@@ -437,7 +441,7 @@ Generate exactly ${opts.count} questions.\n\nSOURCE:\n${source}`,
       warnings.push("تم استبعاد سؤال بصيغة غير صالحة.");
       continue;
     }
-    if (isRepeatedQuestion(r.data.stem, [...previousStems, ...candidates.map(q => q.stem)])) {
+    if (isDuplicateQuestion({ stem: r.data.stem, correct_answer: r.data.correct_answer }, [...previousQs, ...candidates.map(q => ({ stem: q.stem, correct_answer: q.correct_answer }))])) {
       warnings.push("تم استبعاد سؤال مكرر.");
       continue;
     }
@@ -469,9 +473,12 @@ supported = the question and answer are fully supported by the source; answer_co
     return v?.supported && v.answer_correct && v.distractors_wrong && v.single_best_answer;
   });
   if (!passedCandidates.length) return { created: 0, warnings: [...warnings, "لم يجتز أي سؤال المراجعة"] };
+  const activityKind = opts.homework ? "homework" : opts.examPatterns ? "exam" : "practice";
+  const { count: sameKindCount } = await admin.from("activities").select("id", { count: "exact", head: true }).eq("lesson_id", lessonId).eq("kind", activityKind);
+  const activityTitle = buildActivityTitle({ language: opts.language, homework: !!opts.homework, exam: !!opts.examPatterns, lessonTitle: lesson.title, sequence: (sameKindCount ?? 0) + 1 });
   const { data: activity, error: activityError } = await admin.from("activities").insert({
     course_id: lesson.course_id, lesson_id: lessonId,
-    title: `${opts.language === "en" ? (opts.homework ? "Homework" : opts.examPatterns ? "Exam" : "Practice") : (opts.homework ? "واجب" : opts.examPatterns ? "امتحان" : "تدريب")}: ${lesson.title} · ${opts.language.toUpperCase()} · ${new Date().toISOString()}`,
+    title: activityTitle,
     kind: opts.homework ? "homework" : opts.examPatterns ? "exam" : "practice", status: "draft",
     target_age: opts.age, target_grade: opts.grade || null, target_topic: opts.topic || null,
   }).select("id").single();
