@@ -1,15 +1,11 @@
-// Provider-neutral AI adapter. Modules depend only on AiProvider, never a vendor SDK.
-const GATEWAY = "https://ai.gateway.lovable.dev/v1";
-export const CHAT_MODEL = "openai/gpt-6-astra";
-export const EMBED_MODEL = "google/gemini-embedding-2";
+// Server-only Gemini adapter. Never import this file from browser code.
+export const CHAT_MODEL = process.env["GEMINI_MODEL"] || "gemini-3.6-flash";
+export const EMBED_MODEL = "gemini-embedding-2";
+const IMAGE_MODEL = "gemini-3.1-flash-image";
+const API = "https://generativelanguage.googleapis.com/v1beta/models";
 
 export class AiError extends Error {
-  constructor(
-    message: string,
-    public status: number,
-  ) {
-    super(message);
-  }
+  constructor(message: string, public status: number) { super(message); }
 }
 
 export type AiProvider = {
@@ -21,138 +17,108 @@ export type AiProvider = {
     schemaName: string;
     schema: Record<string, unknown>;
     effort?: "low" | "medium" | "high";
-    /** Optional PDF attachments (base64, no data: prefix). */
     files?: { filename: string; base64: string }[];
   }): Promise<T>;
 };
 
-function key() {
-  const k = process.env["LOVABLE_API_KEY"];
-  if (!k) throw new AiError("AI is not configured", 401);
-  return k;
-}
+type Part = {
+  text?: string;
+  thought?: boolean;
+  inlineData?: { mimeType: string; data: string };
+};
+type Generated = {
+  promptFeedback?: { blockReason?: string };
+  candidates?: { finishReason?: string; content?: { parts?: Part[] } }[];
+};
 
-function headers() {
-  const k = key();
-  return {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${k}`,
-    "Lovable-API-Key": k,
-    "X-Lovable-AIG-SDK": "fetch",
-  };
-}
-
-async function failure(res: Response): Promise<never> {
-  let msg = `AI request failed (${res.status})`;
+async function request<T>(model: string, action: string, body: unknown): Promise<T> {
+  const key = process.env["GEMINI_API_KEY"];
+  if (!key) throw new AiError("مفتاح Gemini غير مضبوط على الخادم", 503);
+  let res: Response;
   try {
-    const body = (await res.json()) as { error?: { message?: string } | string; message?: string };
-    msg =
-      (typeof body.error === "string" ? body.error : body.error?.message) ?? body.message ?? msg;
-  } catch {
-    /* ignore */
-  }
-  if (res.status === 402) msg = "رصيد الذكاء الاصطناعي انتهى — AI credits exhausted. " + msg;
-  if (res.status === 429) msg = "ضغط كبير على الخدمة، حاول بعد قليل — Rate limited. " + msg;
-  throw new AiError(msg, res.status);
-}
-
-function stripFences(text: string) {
-  return text
-    .trim()
-    .replace(/^```(?:json)?\s*/i, "")
-    .replace(/```$/, "")
-    .trim();
-}
-
-export const lovableProvider: AiProvider = {
-  name: "lovable",
-  model: CHAT_MODEL,
-  async generateJson<T>({
-    system,
-    user,
-    schemaName,
-    schema,
-    effort = "medium",
-    files,
-  }: Parameters<AiProvider["generateJson"]>[0]): Promise<T> {
-    const res = await fetch(`${GATEWAY}/responses`, {
+    res = await fetch(`${API}/${encodeURIComponent(model)}:${action}`, {
       method: "POST",
-      headers: headers(),
-      body: JSON.stringify({
-        model: CHAT_MODEL,
-        instructions: system,
-        input: [
-          {
-            role: "user",
-            content: files?.length
-              ? [
-                  ...files.map((f) => ({
-                    type: "input_file",
-                    filename: f.filename,
-                    file_data: `data:application/pdf;base64,${f.base64}`,
-                  })),
-                  { type: "input_text", text: user },
-                ]
-              : user,
-          },
-        ],
-        reasoning: { effort },
-        store: false,
-        stream: true,
-        text: { format: { type: "json_schema", name: schemaName, schema, strict: true } },
-      }),
+      headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(180_000),
     });
-    if (!res.ok || !res.body) await failure(res);
-    const reader = res.body!.getReader();
-    const dec = new TextDecoder();
-    let buf = "";
-    let out = "";
-    let refusal = "";
-    for (;;) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      buf += dec.decode(value, { stream: true });
-      let i;
-      while ((i = buf.indexOf("\n")) >= 0) {
-        const line = buf.slice(0, i).trim();
-        buf = buf.slice(i + 1);
-        if (!line.startsWith("data:")) continue;
-        const payload = line.slice(5).trim();
-        if (!payload || payload === "[DONE]") continue;
-        try {
-          const ev = JSON.parse(payload) as { type: string; delta?: string; response?: { error?: { message?: string } } };
-          if (ev.type === "response.output_text.delta" && ev.delta) out += ev.delta;
-          else if (ev.type === "response.refusal.delta" && ev.delta) refusal += ev.delta;
-          else if (ev.type === "response.failed" || ev.type === "error")
-            throw new AiError(ev.response?.error?.message ?? "AI generation failed", 502);
-        } catch (e) {
-          if (e instanceof AiError) throw e;
-        }
-      }
+  } catch {
+    throw new AiError("تعذر الاتصال بـ Gemini أو انتهت مهلة الطلب. راجع حالة المهمة قبل إعادة المحاولة", 504);
+  }
+  if (!res.ok) {
+    // Never return the provider's raw response, prompts, or credentials to clients.
+    const messages: Record<number, string> = {
+      400: "رفض Gemini صيغة الطلب. راجع النموذج والمخطط وحجم الملف في إعدادات الخادم",
+      401: "مفتاح Gemini غير صالح. راجع إعدادات الخادم",
+      403: "Gemini رفض الوصول. راجع المفتاح وصلاحيات المشروع وتوفر الخدمة",
+      404: "نموذج Gemini المطلوب غير متاح لهذا المشروع",
+      429: "تم تجاوز حصة أو معدل استخدام Google. راجع الفوترة والحصة وانتظر قبل المحاولة",
+    };
+    throw new AiError(messages[res.status] ?? `تعذر إكمال طلب Gemini (${res.status})`, res.status);
+  }
+  try { return await res.json() as T; }
+  catch { throw new AiError("وصل رد غير صالح من Gemini", 502); }
+}
+
+function parts(body: Generated): Part[] {
+  const candidate = body.candidates?.[0];
+  if (body.promptFeedback?.blockReason || (candidate?.finishReason && candidate.finishReason !== "STOP")) {
+    throw new AiError(candidate?.finishReason === "MAX_TOKENS"
+      ? "توقف التوليد لأن المحتوى طويل. قلل حجم الدفعة"
+      : "لم يكتمل التوليد أو رفض Gemini هذا المحتوى", 422);
+  }
+  return (candidate?.content?.parts ?? []).filter(p => !p.thought);
+}
+
+export const geminiProvider: AiProvider = {
+  name: "gemini",
+  model: CHAT_MODEL,
+  async generateJson<T>({ system, user, schema, files }: Parameters<AiProvider["generateJson"]>[0]): Promise<T> {
+    // schemaName and effort are retained for caller compatibility. Google uses its default thinking policy.
+    const input: Part[] = [];
+    for (const file of files ?? []) {
+      // Leave room for base64 overhead and the rest of the request; larger PDFs need the Files API.
+      if (file.base64.length > 20_000_000) throw new AiError("ملف OCR كبير جدًا للإرسال المباشر. قسّمه إلى ملفات أصغر", 413);
+      input.push({ inlineData: { mimeType: "application/pdf", data: file.base64 } });
     }
-    if (!out && refusal) throw new AiError("AI refused: " + refusal, 422);
-    if (!out) throw new AiError("AI returned empty output", 502);
-    return JSON.parse(stripFences(out)) as T;
+    input.push({ text: user });
+    const body = await request<Generated>(CHAT_MODEL, "generateContent", {
+      systemInstruction: { parts: [{ text: system }] },
+      contents: [{ role: "user", parts: input }],
+      generationConfig: { responseMimeType: "application/json", responseJsonSchema: schema, maxOutputTokens: 32768 },
+    });
+    const text = parts(body).map(p => p.text ?? "").join("").trim();
+    if (!text) throw new AiError("لم يُرجع Gemini محتوى", 502);
+    try { return JSON.parse(text.replace(/^```(?:json)?\s*/i, "").replace(/```$/, "").trim()) as T; }
+    catch { throw new AiError("أرجع Gemini JSON غير صالح. لم يتم اعتماد المحتوى", 502); }
   },
 };
 
-export function getProvider(): AiProvider {
-  return lovableProvider;
-}
+export function getProvider(): AiProvider { return geminiProvider; }
 
 export async function embed(texts: string[]): Promise<number[][]> {
   const out: number[][] = [];
-  for (let s = 0; s < texts.length; s += 64) {
-    const batch = texts.slice(s, s + 64);
-    const res = await fetch(`${GATEWAY}/embeddings`, {
-      method: "POST",
-      headers: headers(),
-      body: JSON.stringify({ model: EMBED_MODEL, input: batch }),
+  for (let start = 0; start < texts.length; start += 32) {
+    const batch = texts.slice(start, start + 32);
+    const body = await request<{ embeddings?: { values?: number[] }[] }>(EMBED_MODEL, "batchEmbedContents", {
+      requests: batch.map(text => ({ model: `models/${EMBED_MODEL}`, content: { parts: [{ text }] }, outputDimensionality: 3072 })),
     });
-    if (!res.ok) await failure(res);
-    const body = (await res.json()) as { data: { index: number; embedding: number[] }[] };
-    const sorted = [...body.data].sort((a, b) => a.index - b.index);
-    out.push(...sorted.map((d) => d.embedding));
+    if (body.embeddings?.length !== batch.length) throw new AiError("رد الفهرسة غير مكتمل", 502);
+    for (const embedding of body.embeddings) {
+      const values = embedding.values;
+      if (!values || values.length !== 3072 || values.some(v => !Number.isFinite(v))) throw new AiError("أبعاد الفهرسة غير صالحة", 502);
+      out.push(values);
+    }
   }
   return out;
+}
+
+export async function generateQuestionImage(prompt: string): Promise<{ base64: string; mimeType: string }> {
+  const body = await request<Generated>(IMAGE_MODEL, "generateContent", {
+    contents: [{ role: "user", parts: [{ text: prompt }] }],
+    generationConfig: { responseModalities: ["TEXT", "IMAGE"] },
+  });
+  const image = parts(body).find(p => p.inlineData?.mimeType.startsWith("image/"))?.inlineData;
+  if (!image?.data || !["image/png", "image/jpeg", "image/webp"].includes(image.mimeType)) throw new AiError("لم يرجع Gemini صورة صالحة", 502);
+  return { base64: image.data, mimeType: image.mimeType };
 }
