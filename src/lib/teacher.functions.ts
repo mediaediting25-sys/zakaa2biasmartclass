@@ -274,25 +274,14 @@ export const setQuestionImage = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let path: string | null = null;
     if (!data.remove) {
-      const { generateImage, GatewayError } = await import("@lovable.dev/ai-gateway");
-      let b64: string | undefined;
-      try {
-        const res = await generateImage({
-          model: "openai/gpt-image-2.5-sunburst",
-          prompt: `Create a clear, friendly, accurate educational illustration for this school question. Do not reveal the answer and avoid any text in the image. Question: ${q.stem}`,
-          size: "1024x1024", quality: "medium", output_format: "webp",
-        });
-        b64 = res.data?.[0]?.b64_json;
-      } catch (e) {
-        if (e instanceof GatewayError && e.httpStatus === 402) throw new Error("رصيد الذكاء الاصطناعي انتهى — AI credits exhausted");
-        if (e instanceof GatewayError && e.httpStatus === 429) throw new Error("ضغط كبير على الخدمة، حاول بعد قليل");
-        throw new Error("تعذر توليد الصورة");
-      }
-      const m = b64 ? (["", "image/webp", b64] as const) : null;
-      if (!m) throw new Error("تعذر توليد الصورة");
-      const bytes = Uint8Array.from(atob(m[2]), (c) => c.charCodeAt(0));
-      path = `${q.course_id}/${data.questionId}-${Date.now()}.${m[1].split("/")[1]}`;
-      const up = await supabaseAdmin.storage.from("question-images").upload(path, bytes, { contentType: m[1] });
+      const { generateQuestionImage } = await import("@/server/ai/gateway.server");
+      const image = await generateQuestionImage(
+        `Create a clear, friendly, accurate educational illustration for this school question. Do not reveal the answer and avoid any text in the image. Question: ${q.stem}`,
+      );
+      const bytes = Uint8Array.from(atob(image.base64), c => c.charCodeAt(0));
+      const extension = image.mimeType === "image/jpeg" ? "jpg" : image.mimeType.split("/")[1];
+      path = `${q.course_id}/${data.questionId}-${Date.now()}.${extension}`;
+      const up = await supabaseAdmin.storage.from("question-images").upload(path, bytes, { contentType: image.mimeType });
       if (up.error) throw new Error("تعذر حفظ الصورة");
     }
     const { error: updateError } = await context.supabase.from("questions").update({ image_path: path, status: "draft" }).eq("id", data.questionId);
