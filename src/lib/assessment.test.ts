@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { assessmentOptions, assessmentSection, batchReadyForPublication, distributeQuestionCount, isRepeatedQuestion, canDeleteQuestion } from "./assessment";
+import { assessmentOptions, assessmentSection, batchReadyForPublication, distributeQuestionCount, isRepeatedQuestion, canDeleteQuestion, isDuplicateQuestion, buildActivityTitle, displayActivityTitle } from "./assessment";
 
 describe("teacher assessment rules", () => {
   it("accepts Arabic, English and both for question and homework generation", () => {
@@ -34,5 +34,25 @@ describe("teacher assessment rules", () => {
     expect(assessmentOptions.parse({ age: 6, grade: "Grade 1", topic: "الوحدة الثالثة", count: 8 }).age).toBe(6);
     expect(assessmentOptions.safeParse({ count: 0 }).success).toBe(false);
     expect(assessmentOptions.safeParse({ count: 2.5 }).success).toBe(false);
+  });
+  it("catches the same fact asked twice in one set", () => {
+    const a = "تدور الأقمار الصناعية حول الأرض لإرسال المعلومات";
+    expect(isRepeatedQuestion("الأقمار الصناعية تدور حول الأرض لإرسال المعلومات", [a])).toBe(true);
+    expect(isRepeatedQuestion("ما وظيفة الرادار في الطقس؟", [a])).toBe(false);
+    const first = { stem: "ما الأداة التي تكشف الأمطار والعواصف؟", correct_answer: "جهاز الرادار" };
+    expect(isDuplicateQuestion({ stem: "أي أداة تستخدم لكشف العواصف والأمطار؟", correct_answer: "جهاز الرادار" }, [first])).toBe(true);
+    expect(isDuplicateQuestion({ stem: "ما وظيفة الأقمار الصناعية؟", correct_answer: "جهاز الرادار" }, [first])).toBe(false);
+    expect(isDuplicateQuestion({ stem: "الشمس نجم", correct_answer: "صح" }, [{ stem: "القمر تابع", correct_answer: "صح" }])).toBe(false);
+  });
+  it("builds readable activity titles without ISO timestamps", () => {
+    const now = new Date("2026-11-21T22:19:57.846Z");
+    const t = buildActivityTitle({ language: "ar", lessonTitle: "الطقس", sequence: 3, now });
+    expect(t).toBe("تدريب: الطقس · عربي · #3 · 2026-11-22");
+    expect(buildActivityTitle({ language: "en", homework: true, lessonTitle: "Weather", sequence: 1, now })).toBe("Homework: Weather · English · #1 · 2026-11-22");
+    expect(t).not.toMatch(/T\d{2}:/);
+  });
+  it("shows old titles with a short date and time instead of raw ISO", () => {
+    expect(displayActivityTitle("تدريب: الطقس · AR · 2026-11-21T22:19:57.846Z")).toBe("تدريب: الطقس · عربي · 2026-11-22 00:19");
+    expect(displayActivityTitle("تدريب: الطقس")).toBe("تدريب: الطقس");
   });
 });
