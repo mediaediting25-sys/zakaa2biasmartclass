@@ -1,7 +1,7 @@
 // OCR for scanned PDF pages: split image-only pages into small PDFs and let the AI read them.
 import { PDFDocument } from "pdf-lib";
 
-import { getProvider } from "./gateway.server";
+import { AiError, getProvider } from "./gateway.server";
 
 const BATCH = 4; // pages per AI request
 const CONCURRENCY = 3;
@@ -68,7 +68,7 @@ export async function ocrScannedPages(bytes: Uint8Array, pages: { page: number; 
           await run(b);
         } catch (e) {
           console.error("OCR batch failed", b[0]!.page, e);
-          if (e instanceof Error && /402|credits|429/.test(e.message)) throw e;
+          if (e instanceof AiError || (e instanceof Error && /402|credits|429/.test(e.message))) throw e;
         }
       }
     }),
