@@ -12,6 +12,7 @@ import { useI18n } from "@/lib/i18n";
 import { readSlides, type LessonSlide } from "@/lib/lesson-tools";
 import { generatePresentation, saveCoursePlan } from "@/lib/lesson-tools.functions";
 import type { PlanSession } from "@/lib/pacing";
+import { LivingBookViewer } from "@/components/LivingBookViewer";
 
 export function PacingPanel({ courseId }: { courseId: string }) {
   const { tr, locale, message } = useI18n();
@@ -151,6 +152,11 @@ export function LessonPresentationTools({ courseId, lessonId, presentations, mod
 }
 
 export function SlideViewer({ title, slides, dir, onClose }: { title: string; slides: LessonSlide[]; dir: "rtl" | "ltr"; onClose: () => void }) {
+  if (slides.some(slide => slide.livingBook)) return <LivingBookViewer title={title} slides={slides} dir={dir} onClose={onClose} />;
+  return <LegacySlideViewer title={title} slides={slides} dir={dir} onClose={onClose} />;
+}
+
+function LegacySlideViewer({ title, slides, dir, onClose }: { title: string; slides: LessonSlide[]; dir: "rtl" | "ltr"; onClose: () => void }) {
   const { tr } = useI18n();
   const [i, setI] = useState(0);
   const [pick, setPick] = useState<string | null>(null);

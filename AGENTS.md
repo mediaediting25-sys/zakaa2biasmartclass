@@ -31,3 +31,4 @@
 - Persist palette selection only after hydration and apply semantic tokens at the root so all routes preserve the shared background.
 - Generation language is explicit teacher input; retain original source quotations and use separate reviewable batches per output language.
 - Parent-code redemption is non-consuming and requires a non-archived enrollment; rejected-question deletion is enforced in a teacher-authorized database function and refuses student-answer history.
+- Render living-book presentations from validated, browser-safe scene data and source-grounded tool outcomes, never generated scripts; keep the paper theme scoped to the viewer and retain legacy presentations for compatibility.
