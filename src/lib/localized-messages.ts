@@ -2,6 +2,10 @@ import type { Locale } from "./i18n";
 
 // Fixed system wording only; names, answers, source quotes and teacher comments stay unchanged.
 const phrases: Record<string, string> = {
+  "طلب حذف حساب بانتظار الموافقة": "Account deletion request awaiting approval",
+  " يطلب حذف حسابه نهائيًا. راجع الطلب في صفحة إدارة المنصة.": " asks to delete their account permanently. Review the request on the platform administration page.",
+  "تم رفض طلب حذف حسابك": "Your account deletion request was rejected",
+  "رفضت الإدارة طلب حذف حسابك. حسابك كما هو.": "The administration rejected your deletion request. Your account is unchanged.",
   "انتهت مدة التجربة أو الاشتراك. يمكنك قراءة مقرراتك وتقاريرك، وطلب التجديد لاستئناف الإنشاء والتوليد والنشر.": "Your trial or subscription has ended. You can read your courses and reports, and request renewal to resume creating, generating and publishing.",
   "تعذر التحقق من الاشتراك؛ حاول مرة أخرى.": "Unable to verify your subscription. Please try again.",
   "النشاط غير متاح — activity not available": "Activity not available",

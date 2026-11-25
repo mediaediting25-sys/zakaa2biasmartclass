@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireLiveAccount } from "@/lib/live-account-middleware";
 import { questionIssues } from "./lesson-tools";
 import { assessmentOptions, batchReadyForPublication, distributeQuestionCount, canDeleteQuestion } from "./assessment";
 import { requireTeacherAccess } from "./teacher-access";
@@ -14,7 +14,7 @@ async function assertTeacher(supabase: any, courseId: string) {
 
 /** Index a PDF and extract a grounded curriculum draft (never auto-published). */
 export const processDocument = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireLiveAccount])
   .inputValidator((d: unknown) => z.object({ documentId: z.string().uuid(), language: z.enum(["ar", "en"]).optional() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: doc, error } = await context.supabase
@@ -58,7 +58,7 @@ export const processDocument = createServerFn({ method: "POST" })
   });
 
 export const generateQuestions = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireLiveAccount])
   .inputValidator((d: unknown) =>
     assessmentOptions.extend({ lessonId: z.string().uuid() }).parse(d),
   )
@@ -72,7 +72,7 @@ export const generateQuestions = createServerFn({ method: "POST" })
   });
 
 export const deleteRejectedQuestion = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireLiveAccount])
   .inputValidator((d: unknown) => z.object({ questionId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: q, error } = await context.supabase.from("questions").select("course_id, status").eq("id", data.questionId).single();
@@ -85,7 +85,7 @@ export const deleteRejectedQuestion = createServerFn({ method: "POST" })
   });
 
 export const generateHomework = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireLiveAccount])
   .inputValidator((d: unknown) => assessmentOptions.extend({ lessonId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: lesson } = await context.supabase.from("lessons").select("course_id").eq("id", data.lessonId).maybeSingle();
@@ -102,7 +102,7 @@ export const generateHomework = createServerFn({ method: "POST" })
  * grounded questions (never copying exam text verbatim).
  */
 export const generateExamStyleQuestions = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireLiveAccount])
   .inputValidator((d: unknown) =>
     assessmentOptions.extend({ lessonId: z.string().uuid() }).parse(d),
   )
@@ -168,7 +168,7 @@ export const questionGateIssues = questionIssues;
 
 /** Hierarchical publish gate: approved+grounded question → activity → lesson → unit → course. */
 export const publishCourse = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireLiveAccount])
   .inputValidator((d: unknown) => z.object({ courseId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const sb = context.supabase;
@@ -210,7 +210,7 @@ export const publishCourse = createServerFn({ method: "POST" })
   });
 
 export const generateAssessmentBatch = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireLiveAccount])
   .inputValidator((d: unknown) => assessmentOptions.extend({ courseId: z.string().uuid(), unitId: z.string().uuid().optional(), lessonId: z.string().uuid().optional(), kind: z.enum(["practice", "homework"]) }).parse(d))
   .handler(async ({ data, context }) => {
     await assertTeacher(context.supabase, data.courseId);
@@ -232,7 +232,7 @@ export const generateAssessmentBatch = createServerFn({ method: "POST" })
   });
 
 export const publishAssessment = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireLiveAccount])
   .inputValidator((d: unknown) => z.object({ activityId: z.string().uuid(), publish: z.boolean() }).parse(d))
   .handler(async ({ data, context }) => {
     const sb = context.supabase;
@@ -264,7 +264,7 @@ export const publishAssessment = createServerFn({ method: "POST" })
 
 /** Generate an educational illustration for a question; it returns to draft for teacher review. */
 export const setQuestionImage = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireLiveAccount])
   .inputValidator((d: unknown) => z.object({ questionId: z.string().uuid(), remove: z.boolean().optional() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: q, error } = await context.supabase.from("questions").select("course_id, status, stem, image_path").eq("id", data.questionId).single();

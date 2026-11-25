@@ -9,6 +9,7 @@ import { useI18n } from "@/lib/i18n";
 import { useProfile, useSession, useRole } from "@/hooks/useSession";
 import { NotificationBell } from "@/components/NotificationBell";
 import { BackButton } from "@/components/BackButton";
+import { DeleteAccountDialog } from "@/components/DeleteAccountDialog";
 import { InstallButton } from "@/components/InstallButton";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -75,6 +76,7 @@ export function AppShell({
               {profile?.full_name ?? profile?.email}
             </span>
             {user && <NotificationBell userId={user.id} />}
+            {user && <DeleteAccountDialog role={role} email={user.email} />}
             <Button
               variant="ghost"
               size="sm"

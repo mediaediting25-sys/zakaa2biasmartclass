@@ -1,9 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireLiveAccount } from "@/lib/live-account-middleware";
 import { buildStudentRows } from "./teacher-dashboard";
 
 export const getTeacherDashboard = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireLiveAccount])
   .handler(async ({ context }) => {
     const db = context.supabase;
     const role = await db.from("user_roles").select("role").eq("user_id", context.userId).in("role", ["teacher", "admin"]);
@@ -21,5 +21,14 @@ export const getTeacherDashboard = createServerFn({ method: "GET" })
     const studentIds = [...new Set((enrollments.data ?? []).map((e) => e.student_id))];
     const profiles = studentIds.length ? await db.from("profiles").select("id, full_name, email").in("id", studentIds) : { data: [], error: null };
     if (profiles.error) throw new Error("تعذر تحميل أسماء الطلاب");
-    return { courses: courses.data ?? [], students: buildStudentRows(enrollments.data ?? [], profiles.data ?? [], activities.data ?? [], attempts.data ?? []) };
+    // Students who deleted their account keep their records: read the saved name (only for students of this teacher's courses).
+    const known = new Set((profiles.data ?? []).map((p) => p.id));
+    const missing = studentIds.filter((id) => !known.has(id));
+    let departed: { id: string; full_name: string | null; email: string | null }[] = [];
+    if (missing.length) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const saved = await (supabaseAdmin as unknown as import("@supabase/supabase-js").SupabaseClient).from("departed_accounts").select("user_id, full_name, email").in("user_id", missing);
+      departed = ((saved.data ?? []) as { user_id: string; full_name: string | null; email: string | null }[]).map((d) => ({ id: d.user_id, full_name: d.full_name, email: d.email }));
+    }
+    return { courses: courses.data ?? [], students: buildStudentRows(enrollments.data ?? [], profiles.data ?? [], activities.data ?? [], attempts.data ?? [], departed) };
   });

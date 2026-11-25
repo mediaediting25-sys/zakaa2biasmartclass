@@ -8,6 +8,8 @@ export const getTeacherPhotoUrl = createServerFn({ method: "POST" })
     const { data: listing } = await supabaseAdmin
       .from("teacher_listings").select("teacher_id").eq("photo_path", data.path).eq("is_listed", true).maybeSingle();
     if (!listing || data.path.split("/")[0] !== listing.teacher_id) return null;
+    const { hiddenTeacherIds } = await import("@/server/directory.server");
+    if ((await hiddenTeacherIds(supabaseAdmin as never)).has(listing.teacher_id)) return null;
     const { data: signed } = await supabaseAdmin.storage.from("teacher-avatars").createSignedUrl(data.path, 3600);
     return signed?.signedUrl ?? null;
   });

@@ -1,11 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireLiveAccount } from "@/lib/live-account-middleware";
 import { canManageBlock } from "@/lib/admin";
 
 export const setAccountBlocked = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireLiveAccount])
   .inputValidator((input: unknown) => z.object({ userId: z.string().uuid(), blocked: z.boolean() }).parse(input))
   .handler(async ({ data, context }) => {
     const [{ data: isOwner, error: ownerError }, { data: allowed, error: permissionError }] = await Promise.all([
