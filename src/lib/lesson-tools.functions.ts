@@ -1,10 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireLiveAccount } from "@/lib/live-account-middleware";
 import { buildPlan } from "./pacing";
 import { requireTeacherAccess } from "./teacher-access";
 
-export const saveCoursePlan = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
+export const saveCoursePlan = createServerFn({ method: "POST" }).middleware([requireLiveAccount])
   .inputValidator((d: unknown) => z.object({ courseId: z.string().uuid(), start: z.string().date(), end: z.string().date(), perPeriod: z.number().int().min(1).max(30), period: z.enum(["week", "month"]), reviewPerUnit: z.boolean() }).refine(d => d.end >= d.start && d.perPeriod <= (d.period === "week" ? 7 : 30), "Invalid plan dates or frequency").parse(d))
   .handler(async ({ data, context }) => {
     const { data: allowed, error } = await context.supabase.rpc("is_course_teacher", { _course_id: data.courseId });
@@ -22,7 +22,7 @@ export const saveCoursePlan = createServerFn({ method: "POST" }).middleware([req
     return { schedule };
   });
 
-export const generatePresentation = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
+export const generatePresentation = createServerFn({ method: "POST" }).middleware([requireLiveAccount])
   .inputValidator((d: unknown) => z.object({ lessonId: z.string().uuid(), language: z.enum(["ar", "en", "both"]), age: z.number().int().min(4).max(22), count: z.number().int().min(1).max(10).default(3), topic: z.string().trim().max(300).default(""), grade: z.string().trim().max(80).default("") }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: lesson } = await context.supabase.from("lessons").select("course_id").eq("id", data.lessonId).maybeSingle();

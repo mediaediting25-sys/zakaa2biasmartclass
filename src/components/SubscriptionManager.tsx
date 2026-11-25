@@ -12,6 +12,7 @@ import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { SubscriptionPaymentDialog } from "./SubscriptionPaymentDialog";
+import { DepartedAuditHistory } from "./DepartedAuditHistory";
 
 export function SubscriptionManager({ userId }: { userId: string }) {
   const { tr, locale } = useI18n();
@@ -89,6 +90,7 @@ export function SubscriptionManager({ userId }: { userId: string }) {
       <label className="block">{tr("سبب الإضافة")}<Textarea name="reason" maxLength={1000} /></label>
       <Button disabled={save.isPending} type="submit"><Save className="size-4" />{tr("حفظ المدة")}</Button>
     </form>}</DialogContent></Dialog>
+    <DepartedAuditHistory />
   </section>;
 }
 

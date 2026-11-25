@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Ban, RotateCcw, ShieldCheck, Users, Search } from "lucide-react";
 import { toast } from "sonner";
 
+import { PendingCleanupButton } from "@/components/PendingCleanupButton";
 import { PlatformEditors } from "@/components/PlatformEditors";
 import { SubscriptionManager } from "@/components/SubscriptionManager";
 import { SubjectManager } from "@/components/SubjectManager";
@@ -91,6 +92,7 @@ function AdminPage() {
   const rows = (users.data ?? []).filter(u => `${u.full_name ?? ""} ${u.email ?? ""}`.toLowerCase().includes(search.toLowerCase()) && (filter === "all" || u.roles.includes(filter)));
 
   return <AppShell title={tr("إدارة المنصة")} homeTo={access.data ? "/admin" : "/teacher"}>
+    <PendingCleanupButton />
     {access.isError || permissions.isError ? <p role="alert" className="text-destructive">{tr("تعذر تحميل الصلاحيات")}</p> : access.isPending || permissions.isPending ? <p role="status">{tr("جارٍ التحميل…")}</p> : !(manageUsers || manageRoles) ? <>
       <p>{tr("لم يُمنح حسابك صلاحية إدارة المستخدمين أو الأدوار")}</p>
       <ul className="mt-4 space-y-2">{visibleSections.map(p => <li key={p}>{sectionLabels[p]}</li>)}</ul>

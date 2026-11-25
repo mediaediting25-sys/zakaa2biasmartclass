@@ -1,3 +1,4 @@
+import { studentDisplayName } from "./account-deletion";
 export type DashboardEnrollment = { course_id: string; student_id: string; created_at: string };
 export type DashboardAttempt = { course_id: string; student_id: string; activity_id: string; score: number | null; max_score: number | null; submitted_at: string | null };
 
@@ -6,9 +7,11 @@ export function buildStudentRows(
   profiles: { id: string; full_name: string | null; email: string | null }[],
   activities: { id: string; course_id: string }[],
   attempts: DashboardAttempt[],
+  departed: { id: string; full_name: string | null; email: string | null }[] = [],
 ) {
   return enrollments.map((enrollment) => {
     const profile = profiles.find((p) => p.id === enrollment.student_id);
+    const shown = studentDisplayName(profile, departed.find((d) => d.id === enrollment.student_id));
     const published = new Set(activities.filter((a) => a.course_id === enrollment.course_id).map((a) => a.id));
     const submitted = attempts.filter((a) => a.course_id === enrollment.course_id && a.student_id === enrollment.student_id && a.submitted_at);
     const latest = new Map<string, DashboardAttempt>();
@@ -22,7 +25,7 @@ export function buildStudentRows(
     const completed = [...latest.keys()].filter((id) => published.has(id)).length;
     return {
       courseId: enrollment.course_id, studentId: enrollment.student_id,
-      name: profile?.full_name || profile?.email || "طالب", email: profile?.email ?? null,
+      name: shown.name, left: shown.left, email: profile?.email ?? null,
       enrolledAt: enrollment.created_at, completed, total: published.size,
       attempts: submitted.length, score, maxScore,
       percentage: maxScore > 0 ? Math.round(score / maxScore * 100) : null,

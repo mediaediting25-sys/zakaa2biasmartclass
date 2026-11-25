@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { answerMatches } from "./lesson-tools";
 
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireLiveAccount } from "@/lib/live-account-middleware";
 
 /** Activity readable by the caller under RLS (published + enrolled), else throws. */
 async function assertActivity(supabase: any, activityId: string) {
@@ -18,7 +18,7 @@ async function assertActivity(supabase: any, activityId: string) {
 
 /** Questions without answers: correct answers stay on the server. */
 export const getStudentActivity = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireLiveAccount])
   .inputValidator((d: unknown) => z.object({ activityId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const activity = await assertActivity(context.supabase, data.activityId);
@@ -65,7 +65,7 @@ export const getStudentActivity = createServerFn({ method: "POST" })
   });
 
 export const submitAttempt = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireLiveAccount])
   .inputValidator((d: unknown) =>
     z
       .object({
@@ -78,6 +78,9 @@ export const submitAttempt = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const activity = await assertActivity(context.supabase, data.activityId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // A deleted account's old login token stays valid for a while; refuse to record work for it.
+    const { assertLoginExists } = await import("@/server/account-deletion.server");
+    await assertLoginExists(supabaseAdmin as never, context.userId);
 
     // Retake lock: one submitted attempt per activity unless the teacher granted a retake.
     const { data: prior } = await supabaseAdmin
