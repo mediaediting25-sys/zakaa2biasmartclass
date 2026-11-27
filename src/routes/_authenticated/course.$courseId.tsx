@@ -103,6 +103,13 @@ const statusLabel: Record<string, string> = {
   });
 
   const c = cur.data;
+  const [tab, setTab] = useState<"files" | "pacing" | "questions" | "reports">("files");
+  const tabs: { id: typeof tab; label: string }[] = [
+    { id: "files", label: tr("الملفات والمواد") },
+    { id: "pacing", label: tr("خطة الدراسة") },
+    { id: "questions", label: tr("الأسئلة والأنشطة") },
+    { id: "reports", label: tr("تقارير الطلاب") },
+  ];
   return (
     <AppShell
       title={course.data?.title ?? tr("المقرر")}
@@ -122,6 +129,25 @@ const statusLabel: Record<string, string> = {
         </div>
       }
     >
+      <div role="tablist" className="mb-6 flex flex-wrap gap-2 border-b border-border">
+        {tabs.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            role="tab"
+            aria-selected={tab === t.id}
+            onClick={() => setTab(t.id)}
+            className={
+              "rounded-t-xl px-5 py-3 text-sm font-bold transition-colors " +
+              (tab === t.id ? "border-b-2 border-primary bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground")
+            }
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      <div className={tab === "files" ? "" : "hidden"}>
       <section className="surface mb-8 rounded-2xl p-5">
         <h2 className="mb-3 font-display text-lg font-bold">{tr("ملفات المقرر")}</h2>
         <div className="mb-4 flex flex-wrap items-center gap-3">
@@ -182,11 +208,19 @@ const statusLabel: Record<string, string> = {
       </section>
 
       <TeacherMaterialsPanel courseId={courseId} />
-      <PacingPanel courseId={courseId} />
+      </div>
 
-      {c && <AssessmentWorkspace courseId={courseId} curriculum={c} refresh={refresh} />}
+      <div className={tab === "pacing" ? "" : "hidden"}>
+        <PacingPanel courseId={courseId} />
+      </div>
 
-      <StudentReports courseId={courseId} />
+      <div className={tab === "questions" ? "" : "hidden"}>
+        {c && <AssessmentWorkspace courseId={courseId} curriculum={c} refresh={refresh} />}
+      </div>
+
+      <div className={tab === "reports" ? "" : "hidden"}>
+        <StudentReports courseId={courseId} />
+      </div>
     </AppShell>
   );
 }
