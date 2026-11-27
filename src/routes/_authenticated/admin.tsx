@@ -95,7 +95,7 @@ function AdminPage() {
 
   const ready = !access.isPending && !access.isError && !permissions.isPending && !permissions.isError && !!user;
   const tabs: { id: string; label: string }[] = !ready ? [] : [
-    ...(access.data === true ? [{ id: "overview", label: tr("نظرة عامة") }] : []),
+    ...(canUseAdminSection(access.data === true, mine, "general_admin") ? [{ id: "overview", label: tr("نظرة عامة") }] : []),
     ...(manageUsers || manageRoles ? [{ id: "users", label: tr("المستخدمون والأدوار") }] : []),
     ...(visibleSections.includes("pricing") ? [{ id: "pricing", label: tr("الأسعار والباقات") }] : []),
     ...(visibleSections.includes("subscriptions") ? [{ id: "subscriptions", label: tr("الاشتراكات") }] : []),
@@ -107,11 +107,11 @@ function AdminPage() {
 
   return <AppShell title={tr("إدارة المنصة")} homeTo={access.data ? "/admin" : "/teacher"}>
     <PendingCleanupButton />
-    {access.isError || permissions.isError ? <p role="alert" className="text-destructive">{tr("تعذر تحميل الصلاحيات")}</p> : access.isPending || permissions.isPending ? <p role="status">{tr("جارٍ التحميل…")}</p> : !(manageUsers || manageRoles) ? <>
+    {access.isError || permissions.isError ? <p role="alert" className="text-destructive">{tr("تعذر تحميل الصلاحيات")}</p> : access.isPending || permissions.isPending ? <p role="status">{tr("جارٍ التحميل…")}</p> : !(manageUsers || manageRoles) ? (tabs.length === 1 && tabs[0]?.id === "overview" ? null : <>
       <p>{tr("لم يُمنح حسابك صلاحية إدارة المستخدمين أو الأدوار")}</p>
       <ul className="mt-4 space-y-2">{visibleSections.map(p => <li key={p}>{sectionLabels[p]}</li>)}</ul>
       
-    </> : null}
+    </>) : null}
     {ready && tabs.length > 0 && <div role="tablist" className="mb-6 mt-2 flex flex-nowrap gap-2 overflow-x-auto border-b border-border">
       {tabs.map(t => <button key={t.id} type="button" role="tab" aria-selected={activeTab === t.id} onClick={() => setTab(t.id)} className={"shrink-0 whitespace-nowrap rounded-t-xl px-4 py-3 text-sm font-bold transition-colors sm:px-5 " + (activeTab === t.id ? "border-b-2 border-primary bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground")}>{t.label}</button>)}
     </div>}
