@@ -1,4 +1,5 @@
 import { teacherAccessStatus } from "./subscriptions";
+import { buildStudentRows } from "./teacher-dashboard";
 
 export const ENDING_SOON_DAYS = 14;
 
@@ -106,5 +107,68 @@ export function buildOverview(input: OverviewInput, now: number = Date.now()): O
       endingSoon,
     },
     teachers,
+  };
+}
+
+export type DetailInput = {
+  teacher: { id: string; full_name: string | null; email: string | null; created_at?: string | null };
+  courses: { id: string; title: string; subject: string | null; grade_level: string | null; status: string }[];
+  enrollments: { course_id: string; student_id: string; created_at: string }[];
+  activities: { id: string; course_id: string }[];
+  attempts: { course_id: string; student_id: string; activity_id: string; score: number | null; max_score: number | null; submitted_at: string | null }[];
+  studentProfiles: { id: string; full_name: string | null; email: string | null }[];
+  departed: { id: string; full_name: string | null; email: string | null }[];
+  periods: { teacher_id: string; starts_at: string; ends_at: string; plan_id?: string }[];
+  owners?: string[];
+};
+
+export type TeacherDetail = {
+  teacher: TeacherRow;
+  averagePercentage: number | null;
+  courses: { id: string; title: string; subject: string; grade: string; status: string; students: number }[];
+  students: { key: string; name: string; left: boolean; courseTitle: string; completed: number; percentage: number | null }[];
+};
+
+/** Detail for one teacher: names and scores of the students. Emails are dropped so a nameless student shows as "طالب", never an email. */
+export function buildTeacherDetail(input: DetailInput, now: number = Date.now()): TeacherDetail {
+  const base = buildOverview(
+    {
+      roles: [{ user_id: input.teacher.id, role: "teacher" }],
+      profiles: [input.teacher],
+      courses: input.courses.map((c) => ({ id: c.id, teacher_id: input.teacher.id, status: c.status })),
+      enrollments: input.enrollments,
+      periods: input.periods,
+      ...(input.owners ? { owners: input.owners } : {}),
+    },
+    now,
+  );
+  const rows = buildStudentRows(
+    input.enrollments,
+    input.studentProfiles.map((p) => ({ ...p, email: null })),
+    input.activities,
+    input.attempts,
+    input.departed.map((p) => ({ ...p, email: null })),
+  );
+  const titleOf = new Map(input.courses.map((c) => [c.id, c.title]));
+  const percents = rows.filter((r) => r.percentage !== null).map((r) => r.percentage as number);
+  return {
+    teacher: base.teachers[0] as TeacherRow,
+    averagePercentage: percents.length ? Math.round(percents.reduce((a, b) => a + b, 0) / percents.length) : null,
+    courses: input.courses.map((c) => ({
+      id: c.id,
+      title: c.title,
+      subject: c.subject ?? "",
+      grade: c.grade_level ?? "",
+      status: c.status,
+      students: input.enrollments.filter((e) => e.course_id === c.id).length,
+    })),
+    students: rows.map((r) => ({
+      key: `${r.courseId}:${r.studentId}`,
+      name: r.name,
+      left: r.left,
+      courseTitle: titleOf.get(r.courseId) ?? "",
+      completed: r.completed,
+      percentage: r.percentage,
+    })),
   };
 }
