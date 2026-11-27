@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildOverview } from "./owner-overview";
+import { buildOverview, buildTeacherDetail } from "./owner-overview";
 
 const now = Date.parse("2026-11-27T12:00:00Z");
 const day = 86_400_000;
@@ -67,5 +67,49 @@ describe("buildOverview", () => {
       const o = buildOverview({ ...base, profiles: [], periods: [], courses: [{ id: "c", teacher_id: "t", status: "archived" }] }, now);
       expect(o.totals.archivedCourses).toBe(1);
     });
+  });
+});
+
+describe("buildTeacherDetail", () => {
+  const base = {
+    teacher: { id: "t1", full_name: "T", email: "t@x.com" },
+    courses: [
+      { id: "c1", title: "Math", subject: "math", grade_level: "g1", status: "published" },
+      { id: "c2", title: "Empty", subject: null, grade_level: null, status: "draft" },
+    ],
+    enrollments: [
+      { course_id: "c1", student_id: "s1", created_at: iso(-5) },
+      { course_id: "c1", student_id: "s2", created_at: iso(-4) },
+      { course_id: "c1", student_id: "s3", created_at: iso(-3) },
+    ],
+    activities: [{ id: "a1", course_id: "c1" }],
+    attempts: [
+      { course_id: "c1", student_id: "s1", activity_id: "a1", score: 8, max_score: 10, submitted_at: iso(-2) },
+      { course_id: "c1", student_id: "s2", activity_id: "a1", score: 1, max_score: 1, submitted_at: iso(-2) },
+    ],
+    studentProfiles: [
+      { id: "s1", full_name: "Ali", email: "ali@x.com" },
+      { id: "s3", full_name: null, email: "noname@x.com" },
+    ],
+    departed: [{ id: "s2", full_name: "Omar", email: "omar@x.com" }],
+    periods: [{ teacher_id: "t1", starts_at: iso(-30), ends_at: iso(60) }],
+  };
+  const out = buildTeacherDetail(base, now);
+  it("gives names, per-student and overall averages", () => {
+    expect(out.averagePercentage).toBe(90);
+    expect(out.students.find((s) => s.name === "Ali")?.percentage).toBe(80);
+    expect(out.teacher.courses).toBe(2);
+  });
+  it("marks a departed student", () => {
+    const o = out.students.find((s) => s.left);
+    expect(o?.name.startsWith("Omar")).toBe(true);
+  });
+  it("never returns an email, even for a nameless student", () => {
+    expect(JSON.stringify(out.students)).not.toContain("@");
+    expect(out.students.some((s) => s.name === "طالب")).toBe(true);
+  });
+  it("handles an empty course", () => {
+    expect(out.courses.find((c) => c.id === "c2")?.students).toBe(0);
+    expect(buildTeacherDetail({ ...base, enrollments: [], attempts: [] }, now).averagePercentage).toBeNull();
   });
 });
