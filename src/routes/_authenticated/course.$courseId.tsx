@@ -129,7 +129,7 @@ const statusLabel: Record<string, string> = {
         </div>
       }
     >
-      <div role="tablist" className="mb-6 flex flex-wrap gap-2 border-b border-border">
+      <div role="tablist" className="mb-6 flex flex-nowrap gap-2 overflow-x-auto border-b border-border">
         {tabs.map((t) => (
           <button
             key={t.id}
@@ -138,7 +138,7 @@ const statusLabel: Record<string, string> = {
             aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
             className={
-              "rounded-t-xl px-5 py-3 text-sm font-bold transition-colors " +
+              "shrink-0 whitespace-nowrap rounded-t-xl px-4 py-3 text-sm font-bold transition-colors sm:px-5 " +
               (tab === t.id ? "border-b-2 border-primary bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground")
             }
           >
@@ -178,8 +178,8 @@ const statusLabel: Record<string, string> = {
         </div>
         <ul className="space-y-2 text-sm">
           {docs.data?.map((d) => (
-            <li key={d.id} className="document-row flex items-center justify-between gap-2 border-b border-border pb-2">
-              <span className="min-w-0 flex-1">
+            <li key={d.id} className="document-row flex flex-wrap items-center justify-between gap-2 border-b border-border pb-2">
+              <span className="min-w-0 flex-1 basis-40">
                 <span className="block truncate">{d.file_name}</span>
                 {d.processing_status === "processing" && (
                   <span className="mt-1 block">
@@ -192,8 +192,8 @@ const statusLabel: Record<string, string> = {
                   </span>
                 )}
               </span>
-              <span className="flex items-center gap-2">
-                {d.processing_error && <span className="max-w-xs truncate text-destructive">{message(d.processing_error)}</span>}
+              <span className="flex min-w-0 max-w-full flex-wrap items-center gap-2">
+                {d.processing_error && <span className="max-w-full break-words text-destructive">{message(d.processing_error)}</span>}
                 <Badge variant="secondary">{docStatusLabel[d.processing_status] ?? d.processing_status}</Badge>
                 {d.processing_status === "failed" && (
                   <Button size="sm" variant="outline" onClick={() => process({ data: { documentId: d.id, language } }).then(refresh, (e) => toast.error(message(e.message)))}>
