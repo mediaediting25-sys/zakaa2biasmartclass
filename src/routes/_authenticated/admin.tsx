@@ -39,6 +39,7 @@ function AdminPage() {
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
+  const [tab, setTab] = useState("overview");
   const updateBlock = useServerFn(setAccountBlocked);
   const labels = { admin: tr("مدير"), teacher: tr("معلم"), student: tr("طالب"), parent: tr("ولي أمر") };
   const sectionLabels: Record<AdministrativePermission, string> = {
@@ -92,14 +93,31 @@ function AdminPage() {
   });
   const rows = (users.data ?? []).filter(u => `${u.full_name ?? ""} ${u.email ?? ""}`.toLowerCase().includes(search.toLowerCase()) && (filter === "all" || u.roles.includes(filter)));
 
+  const ready = !access.isPending && !access.isError && !permissions.isPending && !permissions.isError && !!user;
+  const tabs: { id: string; label: string }[] = !ready ? [] : [
+    ...(access.data === true ? [{ id: "overview", label: tr("نظرة عامة") }] : []),
+    ...(manageUsers || manageRoles ? [{ id: "users", label: tr("المستخدمون والأدوار") }] : []),
+    ...(visibleSections.includes("pricing") ? [{ id: "pricing", label: tr("الأسعار والباقات") }] : []),
+    ...(visibleSections.includes("subscriptions") ? [{ id: "subscriptions", label: tr("الاشتراكات") }] : []),
+    ...(visibleSections.includes("news") ? [{ id: "news", label: tr("الأخبار والتحديثات") }] : []),
+    ...(visibleSections.includes("settings") ? [{ id: "settings", label: tr("النصوص والإعدادات") }] : []),
+    ...(visibleSections.includes("subjects") ? [{ id: "subjects", label: tr("المواد الدراسية") }] : []),
+  ];
+  const activeTab = tabs.some(t => t.id === tab) ? tab : tabs[0]?.id;
+
   return <AppShell title={tr("إدارة المنصة")} homeTo={access.data ? "/admin" : "/teacher"}>
     <PendingCleanupButton />
-    {access.data === true && <OwnerOverview />}
     {access.isError || permissions.isError ? <p role="alert" className="text-destructive">{tr("تعذر تحميل الصلاحيات")}</p> : access.isPending || permissions.isPending ? <p role="status">{tr("جارٍ التحميل…")}</p> : !(manageUsers || manageRoles) ? <>
       <p>{tr("لم يُمنح حسابك صلاحية إدارة المستخدمين أو الأدوار")}</p>
       <ul className="mt-4 space-y-2">{visibleSections.map(p => <li key={p}>{sectionLabels[p]}</li>)}</ul>
       
-    </> : users.isPending ? <p role="status">{tr("جارٍ التحميل…")}</p> : users.isError ? <p role="alert" className="text-destructive">{tr("هذه الصفحة متاحة لمديري المنصة فقط")}</p> : <>
+    </> : null}
+    {ready && tabs.length > 0 && <div role="tablist" className="mb-6 mt-2 flex flex-nowrap gap-2 overflow-x-auto border-b border-border">
+      {tabs.map(t => <button key={t.id} type="button" role="tab" aria-selected={activeTab === t.id} onClick={() => setTab(t.id)} className={"shrink-0 whitespace-nowrap rounded-t-xl px-4 py-3 text-sm font-bold transition-colors sm:px-5 " + (activeTab === t.id ? "border-b-2 border-primary bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground")}>{t.label}</button>)}
+    </div>}
+    {ready && tabs.some(t => t.id === "overview") && <div className={activeTab === "overview" ? "" : "hidden"}><OwnerOverview /></div>}
+    {ready && (manageUsers || manageRoles) && <div className={activeTab === "users" ? "" : "hidden"}>
+      {users.isPending ? <p role="status">{tr("جارٍ التحميل…")}</p> : users.isError ? <p role="alert" className="text-destructive">{tr("هذه الصفحة متاحة لمديري المنصة فقط")}</p> : <>
       <div className="admin-stats surface mb-6 flex flex-wrap gap-6 p-5">
         <div className="flex items-center gap-3"><Users className="text-primary" /><span>{tr("المستخدمون")}: <b>{users.data.length}</b></span></div>
         <div className="flex items-center gap-3"><ShieldCheck className="text-success" /><span>{tr("مديرو المنصة")}: <b>{users.data.filter(u => u.roles.includes("admin")).length}</b></span></div>
@@ -149,8 +167,11 @@ function AdminPage() {
       </article>)}</div>
       {!rows.length && <p className="py-8 text-muted-foreground">{tr("لا توجد نتائج")}</p>}
     </>}
-    {!access.isPending && !access.isError && !permissions.isPending && !permissions.isError && user && visibleSections.some(p => ["pricing", "news", "settings"].includes(p)) && <div className="mt-10 border-t border-border pt-8"><PlatformEditors sections={visibleSections} userId={user.id} /></div>}
-    {!access.isPending && !access.isError && !permissions.isPending && !permissions.isError && user && visibleSections.includes("subscriptions") && <div className="mt-10 border-t border-border pt-8"><SubscriptionManager userId={user.id} /></div>}
-    {!access.isPending && !access.isError && !permissions.isPending && !permissions.isError && user && visibleSections.includes("subjects") && <div className="mt-10 border-t border-border pt-8"><SubjectManager userId={user.id} /></div>}
+    </div>}
+    {ready && user && visibleSections.includes("pricing") && <div className={activeTab === "pricing" ? "" : "hidden"}><PlatformEditors sections={["pricing"]} userId={user.id} /></div>}
+    {ready && user && visibleSections.includes("subscriptions") && <div className={activeTab === "subscriptions" ? "" : "hidden"}><SubscriptionManager userId={user.id} /></div>}
+    {ready && user && visibleSections.includes("news") && <div className={activeTab === "news" ? "" : "hidden"}><PlatformEditors sections={["news"]} userId={user.id} /></div>}
+    {ready && user && visibleSections.includes("settings") && <div className={activeTab === "settings" ? "" : "hidden"}><PlatformEditors sections={["settings"]} userId={user.id} /></div>}
+    {ready && user && visibleSections.includes("subjects") && <div className={activeTab === "subjects" ? "" : "hidden"}><SubjectManager userId={user.id} /></div>}
   </AppShell>;
 }
